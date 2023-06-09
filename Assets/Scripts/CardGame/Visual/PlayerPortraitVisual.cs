@@ -18,9 +18,9 @@ public class PlayerPortraitVisual : MonoBehaviour
     public Image DieImage;
     public Text TiesuoText;
     public Text SkillText;
-    public Button EndTurnButton;
-    public Button SelectButton;
-    public Button SelectButton2;
+    public Button OpButton1;
+    public Button OpButton2;
+    public Button OpButton3;
     [Header("Skills")]
     public VerticalLayoutGroup SkillGroup;
 
@@ -129,34 +129,34 @@ public class PlayerPortraitVisual : MonoBehaviour
         });
     }
 
-    public void ChangeEndTurnButtonText(string text)
+    public void ChangeOp1ButtonText(string text)
     {
-        EndTurnButton.GetComponentInChildren<Text>().text = text;
+        OpButton1.GetComponentInChildren<Text>().text = text;
     }
 
-    public void ChangeEndTurnButtonColor(Color color)
+    public void ChangeOp1ButtonColor(Color color)
     {
-        EndTurnButton.GetComponentInChildren<Image>().color = color;
+        OpButton1.GetComponentInChildren<Image>().color = color;
     }
 
-    public void ChangeSelectButtonText(string text)
+    public void ChangeOp2ButtonText(string text)
     {
-        SelectButton.GetComponentInChildren<Text>().text = text;
+        OpButton2.GetComponentInChildren<Text>().text = text;
     }
 
-    public void ChangeSelectButtonColor(Color color)
+    public void ChangeOp2ButtonColor(Color color)
     {
-        SelectButton.GetComponentInChildren<Image>().color = color;
+        OpButton2.GetComponentInChildren<Image>().color = color;
     }
 
-    public void ChangeSelectButton2Text(string text)
+    public void ChangeOp3Button2Text(string text)
     {
-        SelectButton2.GetComponentInChildren<Text>().text = text;
+        OpButton3.GetComponentInChildren<Text>().text = text;
     }
 
-    public void ChangeSelectButton2Color(Color color)
+    public void ChangeOp3Button2Color(Color color)
     {
-        SelectButton2.GetComponentInChildren<Image>().color = color;
+        OpButton3.GetComponentInChildren<Image>().color = color;
     }
 
 }

@@ -71,6 +71,11 @@ public class GlobalSettings : MonoBehaviour
         Players.Add(AreaPosition.Opponent4, PlayerInstances[4]);
         Players.Add(AreaPosition.Opponent5, PlayerInstances[5]);
 
+        GlobalButton.onClick.RemoveAllListeners();
+        GlobalButton.onClick.AddListener(() =>
+        {
+            TurnManager.Instance.EndPhase();
+        });
     }
 
     // remove players who is dead from PlayerInstances

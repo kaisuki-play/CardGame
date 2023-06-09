@@ -9,7 +9,7 @@ public class TableVisual : MonoBehaviour
     public SameDistanceChildren Slots;
 
     // list of all the creature cards on the table as GameObjects
-    private List<GameObject> _cardsOnTable = new List<GameObject>();
+    public List<GameObject> CardsOnTable = new List<GameObject>();
 
     // are we hovering over this table`s collider with a mouse
     private bool _cursorOverThisTable = false;
@@ -70,6 +70,30 @@ public class TableVisual : MonoBehaviour
         _cursorOverThisTable = passedThroughTableCollider;
     }
 
+    public void ClearCards()
+    {
+        foreach (GameObject card in CardsOnTable)
+        {
+            card.transform.SetParent(null);
+
+            GlobalSettings.Instance.DisDeck.DisDeckCards.Add(card);
+
+            Sequence s = DOTween.Sequence();
+            s.AppendInterval(2f);
+            s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+            s.OnComplete(() =>
+            {
+                //Command.CommandExecutionComplete();
+                //Destroy(card);
+                card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+                OneCardManager cardManager = card.GetComponent<OneCardManager>();
+                cardManager.CanBePlayedNow = false;
+                cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+            });
+        }
+    }
+
 
     // method to create a new creature and add it to the table
     public void AddCardsAtIndex(OneCardManager card, int index)
@@ -82,7 +106,7 @@ public class TableVisual : MonoBehaviour
     // included for placing a new creature to any positon on the table
     public int TablePosForNewCreature(float MouseX)
     {
-        return CardUtils.Instance.TablePosForNewCreature(MouseX, Slots, _cardsOnTable);
+        return CardUtils.Instance.TablePosForNewCreature(MouseX, Slots, CardsOnTable);
     }
 
     // Destroy a card
@@ -104,8 +128,8 @@ public class TableVisual : MonoBehaviour
     void ShiftSlotsGameObjectAccordingToNumberOfCreatures()
     {
         float posX;
-        if (_cardsOnTable.Count > 0)
-            posX = (Slots.Children[0].transform.localPosition.x - Slots.Children[_cardsOnTable.Count - 1].transform.localPosition.x) / 2f;
+        if (CardsOnTable.Count > 0)
+            posX = (Slots.Children[0].transform.localPosition.x - Slots.Children[CardsOnTable.Count - 1].transform.localPosition.x) / 2f;
         else
             posX = 0f;
 
@@ -118,9 +142,9 @@ public class TableVisual : MonoBehaviour
     /// </summary>
     void PlaceCreaturesOnNewSlots()
     {
-        foreach (GameObject g in _cardsOnTable)
+        foreach (GameObject g in CardsOnTable)
         {
-            g.transform.DOLocalMoveX(Slots.Children[_cardsOnTable.IndexOf(g)].transform.localPosition.x, 0.3f);
+            g.transform.DOLocalMoveX(Slots.Children[CardsOnTable.IndexOf(g)].transform.localPosition.x, 0.3f);
         }
     }
 }

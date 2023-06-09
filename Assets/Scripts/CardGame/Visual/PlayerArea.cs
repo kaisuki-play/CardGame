@@ -22,49 +22,4 @@ public class PlayerArea : MonoBehaviour
 
     }
 
-    private bool _showEndTurnButton = false;
-    public bool ShowEndTurnButton
-    {
-        get
-        {
-            return _showEndTurnButton;
-        }
-
-        set
-        {
-            _showEndTurnButton = value;
-        }
-    }
-
-    private bool _showSelectButton = false;
-    public bool ShowSelectButton
-    {
-        get
-        {
-            return _showSelectButton;
-        }
-
-        set
-        {
-            _showSelectButton = value;
-            Portrait.SelectButton.gameObject.SetActive(value);
-        }
-    }
-
-    private bool _showSelect2Button = false;
-    public bool ShowSelect2Button
-    {
-        get
-        {
-            return _showSelect2Button;
-        }
-
-        set
-        {
-            _showSelect2Button = value;
-            Portrait.SelectButton2.gameObject.SetActive(value);
-        }
-    }
-
-
 }

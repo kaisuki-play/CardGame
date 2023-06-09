@@ -6,18 +6,24 @@ using System.Collections.Generic;
 
 public enum TurnPhase
 {
+    SkipTurn,//是否跳过回合
     StartTurn,//回合开始
-    //StartJudgement,
+    SkipJudgement,//是否跳过判定
+    StartJudgement,//没有特殊技能，什么都不干
     Judgement,
-    //EndJudgement,
-    //StartDrawCard,
+    EndJudgement,
+    SkipDrawCard,
+    StartDrawCard,
     DrawCard,
-    //EndDrawCard,
-    PrePlay,
-    //StartPlayCard,
+    EndDrawCard,
+    SkipPlay,
+    StartPlay,
     PlayCard,
-    //EndPlayCard,
-    Discard,
+    EndPlayCard,
+    SkipDisCard,
+    StartDisCard,
+    DisCard,
+    EndDisCard,
     EndTurn
 }
 
@@ -51,20 +57,23 @@ public class TurnManager : MonoBehaviour
             {
                 case TurnPhase.StartTurn:
                     StatusText.text = "Start Turn";
+                    TurnManager.Instance.TurnPhase = TurnPhase.Judgement;
                     break;
                 case TurnPhase.Judgement:
                     StatusText.text = "Judgement Phase";
+                    TurnManager.Instance.EndPhase();
                     break;
                 case TurnPhase.DrawCard:
                     StatusText.text = "DrawCard Phase";
                     break;
-                case TurnPhase.PrePlay:
+                case TurnPhase.SkipPlay:
                     StatusText.text = "PrePlay Phase";
                     break;
                 case TurnPhase.PlayCard:
                     StatusText.text = "PlayCard Phase";
+                    HighlightManager.EnableCardsWithType(whoseTurn);
                     break;
-                case TurnPhase.Discard:
+                case TurnPhase.DisCard:
                     StatusText.text = "DisCard Phase";
                     break;
                 case TurnPhase.EndTurn:
@@ -107,9 +116,11 @@ public class TurnManager : MonoBehaviour
 
     public void OnGameStart()
     {
+        Debug.Log("游戏开始");
         foreach (Player p in Players)
         {
             p.LoadCharacterInfoFromAsset();
+            p.TransmitInfoAboutPlayerToVisual();
             // move both portraits to the center
             p.PArea.Portrait.transform.position = p.PArea.InitialPortraitPosition.position;
         }
@@ -159,21 +170,21 @@ public class TurnManager : MonoBehaviour
                 Debug.Log("***********************Judgement");
                 TurnManager.Instance.TurnPhase = TurnPhase.DrawCard;
                 whoseTurn.DrawACard();
-                TurnManager.Instance.TurnPhase = TurnPhase.PrePlay;
+                TurnManager.Instance.TurnPhase = TurnPhase.PlayCard;
                 break;
             case TurnPhase.DrawCard:
                 Debug.Log("***********************DrawCard");
-                TurnManager.Instance.TurnPhase = TurnPhase.PrePlay;
+                TurnManager.Instance.TurnPhase = TurnPhase.PlayCard;
                 break;
-            case TurnPhase.PrePlay:
+            case TurnPhase.SkipPlay:
                 Debug.Log("***********************PrePlay");
                 TurnManager.Instance.TurnPhase = TurnPhase.PlayCard;
                 break;
             case TurnPhase.PlayCard:
                 Debug.Log("***********************PlayCard");
-                TurnManager.Instance.TurnPhase = TurnPhase.Discard;
+                TurnManager.Instance.TurnPhase = TurnPhase.DisCard;
                 break;
-            case TurnPhase.Discard:
+            case TurnPhase.DisCard:
                 Debug.Log("***********************Discard");
                 TurnManager.Instance.TurnPhase = TurnPhase.EndTurn;
                 break;

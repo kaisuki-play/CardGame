@@ -51,6 +51,7 @@ public class HandVisual : MonoBehaviour
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
         cardManager.ChangeOwnerAndLocation(GlobalSettings.Instance.Players[this.Owner], CardLocation.Hand);
 
+
         // re-calculate the position of the hand
         PlaceCardsOnNewSlots();
         UpdatePlacementOfSlots();
@@ -132,14 +133,13 @@ public class HandVisual : MonoBehaviour
         // move card to the hand;
         Sequence s = DOTween.Sequence();
         // displace the card so that we can select it in the scene easier.
-        s.Append(card.transform.DOLocalMove(Slots.Children[0].transform.localPosition, GlobalSettings.Instance.CardTransitionTime));
-
+        s.Append(card.transform.DOLocalMove(Slots.Children[0].transform.localPosition, 1f));
         s.OnComplete(() =>
         {
             PlaceCardsOnNewSlots();
             UpdatePlacementOfSlots();
 
-            Command.CommandExecutionComplete();
+            //Command.CommandExecutionComplete();
         });
     }
 
@@ -220,6 +220,57 @@ public class HandVisual : MonoBehaviour
                 }
                 break;
             case TypesOfCards.Base:
+                {
+                    RemoveCard(CardVisual);
+
+                    CardVisual.transform.SetParent(null);
+
+                    Player player = GlobalSettings.Instance.Players[Owner];
+                    int index = GlobalSettings.Instance.Table.CardsOnTable.Count;
+
+                    Sequence s = DOTween.Sequence();
+                    s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
+                    s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
+                    s.AppendInterval(1f);
+                    switch (cardAsset.SubTypeOfCard)
+                    {
+                        case SubTypeOfCards.Jink:
+                            s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+                            break;
+                        default:
+                            s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.Table.Slots.Children[index].transform.position, 1f));
+                            break;
+                    }
+
+                    s.OnComplete(() =>
+                    {
+                        switch (cardAsset.SubTypeOfCard)
+                        {
+                            case SubTypeOfCards.Jink:
+                                {
+                                    CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+                                    GlobalSettings.Instance.DisDeck.DisDeckCards.Add(CardVisual);
+
+                                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+                                    cardManager.CanBePlayedNow = false;
+                                    cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+                                }
+                                break;
+                            default:
+                                {
+                                    CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
+                                    GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
+
+                                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+                                    cardManager.CanBePlayedNow = false;
+                                    cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
+                                }
+                                break;
+                        }
+
+                    });
+                }
+                break;
             case TypesOfCards.Tips:
                 {
                     RemoveCard(CardVisual);

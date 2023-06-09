@@ -10,7 +10,18 @@ public enum CardLocation
     Hand,
     Judgement,
     Equipment,
-    Warrior,
+    //游戏外的牌
+    HeroA, // 武将A
+    HeroB, // 武将B
+    HeroO, // 其他人给的
+    UnderCart //木流牛马里的
+}
+
+public enum CardRegion
+{
+    OnTableCard,//包括所有玩家的手牌、装备牌、判定牌
+    PlayerCard,//包括一名玩家的手牌、装备牌
+    PlayerRegion,//包括一名玩家的手牌、装备牌、判定牌
     OutOfGame
 }
 
