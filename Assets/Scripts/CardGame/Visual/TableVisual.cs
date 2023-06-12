@@ -76,10 +76,7 @@ public class TableVisual : MonoBehaviour
         {
             card.transform.SetParent(null);
 
-            GlobalSettings.Instance.DisDeck.DisDeckCards.Add(card);
-
             Sequence s = DOTween.Sequence();
-            s.AppendInterval(2f);
             s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
             s.OnComplete(() =>
             {

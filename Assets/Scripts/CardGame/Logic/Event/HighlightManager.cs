@@ -32,6 +32,22 @@ public class HighlightManager : MonoBehaviour
         }
     }
 
+    public static void DisableAllTargetsGlow()
+    {
+        foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+        {
+            player.ShowTargetGlow = false;
+        }
+    }
+
+    public static void DisableAllTurnGlow()
+    {
+        foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+        {
+            player.IsThisTurn = false;
+        }
+    }
+
     public static void EnableCardsWithType(Player player, CardsType cardsType = CardsType.Normal)
     {
         HighlightManager.DisableAllCards();
@@ -50,7 +66,7 @@ public class HighlightManager : MonoBehaviour
         }
     }
 
-    public static void EnableCardWithCardType(Player player, SubTypeOfCards cardType)
+    public static void EnableCardWithCardType(Player player, SubTypeOfCards cardType, bool needTargetComponent = true)
     {
         HighlightManager.DisableAllCards();
         foreach (int cardId in player.Hand.CardsInHand)
@@ -62,6 +78,10 @@ public class HighlightManager : MonoBehaviour
                 oneCardManager.TargetComponent.SetActive(true);
             }
             else
+            {
+                oneCardManager.TargetComponent.SetActive(false);
+            }
+            if (needTargetComponent == false)
             {
                 oneCardManager.TargetComponent.SetActive(false);
             }
@@ -84,6 +104,7 @@ public class HighlightManager : MonoBehaviour
                     return false;
                 }
             case SubTypeOfCards.Jink:
+            case SubTypeOfCards.Impeccable:
                 return false;
             case SubTypeOfCards.Analeptic:
                 if (CounterManager.Instance.UsedAnalepticThisTurn)

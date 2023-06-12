@@ -247,6 +247,34 @@ public class Player : MonoBehaviour
         }
     }
 
+    private bool _showTargetGlow = false;
+    public bool ShowTargetGlow
+    {
+        get
+        {
+            return _showTargetGlow;
+        }
+        set
+        {
+            _showTargetGlow = value;
+            PArea.Portrait.TargetGlowImage.gameObject.SetActive(value);
+        }
+    }
+
+    private bool _isThisTurn = false;
+    public bool IsThisTurn
+    {
+        get
+        {
+            return _isThisTurn;
+        }
+        set
+        {
+            _isThisTurn = value;
+            PArea.Portrait.PortraitGlowImage.gameObject.SetActive(value);
+        }
+    }
+
     // ALL METHODS
     void Awake()
     {
@@ -328,6 +356,7 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public void UseACard(OneCardManager playedCard, List<int> targets)
     {
+        playedCard.isUsedCard = true;
         PlayASpellFromHand(playedCard, targets);
     }
 
@@ -338,6 +367,14 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public void PlayACard(OneCardManager playedCard, List<int> targets)
     {
+        if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Impeccable)
+        {
+            playedCard.isUsedCard = true;
+        }
+        else
+        {
+            playedCard.isUsedCard = false;
+        }
         PlayASpellFromHand(playedCard, targets);
     }
 
@@ -349,26 +386,12 @@ public class Player : MonoBehaviour
     /// <param name="target"></param>
     public void PlayASpellFromHand(OneCardManager playedCard, List<int> targets)
     {
-        // remove this card from hand
-        Hand.DisCard(playedCard.UniqueCardID);
-
-        this.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
-
-        HandleTargets(playedCard, targets);
-    }
-
-    // 2
-    /// <summary>
-    /// 牌的位置，从手牌，改为pending
-    /// </summary>
-    /// <param name="playedCard"></param>
-    /// <param name="target"></param>
-    public void HandleTargets(OneCardManager playedCard, List<int> targets)
-    {
+        // 默认赋值目标
         switch (playedCard.CardAsset.SubTypeOfCard)
         {
             case SubTypeOfCards.Peach:
             case SubTypeOfCards.Wuzhongshengyou:
+            case SubTypeOfCards.Thunder:
                 targets.Add(playedCard.Owner.ID);
                 break;
             case SubTypeOfCards.Nanmanruqin:
@@ -390,99 +413,16 @@ public class Player : MonoBehaviour
                 break;
         }
 
-        // 默认目标
-        if (targets.Count != 0)
-        {
-            TargetsManager.Instance.SetTargets(targets);
-        }
+        playedCard.TargetsPlayerIDs = targets;
 
-        // TODO 指定目标时：牌指定了默认目标后，有些技能，可以增加或减少目标的个数，甚至修改牌的 使用者等。
-        HandleTargetsOrder(playedCard);
+        // remove this card from hand
+        Hand.DisCard(playedCard.UniqueCardID);
+
+        this.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
 
     }
 
-    /// <summary>
-    /// 3处理targets逆向顺序
-    /// </summary>
-    /// <param name="playedCard"></param>
-    public void HandleTargetsOrder(OneCardManager playedCard)
-    {
-        if (TargetsManager.Instance.Targets.Count > 1)
-        {
-            TargetsManager.Instance.Order(playedCard);
-        }
-        HandleFixedTargets(playedCard);
-    }
 
-    /// <summary>
-    /// 指定目标后：目标已经不变了，在此牌结算前，是否有额外的效果。
-    /// </summary>
-    /// <param name="playedCard"></param>
-    public void HandleFixedTargets(OneCardManager playedCard)
-    {
-        HandleSpellFromHand(playedCard);
-    }
-
-    /// <summary>
-    /// 执行卡牌统一入口脚本效果
-    /// </summary>
-    /// <param name="playedCard"></param>
-    public void HandleSpellFromHand(OneCardManager playedCard)
-    {
-        ActiveEffect(playedCard);
-    }
-
-    public void ActiveEffect(OneCardManager playedCard)
-    {
-        CardAsset cardAsset = playedCard.CardAsset;
-        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
-        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with attribute:" + cardAsset.SpellAttribute);
-        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with targets:" + TargetsManager.Instance.Targets.Count);
-        // restart timer
-        TurnManager.Instance.RestartTimer();
-
-        switch (cardAsset.TypeOfCard)
-        {
-            case TypesOfCards.Base:
-                {
-                    switch (cardAsset.SubTypeOfCard)
-                    {
-                        case SubTypeOfCards.Slash:
-                        case SubTypeOfCards.FireSlash:
-                        case SubTypeOfCards.ThunderSlash:
-                            {
-                                HighlightManager.DisableAllCards();
-                                int targetId = TargetsManager.Instance.Targets[0];
-                                Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
-
-                                HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Jink);
-                                targetPlayer.ShowOp1Button = true;
-                                targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-                                targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
-                                {
-                                    targetPlayer.ShowOp1Button = false;
-                                    SettleManager.Instance.StartSettle();
-                                });
-                            }
-                            break;
-                        case SubTypeOfCards.Jink:
-                            if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
-                            {
-                                HighlightManager.DisableAllOpButtons();
-                                GlobalSettings.Instance.Table.ClearCards();
-                                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
-                            }
-                            break;
-                    }
-                }
-                break;
-            case TypesOfCards.Tips:
-                // TODO 进入无懈流程
-                break;
-            case TypesOfCards.Equipment:
-                break;
-        }
-    }
 
     public void DamageEffect(int amount)
     {

@@ -20,10 +20,6 @@ public class TargetsManager : MonoBehaviour
 
     public void Order(OneCardManager oneCardManager)
     {
-        foreach (int id in Targets)
-        {
-            Debug.Log("排序前的id: " + id);
-        }
         List<int> targets = GenerateNewArray(Targets, FindClosestElement(Targets, oneCardManager.Owner));
         foreach (int id in targets)
         {

@@ -12,14 +12,9 @@ public enum TargetingOptions
     EnemyNoDistanceLimit
 }
 
-public enum RarityOptions
-{
-    Basic, Common, Rare, Epic, Legendary
-}
-
 public enum TypesOfCards
 {
-    Base, Tips, Equipment, None
+    Base, Tips, DelayTips, Equipment, None
 }
 
 public enum SubTypeOfCards

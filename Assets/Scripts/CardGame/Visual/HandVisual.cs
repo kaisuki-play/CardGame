@@ -187,19 +187,58 @@ public class HandVisual : MonoBehaviour
     public void PlayASpellFromHand(GameObject CardVisual)
     {
         Command.CommandExecutionComplete();
-        CardAsset cardAsset = CardVisual.GetComponent<OneCardManager>().CardAsset;
+        OneCardManager playedCard = CardVisual.GetComponent<OneCardManager>();
+        CardAsset cardAsset = playedCard.CardAsset;
 
         switch (cardAsset.TypeOfCard)
         {
+            case TypesOfCards.DelayTips:
+                {
+                    //获取卡牌脚本
+                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+
+                    RemoveCard(CardVisual);
+
+                    CardVisual.transform.SetParent(null);
+
+                    Player player = GlobalSettings.Instance.FindPlayerByID(playedCard.TargetsPlayerIDs[0]);
+
+                    //可视化加卡
+                    player.PArea.JudgementVisual.AddCard(CardVisual);
+                    //逻辑加卡
+                    player.JudgementLogic.AddCard(cardManager.UniqueCardID);
+
+                    Sequence s = DOTween.Sequence();
+                    s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
+                    s.Insert(0f, CardVisual.transform.DORotate(new Vector3(0, 0, -90), 1f));
+                    s.AppendInterval(2f);
+                    s.Append(CardVisual.transform.DOLocalMove(player.PArea.JudgementVisual.Slots.Children[0].transform.localPosition, 1f));
+                    s.OnComplete(() =>
+                    {
+                        CardVisual.transform.SetParent(player.PArea.JudgementVisual.Slots.transform);
+
+                        cardManager.CanBePlayedNow = false;
+                        cardManager.ChangeOwnerAndLocation(player, CardLocation.Judgement);
+
+                        PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
+                    });
+                }
+                break;
             case TypesOfCards.Equipment:
                 {
+                    //获取卡牌脚本
+                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+
                     RemoveCard(CardVisual);
 
                     CardVisual.transform.SetParent(null);
 
                     Player player = GlobalSettings.Instance.Players[Owner];
 
+                    //可视化加卡
                     player.PArea.EquipmentVisaul.AddCard(CardVisual);
+                    //逻辑加卡
+                    player.EquipmentLogic.AddCard(cardManager.UniqueCardID);
 
                     Sequence s = DOTween.Sequence();
                     s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
@@ -213,13 +252,15 @@ public class HandVisual : MonoBehaviour
 
                         CardVisual.transform.SetParent(player.PArea.EquipmentVisaul.Slots.transform);
 
-                        OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
                         cardManager.CanBePlayedNow = false;
                         cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
+
+                        PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
                     });
                 }
                 break;
             case TypesOfCards.Base:
+            case TypesOfCards.Tips:
                 {
                     RemoveCard(CardVisual);
 
@@ -232,68 +273,64 @@ public class HandVisual : MonoBehaviour
                     s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
                     s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
                     s.AppendInterval(1f);
-                    switch (cardAsset.SubTypeOfCard)
-                    {
-                        case SubTypeOfCards.Jink:
-                            s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-                            break;
-                        default:
-                            s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.Table.Slots.Children[index].transform.position, 1f));
-                            break;
-                    }
+                    s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.Table.Slots.Children[index].transform.position, 1f));
 
                     s.OnComplete(() =>
                     {
-                        switch (cardAsset.SubTypeOfCard)
+                        CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
+                        GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
+
+                        OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+                        cardManager.CanBePlayedNow = false;
+                        cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
+
+                        if (!cardManager.isUsedCard)
                         {
-                            case SubTypeOfCards.Jink:
-                                {
-                                    CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-                                    GlobalSettings.Instance.DisDeck.DisDeckCards.Add(CardVisual);
+                            CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
 
-                                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
-                                    cardManager.CanBePlayedNow = false;
-                                    cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
-                                }
-                                break;
-                            default:
-                                {
-                                    CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
-                                    GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
+                            Sequence s1 = DOTween.Sequence();
+                            s1.AppendInterval(0.1f);
+                            s1.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
 
-                                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
-                                    cardManager.CanBePlayedNow = false;
-                                    cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
-                                }
-                                break;
+                            s1.OnComplete(() =>
+                            {
+                                cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+                                PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
+                            });
+                        }
+                        else
+                        {
+                            PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
                         }
 
                     });
                 }
                 break;
-            case TypesOfCards.Tips:
-                {
-                    RemoveCard(CardVisual);
+                //case TypesOfCards.Tips:
+                //    {
+                //        RemoveCard(CardVisual);
 
-                    CardVisual.transform.SetParent(null);
+                //        CardVisual.transform.SetParent(null);
 
-                    Sequence s = DOTween.Sequence();
-                    s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
-                    s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
-                    s.AppendInterval(2f);
-                    s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-                    s.OnComplete(() =>
-                    {
-                        //Command.CommandExecutionComplete();
-                        //Destroy(CardVisual);
-                        CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+                //        Sequence s = DOTween.Sequence();
+                //        s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
+                //        s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
+                //        s.AppendInterval(2f);
+                //        s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+                //        s.OnComplete(() =>
+                //        {
+                //            //Command.CommandExecutionComplete();
+                //            //Destroy(CardVisual);
+                //            CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
 
-                        OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
-                        cardManager.CanBePlayedNow = false;
-                        cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
-                    });
-                }
-                break;
+                //            OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+                //            cardManager.CanBePlayedNow = false;
+                //            cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+
+                //            PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
+                //        });
+                //    }
+                //    break;
         }
 
 

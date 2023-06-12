@@ -6,12 +6,12 @@ public class Judgement : MonoBehaviour
 {
     public List<int> CardsInJudgement = new List<int>();
 
-    public void AddEquipment(int cardId)
+    public void AddCard(int cardId)
     {
         CardsInJudgement.Add(cardId);
     }
 
-    public void RemoveEquipment(int cardId)
+    public void RemoveCard(int cardId)
     {
         CardsInJudgement.Remove(cardId);
     }

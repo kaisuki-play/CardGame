@@ -5,59 +5,91 @@ using UnityEngine;
 public class SettleManager : MonoBehaviour
 {
     public static SettleManager Instance;
+    public int DamageSourceId;
     private void Awake()
     {
         Instance = this;
     }
 
-    //结算前的阶段
+    //开始结算
     public void StartSettle()
     {
         BeforeDamage();
     }
 
+    //伤害前
     public void BeforeDamage()
     {
-        if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
+        OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
+        if (cardManager != null)
         {
-            GameObject card = GlobalSettings.Instance.Table.CardsOnTable[0];
-            OneCardManager cardManager = card.GetComponent<OneCardManager>();
-            switch (cardManager.CardAsset.SubTypeOfCard)
+            switch (cardManager.CardAsset.TypeOfCard)
             {
-                case SubTypeOfCards.Slash:
-                case SubTypeOfCards.FireSlash:
-                case SubTypeOfCards.ThunderSlash:
-                    CalculateDamage();
+                case TypesOfCards.Base:
+                    {
+                        switch (cardManager.CardAsset.SubTypeOfCard)
+                        {
+                            case SubTypeOfCards.Slash:
+                            case SubTypeOfCards.FireSlash:
+                            case SubTypeOfCards.ThunderSlash:
+                                CalculateDamage();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                     break;
-                default:
+                case TypesOfCards.Tips:
+                    {
+                        switch (cardManager.CardAsset.SubTypeOfCard)
+                        {
+                            case SubTypeOfCards.Nanmanruqin:
+                            case SubTypeOfCards.Wanjianqifa:
+                                CalculateDamage();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                     break;
             }
+
         }
     }
 
+    //计算伤害
     public void CalculateDamage()
     {
-        GameObject card = GlobalSettings.Instance.Table.CardsOnTable[0];
-        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+        OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
+        if (cardManager != null)
+        {
 
-        int originDamage = cardManager.CardAsset.SpecialSpellAmount;
+            int originDamage = cardManager.CardAsset.SpecialSpellAmount;
 
-        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
-        curTargetPlayer.DamageEffect(originDamage);
+            Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
+            curTargetPlayer.DamageEffect(originDamage);
 
-        AfterDamage();
+            SettleManager.Instance.DamageSourceId = cardManager.Owner.ID;
+
+            AfterDamage();
+        }
     }
 
+    //伤害后
     public void AfterDamage()
     {
+        //TODO 无属性的话不需要响应铁索连环
         HandleIronChain();
     }
 
+    //铁索连环结算
     public void HandleIronChain()
     {
+        //TODO 铁索连环结算
         FinishSettle();
     }
 
+    //完成结算
     public void FinishSettle()
     {
         TargetsManager.Instance.Targets.RemoveAt(0);
@@ -72,7 +104,9 @@ public class SettleManager : MonoBehaviour
             OneCardManager cardManager = card.GetComponent<OneCardManager>();
 
             Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
-            nextTargetPlayer.ActiveEffect(cardManager);
+            PlayCardManager.Instance.ActiveEffect(cardManager);
         }
     }
+
+    //TODO 需要将伤害方法分离出来，并且统计伤害来源
 }

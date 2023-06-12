@@ -105,4 +105,18 @@ public class GlobalSettings : MonoBehaviour
         }
         return null;
     }
+
+    public OneCardManager FirstOneCardOnTable()
+    {
+        if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
+        {
+            GameObject card = GlobalSettings.Instance.Table.CardsOnTable[0];
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            return cardManager;
+        }
+        else
+        {
+            return null;
+        }
+    }
 }

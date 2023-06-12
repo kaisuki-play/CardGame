@@ -49,7 +49,8 @@ public class OneCardManager : MonoBehaviour
     public Player Owner;
     public CardLocation CardLocation;
     public Player PlayCardPlayer;
-    public List<Player> TargetsPlayer;
+    public List<int> TargetsPlayerIDs;
+    public bool isUsedCard = false;
 
     public static Dictionary<int, OneCardManager> CardsCreatedThisGame = new Dictionary<int, OneCardManager>();
 
@@ -125,6 +126,11 @@ public class OneCardManager : MonoBehaviour
 
     public void ChangeOwnerAndLocation(Player owner, CardLocation cardLocation)
     {
+        if (cardLocation == CardLocation.DisDeck)
+        {
+            GlobalSettings.Instance.Table.CardsOnTable.Remove(this.gameObject);
+            GlobalSettings.Instance.DisDeck.DisDeckCards.Add(this.gameObject);
+        }
         this.Owner = owner;
         this.CardLocation = cardLocation;
     }

@@ -78,6 +78,7 @@ public class TurnManager : MonoBehaviour
                     break;
                 case TurnPhase.EndTurn:
                     StatusText.text = "End Turn Phase";
+                    TurnManager.Instance.whoseTurn = TurnManager.Instance.whoseTurn.OtherPlayer;
                     break;
             }
         }
@@ -95,6 +96,10 @@ public class TurnManager : MonoBehaviour
         set
         {
             _whoseTurn = value;
+            // 去掉所有的头像高亮
+            HighlightManager.DisableAllTurnGlow();
+            // 设置回合人头像高亮
+            _whoseTurn.IsThisTurn = true;
             // 设置为玩家的开始阶段
             TurnPhase = TurnPhase.StartTurn;
         }

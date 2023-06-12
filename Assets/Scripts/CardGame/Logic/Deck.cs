@@ -26,8 +26,6 @@ public enum DeckType
 
 public class Deck : MonoBehaviour
 {
-
-    public List<CardAsset> Cards = new List<CardAsset>();
     public List<GameObject> CardObjs = new List<GameObject>();
 
     void Awake()
@@ -112,186 +110,11 @@ public class Deck : MonoBehaviour
     public void AddDeckCards(SubTypeOfCards subTypeOfCards, TypeOfEquipment typeOfEquipment)
     {
         Debug.Log("卡牌总数: " + DeckSource.Instance.Cards.Count);
-        CardAsset testAsset = null;
-        CardAsset wanjianqifaAsset = null;
-        CardAsset baguazhenAsset = null;
-        CardAsset juedouAsset = null;
-        CardAsset renwangdunAsset = null;
-        CardAsset jiedaosharenAsset = null;
-        CardAsset tengjiaAsset = null;
-        CardAsset silverlionAsset = null;
-        CardAsset hanbingjianAsset = null;
-        CardAsset qinglongyanyueAsset = null;
-        CardAsset qinggangjianAsset = null;
-        CardAsset tiesuoAsset1 = null;
-        CardAsset nanmanruqinAsset = null;
-        CardAsset mHorse = null;
-        CardAsset aHorse = null;
-        CardAsset wine = null;
         foreach (CardAsset cardAsset1 in DeckSource.Instance.Cards)
         {
             HandleCards(cardAsset1);
-            if (cardAsset1.SubTypeOfCard == subTypeOfCards)
-            {
-                testAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Wanjianqifa)
-            {
-                wanjianqifaAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Baguazhen)
-            {
-                baguazhenAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Juedou)
-            {
-                juedouAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Renwangdun)
-            {
-                renwangdunAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
-            {
-                jiedaosharenAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Tengjia)
-            {
-                tengjiaAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.SilverLion)
-            {
-                silverlionAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.FrostBlade)
-            {
-                hanbingjianAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Qinglongyanyuedao)
-            {
-                qinglongyanyueAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Qinghongjian)
-            {
-                qinggangjianAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Tiesuolianhuan)
-            {
-                tiesuoAsset1 = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Nanmanruqin)
-            {
-                nanmanruqinAsset = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Zhuahuangfeidian)
-            {
-                aHorse = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Chitu)
-            {
-                mHorse = cardAsset1;
-            }
-            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Analeptic)
-            {
-                wine = cardAsset1;
-            }
         }
-        Cards.Shuffle();
         CardObjs.Shuffle();
-
-        CardAsset card = new CardAsset();
-        card.ReadFromAsset(testAsset);
-        card.TypeOfEquipment = typeOfEquipment;
-        card.WeaponAttackDistance = testAsset.WeaponAttackDistance;
-        Cards.Insert(0, card);
-
-        CardAsset card1 = new CardAsset();
-        card1.ReadFromAsset(wanjianqifaAsset);
-        card1.TypeOfEquipment = TypeOfEquipment.None;
-        Cards.Insert(0, card1);
-
-        CardAsset card2 = new CardAsset();
-        card2.ReadFromAsset(baguazhenAsset);
-        card2.TypeOfEquipment = TypeOfEquipment.Armor;
-        Cards.Insert(0, card2);
-
-        CardAsset card3 = new CardAsset();
-        card3.ReadFromAsset(juedouAsset);
-        card3.TypeOfEquipment = TypeOfEquipment.None;
-        Cards.Insert(0, card3);
-
-        CardAsset card4 = new CardAsset();
-        card4.ReadFromAsset(renwangdunAsset);
-        card4.TypeOfEquipment = TypeOfEquipment.Armor;
-        Cards.Insert(0, card4);
-
-        CardAsset card5 = new CardAsset();
-        card5.ReadFromAsset(jiedaosharenAsset);
-        card5.TypeOfEquipment = TypeOfEquipment.None;
-        Cards.Insert(0, card5);
-
-        CardAsset card6 = new CardAsset();
-        card6.ReadFromAsset(tengjiaAsset);
-        card6.TypeOfEquipment = TypeOfEquipment.Armor;
-        Cards.Insert(0, card6);
-
-        CardAsset card7 = new CardAsset();
-        card7.ReadFromAsset(silverlionAsset);
-        card7.TypeOfEquipment = TypeOfEquipment.Armor;
-        Cards.Insert(0, card7);
-
-        CardAsset card8 = new CardAsset();
-        card8.ReadFromAsset(hanbingjianAsset);
-        card8.TypeOfEquipment = TypeOfEquipment.Weapons;
-        card8.WeaponAttackDistance = hanbingjianAsset.WeaponAttackDistance;
-        Cards.Insert(0, card8);
-
-        CardAsset card9 = new CardAsset();
-        card9.ReadFromAsset(qinglongyanyueAsset);
-        card9.TypeOfEquipment = TypeOfEquipment.Weapons;
-        card9.WeaponAttackDistance = qinglongyanyueAsset.WeaponAttackDistance;
-        Cards.Insert(0, card9);
-
-        CardAsset card10 = new CardAsset();
-        card10.ReadFromAsset(qinggangjianAsset);
-        card10.TypeOfEquipment = TypeOfEquipment.Weapons;
-        card10.WeaponAttackDistance = qinggangjianAsset.WeaponAttackDistance;
-        Cards.Insert(0, card10);
-
-        CardAsset card11 = new CardAsset();
-        card11.ReadFromAsset(tiesuoAsset1);
-        card11.TypeOfEquipment = TypeOfEquipment.None;
-        Cards.Insert(0, card11);
-
-        CardAsset card12 = new CardAsset();
-        card12.ReadFromAsset(tiesuoAsset1);
-        card12.TypeOfEquipment = TypeOfEquipment.None;
-        Cards.Insert(0, card12);
-
-        CardAsset card13 = new CardAsset();
-        card13.ReadFromAsset(tengjiaAsset);
-        card13.TypeOfEquipment = TypeOfEquipment.Armor;
-        Cards.Insert(0, card13);
-
-        CardAsset card14 = new CardAsset();
-        card14.ReadFromAsset(nanmanruqinAsset);
-        card14.TypeOfEquipment = TypeOfEquipment.None;
-        Cards.Insert(0, card14);
-
-        CardAsset card15 = new CardAsset();
-        card15.ReadFromAsset(mHorse);
-        card15.TypeOfEquipment = TypeOfEquipment.MinusAHorse;
-        Cards.Insert(0, card15);
-
-        CardAsset card16 = new CardAsset();
-        card16.ReadFromAsset(aHorse);
-        card16.TypeOfEquipment = TypeOfEquipment.AddAHorse;
-        Cards.Insert(0, card16);
-
-        CardAsset card17 = new CardAsset();
-        card17.ReadFromAsset(wine);
-        card17.TypeOfEquipment = TypeOfEquipment.None;
-        Cards.Insert(0, card17);
     }
 
     void HandleCards(CardAsset cardAsset)
@@ -583,7 +406,6 @@ public class Deck : MonoBehaviour
         ca.CardRank = cardRank;
         ca.TypeOfEquipment = typeOfEquipment;
         ca.WeaponAttackDistance = weaponAttackDistance;
-        Cards.Add(ca);
 
         GameObject card = GameObject.Instantiate(GlobalSettings.Instance.BaseCardPrefab, GlobalSettings.Instance.PDeck.ChildCanvas.transform.position, Quaternion.identity) as GameObject;
 
