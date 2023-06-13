@@ -104,12 +104,24 @@ public class PlayerPortraitVisual : MonoBehaviour
         PortraitBackgroundImage.color = charAsset.AvatarBGTint;
     }
 
-    public void TakeDamage(int amount, int healthAfter)
+    public void TakeDamage(int amount)
     {
         int maxHealth = (TotalHealth > 0 ? TotalHealth : charAsset.MaxHealth);
+        int healthAfter = this.LeftHeath - amount;
         if (healthAfter <= maxHealth)
         {
             DamageEffect.CreateDamageEffect(transform.position, amount);
+            this.LeftHeath = healthAfter;
+        }
+    }
+
+    public void TakeHealing(int amount)
+    {
+        int maxHealth = (TotalHealth > 0 ? TotalHealth : charAsset.MaxHealth);
+        int healthAfter = this.LeftHeath + amount;
+        if (healthAfter <= maxHealth)
+        {
+            DamageEffect.CreateHealingEffect(transform.position, amount);
             this.LeftHeath = healthAfter;
         }
     }

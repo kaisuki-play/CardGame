@@ -62,14 +62,22 @@ public class DamageEffect : MonoBehaviour
         // Get DamageEffect component in this new game object
         DamageEffect de = newDamageEffect.GetComponent<DamageEffect>();
         // Change the amount text to reflect the amount of damage dealt
-        if (amount < 0)
-        {
-            // NEGATIVE DAMAGE = HEALING
-            de.AmountText.text = "+" + (-amount).ToString();
-            de.DamageImage.color = Color.green;
-        }
-        else
-            de.AmountText.text = "-" + amount.ToString();
+        de.AmountText.text = "-" + amount.ToString();
+        // start a coroutine to fade away and delete this effect after a certain time
+        de.StartCoroutine(de.ShowDamageEffect());
+    }
+
+    public static void CreateHealingEffect(Vector3 position, int amount)
+    {
+        if (amount == 0)
+            return;
+        // Instantiate a DamageEffect from prefab
+        GameObject newDamageEffect = GameObject.Instantiate(Resources.Load("DamageEffect", typeof(GameObject)) as GameObject, position, Quaternion.identity) as GameObject;
+        // Get DamageEffect component in this new game object
+        DamageEffect de = newDamageEffect.GetComponent<DamageEffect>();
+        // NEGATIVE DAMAGE = HEALING
+        de.AmountText.text = "+" + (-amount).ToString();
+        de.DamageImage.color = Color.green;
         // start a coroutine to fade away and delete this effect after a certain time
         de.StartCoroutine(de.ShowDamageEffect());
     }

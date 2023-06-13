@@ -46,18 +46,18 @@ public class Player : MonoBehaviour
         get { return PlayerID; }
     }
 
-    private bool _isDie = false;
-    public bool IsDie
+    private bool _isDead = false;
+    public bool IsDead
     {
         get
         {
-            return _isDie;
+            return _isDead;
         }
 
         set
         {
-            _isDie = value;
-            this.PArea.Portrait.DieImage.gameObject.SetActive(_isDie);
+            _isDead = value;
+            this.PArea.Portrait.DieImage.gameObject.SetActive(_isDead);
         }
     }
 
@@ -194,11 +194,6 @@ public class Player : MonoBehaviour
             {
                 _health = value;
             }
-            if (value <= 0)
-            {
-                Die();
-            }
-
         }
     }
 
@@ -350,22 +345,29 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// 使用牌
+    /// 拖拽目标
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targets"></param>
-    public void UseACard(OneCardManager playedCard, List<int> targets)
+    public void DragTarget(OneCardManager playedCard, List<int> targets)
     {
         playedCard.isUsedCard = true;
-        PlayASpellFromHand(playedCard, targets);
+        if (playedCard.isUsedCard)
+        {
+            UseACard(playedCard, targets);
+        }
+        else
+        {
+            PlayACard(playedCard, targets);
+        }
     }
 
     /// <summary>
-    /// 打出牌
+    /// 拖拽卡牌
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targets"></param>
-    public void PlayACard(OneCardManager playedCard, List<int> targets)
+    public void DragCard(OneCardManager playedCard, List<int> targets)
     {
         if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Impeccable)
         {
@@ -375,7 +377,34 @@ public class Player : MonoBehaviour
         {
             playedCard.isUsedCard = false;
         }
-        PlayASpellFromHand(playedCard, targets);
+        if (playedCard.isUsedCard)
+        {
+            UseACard(playedCard, targets);
+        }
+        else
+        {
+            PlayACard(playedCard, targets);
+        }
+    }
+
+    /// <summary>
+    /// 使用牌
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targets"></param>
+    public void UseACard(OneCardManager playedCard, List<int> targets)
+    {
+        PlayAVisualCardFromHand(playedCard, targets);
+    }
+
+    /// <summary>
+    /// 打出牌
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targets"></param>
+    public void PlayACard(OneCardManager playedCard, List<int> targets)
+    {
+        PlayAVisualCardFromHand(playedCard, targets);
     }
 
     // 1
@@ -384,12 +413,15 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="target"></param>
-    public void PlayASpellFromHand(OneCardManager playedCard, List<int> targets)
+    public void PlayAVisualCardFromHand(OneCardManager playedCard, List<int> targets)
     {
         // 默认赋值目标
         switch (playedCard.CardAsset.SubTypeOfCard)
         {
             case SubTypeOfCards.Peach:
+                //TODO 濒死情况下目标是looser
+                targets.Add(playedCard.Owner.ID);
+                break;
             case SubTypeOfCards.Wuzhongshengyou:
             case SubTypeOfCards.Thunder:
                 targets.Add(playedCard.Owner.ID);
@@ -419,15 +451,26 @@ public class Player : MonoBehaviour
         Hand.DisCard(playedCard.UniqueCardID);
 
         this.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
-
     }
 
 
-
-    public void DamageEffect(int amount)
+    public void DisAllCards()
     {
-        this.Health -= amount;
-        this.PArea.Portrait.TakeDamage(amount, this.Health);
+        foreach (int cardId in this.Hand.CardsInHand)
+        {
+            this.PArea.HandVisual.DisCardFromHand(cardId);
+        }
+        foreach (int cardId in this.JudgementLogic.CardsInJudgement)
+        {
+            this.PArea.JudgementVisual.DisCardFromHand(cardId);
+        }
+        foreach (int cardId in this.EquipmentLogic.CardsInEquipment)
+        {
+            this.PArea.EquipmentVisaul.DisCardFromHand(cardId);
+        }
+        this.Hand.CardsInHand.Clear();
+        this.EquipmentLogic.CardsInEquipment.Clear();
+        this.JudgementLogic.CardsInJudgement.Clear();
     }
 
 
@@ -450,13 +493,6 @@ public class Player : MonoBehaviour
             //Command.CommandExecutionComplete();
             Destroy(card);
         });
-    }
-
-
-    // near death status,need to ask peach in reverse order.
-    public void Die()
-    {
-        Debug.Log("DIE");
     }
 
     // Load from asset to Character

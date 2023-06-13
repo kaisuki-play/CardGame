@@ -35,6 +35,30 @@ public class JudgementVisual : MonoBehaviour
         UpdatePlacementOfSlots();
     }
 
+    /// <summary>
+    /// 移除卡牌到弃牌堆
+    /// </summary>
+    /// <param name="CardID"></param>
+    public void DisCardFromHand(int CardID)
+    {
+        GameObject card = IDHolder.GetGameObjectWithID(CardID);
+        RemoveCard(card);
+
+        card.transform.SetParent(null);
+
+        Sequence s = DOTween.Sequence();
+        s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+        s.Insert(0f, card.transform.DORotate(new Vector3(0, 0, 0), 1f));
+        s.OnComplete(() =>
+        {
+            card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            cardManager.CanBePlayedNow = false;
+            cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+        });
+    }
+
 
     // move Slots GameObject according to the number of cards in hand
     void UpdatePlacementOfSlots()

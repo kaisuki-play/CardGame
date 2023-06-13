@@ -41,7 +41,7 @@ public class DragSpellOnTable : DraggingActions
         if (DragSuccessful())
         {
             List<int> targets = new List<int>();
-            _playerOwner.PlayACard(_manager, targets);
+            _playerOwner.DragCard(_manager, targets);
         }
         else
         {

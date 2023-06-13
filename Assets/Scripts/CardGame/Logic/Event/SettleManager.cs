@@ -67,11 +67,28 @@ public class SettleManager : MonoBehaviour
             int originDamage = cardManager.CardAsset.SpecialSpellAmount;
 
             Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
-            curTargetPlayer.DamageEffect(originDamage);
+
+            //结算伤害
+            HealthManager.Instance.DamageEffect(originDamage, curTargetPlayer);
 
             SettleManager.Instance.DamageSourceId = cardManager.Owner.ID;
 
-            AfterDamage();
+            //移除已经结算完伤害的玩家
+            if (TargetsManager.Instance.Targets.Count > 0)
+            {
+                TargetsManager.Instance.Targets.RemoveAt(0);
+            }
+
+            //是否进入濒死流程
+            if (curTargetPlayer.Health <= 0)
+            {
+                Debug.Log("中断流程，进入濒死流程");
+                DyingManager.Instance.EnterDying(curTargetPlayer);
+            }
+            else
+            {
+                AfterDamage();
+            }
         }
     }
 
@@ -92,16 +109,18 @@ public class SettleManager : MonoBehaviour
     //完成结算
     public void FinishSettle()
     {
-        TargetsManager.Instance.Targets.RemoveAt(0);
         if (TargetsManager.Instance.Targets.Count == 0)
         {
+            //去除所有目标高亮
+            HighlightManager.DisableAllTargetsGlow();
+            //移除卡
             GlobalSettings.Instance.Table.ClearCards();
+            //高亮当前回合人
             HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
         }
         else
         {
-            GameObject card = GlobalSettings.Instance.Table.CardsOnTable[0];
-            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
 
             Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
             PlayCardManager.Instance.ActiveEffect(cardManager);

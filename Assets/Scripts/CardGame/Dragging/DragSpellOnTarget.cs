@@ -251,7 +251,7 @@ public class DragSpellOnTarget : DraggingActions
         List<int> targets = new List<int>();
         targets.Add(targetID);
 
-        _playerOwner.UseACard(_manager, targets);
+        _playerOwner.DragTarget(_manager, targets);
     }
 
     // NOT USED IN THIS SCRIPT

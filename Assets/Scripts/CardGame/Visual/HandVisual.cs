@@ -144,20 +144,18 @@ public class HandVisual : MonoBehaviour
     }
 
 
-    // PLAYING SPELLS
-
+    /// <summary>
+    /// 移除卡牌到弃牌堆
+    /// </summary>
+    /// <param name="CardID"></param>
     public void DisCardFromHand(int CardID)
     {
         GameObject card = IDHolder.GetGameObjectWithID(CardID);
-        Command.CommandExecutionComplete();
         RemoveCard(card);
 
         card.transform.SetParent(null);
 
         Sequence s = DOTween.Sequence();
-        s.Append(card.transform.DOMove(DisCardPreviewSpot.position, 1f));
-        s.Insert(0f, card.transform.DORotate(Vector3.zero, 1f));
-        s.AppendInterval(2f);
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
         s.OnComplete(() =>
         {

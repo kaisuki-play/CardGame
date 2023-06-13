@@ -19,36 +19,13 @@ public class PlayCardManager : MonoBehaviour
     /// <param name="target"></param>
     public void HandleTargets(OneCardManager playedCard, List<int> targets)
     {
-        //switch (playedCard.CardAsset.SubTypeOfCard)
-        //{
-        //    case SubTypeOfCards.Peach:
-        //    case SubTypeOfCards.Wuzhongshengyou:
-        //        targets.Add(playedCard.Owner.ID);
-        //        break;
-        //    case SubTypeOfCards.Nanmanruqin:
-        //    case SubTypeOfCards.Wanjianqifa:
-        //        foreach (Player player in GlobalSettings.Instance.PlayerInstances)
-        //        {
-        //            if (player.ID != playedCard.Owner.ID)
-        //            {
-        //                targets.Add(player.ID);
-        //            }
-        //        }
-        //        break;
-        //    case SubTypeOfCards.Wugufengdeng:
-        //    case SubTypeOfCards.Taoyuanjieyi:
-        //        foreach (Player player in GlobalSettings.Instance.PlayerInstances)
-        //        {
-        //            targets.Add(player.ID);
-        //        }
-        //        break;
-        //}
-
         // 默认目标
         if (targets.Count != 0)
         {
             TargetsManager.Instance.SetTargets(targets);
         }
+
+        //
 
         // TODO 指定目标时：牌指定了默认目标后，有些技能，可以增加或减少目标的个数，甚至修改牌的 使用者等。
         HandleTargetsOrder(playedCard);
@@ -137,6 +114,25 @@ public class PlayCardManager : MonoBehaviour
                                     else
                                     {
                                         PlayCardManager.Instance.BackToWhoseTurn();
+                                    }
+                                }
+                            }
+                            break;
+                        case SubTypeOfCards.Peach:
+                            {
+                                //是否是濒死流程
+                                if (DyingManager.Instance.IsInDyingInquiry)
+                                {
+                                    DyingManager.Instance.Healing();
+                                }
+                                else
+                                {
+                                    if (TargetsManager.Instance.Targets.Count > 0)
+                                    {
+                                        GlobalSettings.Instance.Table.ClearCards();
+                                        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
+                                        //恢复一点体力
+                                        HealthManager.Instance.HealingEffect(1, targetPlayer);
                                     }
                                 }
                             }

@@ -81,7 +81,7 @@ public class GlobalSettings : MonoBehaviour
     // remove players who is dead from PlayerInstances
     public void RemoveDiePlayer()
     {
-        PlayerInstances = PlayerInstances.Where(n => n.IsDie == false).ToArray();
+        PlayerInstances = PlayerInstances.Where(n => n.IsDead == false).ToArray();
     }
 
     // Determine if it is a player, because there was a creature card before, keep it for the time being, and then remove it
