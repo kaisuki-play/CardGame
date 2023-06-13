@@ -47,6 +47,25 @@ public class SettleManager : MonoBehaviour
                             case SubTypeOfCards.Wanjianqifa:
                                 CalculateDamage();
                                 break;
+                            case SubTypeOfCards.Juedou:
+                                if (TipCardManager.Instance.PlayCardOwner == null)
+                                {
+                                    CalculateDamage();
+                                }
+                                else
+                                {
+                                    Player player1 = cardManager.Owner;
+                                    Player player2 = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
+                                    if (TipCardManager.Instance.PlayCardOwner.ID == player1.ID)
+                                    {
+                                        CalculateDamage(player2);
+                                    }
+                                    else
+                                    {
+                                        CalculateDamage(player1);
+                                    }
+                                }
+                                break;
                             default:
                                 break;
                         }
@@ -58,7 +77,7 @@ public class SettleManager : MonoBehaviour
     }
 
     //计算伤害
-    public void CalculateDamage()
+    public void CalculateDamage(Player curTargetPlayer = null)
     {
         OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
         if (cardManager != null)
@@ -66,7 +85,10 @@ public class SettleManager : MonoBehaviour
 
             int originDamage = cardManager.CardAsset.SpecialSpellAmount;
 
-            Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
+            if (curTargetPlayer == null)
+            {
+                curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
+            }
 
             //结算伤害
             HealthManager.Instance.DamageEffect(originDamage, curTargetPlayer);

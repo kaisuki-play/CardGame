@@ -11,21 +11,100 @@ public class PlayCardManager : MonoBehaviour
         Instance = this;
     }
 
+    // 1
+    /// <summary>
+    /// 使用牌：当一个玩家，点了一张手牌，然后点了默认的目标，则视为玩家已经使用了此牌。
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="target"></param>
+    public void PlayAVisualCardFromHand(OneCardManager playedCard, List<int> targets)
+    {
+        // 默认赋值目标
+        switch (playedCard.CardAsset.SubTypeOfCard)
+        {
+            case SubTypeOfCards.Peach:
+                //TODO 濒死情况下目标是looser
+                targets.Add(playedCard.Owner.ID);
+                break;
+            case SubTypeOfCards.Wuzhongshengyou:
+            case SubTypeOfCards.Thunder:
+                targets.Add(playedCard.Owner.ID);
+                break;
+            case SubTypeOfCards.Nanmanruqin:
+            case SubTypeOfCards.Wanjianqifa:
+                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                {
+                    if (player.ID != playedCard.Owner.ID)
+                    {
+                        targets.Add(player.ID);
+                    }
+                }
+                break;
+            case SubTypeOfCards.Wugufengdeng:
+            case SubTypeOfCards.Taoyuanjieyi:
+                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                {
+                    targets.Add(player.ID);
+                }
+                break;
+        }
+
+        //借刀杀人单独出来1.5流程
+        if (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
+        {
+            playedCard.SpecialTargetPlayerID = targets[0];
+
+            HandleSpecialTarget(playedCard);
+        }
+        else
+        {
+            playedCard.TargetsPlayerIDs = targets;
+
+            // remove this card from hand
+            playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
+
+            playedCard.Owner.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
+        }
+    }
+
+    public void HandleSpecialTarget(OneCardManager playedCard)
+    {
+        Player specialTargetPlayer = GlobalSettings.Instance.FindPlayerByID(playedCard.SpecialTargetPlayerID);
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(specialTargetPlayer, TypeOfEquipment.Weapons);
+        //判断借刀对象是否有武器
+        if (hasWeapon)
+        {
+            Debug.Log("有武器");
+            specialTargetPlayer.PArea.Portrait.TargetComponent.GetComponent<DragOnTarget>().CardManager = playedCard;
+            specialTargetPlayer.ShowJiedaosharenTarget = true;
+        }
+    }
+
+    public void HandleJiedaosharen(OneCardManager playedCard, List<int> targets)
+    {
+        playedCard.TargetsPlayerIDs = targets;
+
+        // remove this card from hand
+        playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
+
+        playedCard.Owner.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
+    }
+
     // 2
     /// <summary>
     /// 牌的位置，从手牌，改为pending
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="target"></param>
-    public void HandleTargets(OneCardManager playedCard, List<int> targets)
+    public void HandleTargets(OneCardManager playedCard, List<int> targets, int specialTarget = -1)
     {
         // 默认目标
         if (targets.Count != 0)
         {
             TargetsManager.Instance.SetTargets(targets);
         }
-
-        //
+        // 指定了借刀目标
+        TargetsManager.Instance.SpecialTarget = specialTarget;
 
         // TODO 指定目标时：牌指定了默认目标后，有些技能，可以增加或减少目标的个数，甚至修改牌的 使用者等。
         HandleTargetsOrder(playedCard);
@@ -90,13 +169,25 @@ public class PlayCardManager : MonoBehaviour
                                 OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
                                 if (cardManager != null)
                                 {
-                                    if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips)
+                                    switch (cardManager.CardAsset.TypeOfCard)
                                     {
-                                        TipCardManager.Instance.SkipTipCard();
-                                    }
-                                    else
-                                    {
-                                        NeedToPlayJink();
+                                        case TypesOfCards.Tips:
+                                            {
+                                                switch (cardManager.CardAsset.SubTypeOfCard)
+                                                {
+                                                    case SubTypeOfCards.Juedou:
+                                                        TipCardManager.Instance.PlayCardOwner = playedCard.Owner;
+                                                        TipCardManager.Instance.ActiveTipCard();
+                                                        break;
+                                                    default:
+                                                        TipCardManager.Instance.SkipTipCard();
+                                                        break;
+                                                }
+                                            }
+                                            break;
+                                        default:
+                                            NeedToPlayJink();
+                                            break;
                                     }
                                 }
                             }
@@ -107,13 +198,18 @@ public class PlayCardManager : MonoBehaviour
                                 OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
                                 if (cardManager != null)
                                 {
-                                    if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips)
+                                    switch (cardManager.CardAsset.TypeOfCard)
                                     {
-                                        TipCardManager.Instance.SkipTipCard();
-                                    }
-                                    else
-                                    {
-                                        PlayCardManager.Instance.BackToWhoseTurn();
+                                        case TypesOfCards.Tips:
+                                            {
+                                                TipCardManager.Instance.SkipTipCard();
+                                            }
+                                            break;
+                                        default:
+                                            {
+                                                PlayCardManager.Instance.BackToWhoseTurn();
+                                            }
+                                            break;
                                     }
                                 }
                             }
@@ -180,11 +276,15 @@ public class PlayCardManager : MonoBehaviour
     /// <summary>
     /// 需要出杀
     /// </summary>
-    public void NeedToPlaySlash()
+    public void NeedToPlaySlash(Player targetPlayer = null)
     {
         HighlightManager.DisableAllCards();
-        int targetId = TargetsManager.Instance.Targets[0];
-        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
+        HighlightManager.DisableAllOpButtons();
+        if (targetPlayer == null)
+        {
+            int targetId = TargetsManager.Instance.Targets[0];
+            targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
+        }
 
         HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Slash, needTargetComponent: false);
         targetPlayer.ShowOp1Button = true;

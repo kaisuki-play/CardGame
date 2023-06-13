@@ -109,12 +109,18 @@ public class Deck : MonoBehaviour
 
     public void AddDeckCards(SubTypeOfCards subTypeOfCards, TypeOfEquipment typeOfEquipment)
     {
+        CardAsset JiedaoSharenAsset = null;
         Debug.Log("卡牌总数: " + DeckSource.Instance.Cards.Count);
         foreach (CardAsset cardAsset1 in DeckSource.Instance.Cards)
         {
             HandleCards(cardAsset1);
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
+            {
+                JiedaoSharenAsset = cardAsset1;
+            }
         }
         CardObjs.Shuffle();
+        addNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A);
     }
 
     void HandleCards(CardAsset cardAsset)
@@ -419,6 +425,43 @@ public class Deck : MonoBehaviour
 
         // add a new creature to the list
         CardObjs.Add(card);
+
+        // add our unique ID to this creature
+        IDHolder id = card.AddComponent<IDHolder>();
+        id.UniqueID = IDFactory.GetUniqueID();
+
+        manager.CardLocation = CardLocation.DrawDeck;
+        manager.Owner = null;
+        manager.UniqueCardID = id.UniqueID;
+
+        if (ca.SpellScriptName != null && ca.SpellScriptName != "")
+        {
+            manager.Effect = System.Activator.CreateInstance(System.Type.GetType(ca.SpellScriptName)) as SpellEffect;
+        }
+
+    }
+
+    void InsertNewCardAsset(CardAsset cardAsset, CardSuits cardSuits, CardRank cardRank, TypeOfEquipment typeOfEquipment = TypeOfEquipment.None, int weaponAttackDistance = 1)
+    {
+        CardAsset ca = new CardAsset();
+        ca.ReadFromAsset(cardAsset);
+        ca.Suits = cardSuits;
+        ca.CardRank = cardRank;
+        ca.TypeOfEquipment = typeOfEquipment;
+        ca.WeaponAttackDistance = weaponAttackDistance;
+
+        GameObject card = GameObject.Instantiate(GlobalSettings.Instance.BaseCardPrefab, GlobalSettings.Instance.PDeck.ChildCanvas.transform.position, Quaternion.identity) as GameObject;
+
+        // apply the look from CardAsset
+        OneCardManager manager = card.GetComponent<OneCardManager>();
+        manager.CardAsset = ca;
+        manager.ReadCardFromAsset();
+
+        // parent a new creature gameObject to table slots
+        card.transform.SetParent(GlobalSettings.Instance.PDeck.ChildCanvas.transform);
+
+        // add a new creature to the list
+        CardObjs.Insert(0, card);
 
         // add our unique ID to this creature
         IDHolder id = card.AddComponent<IDHolder>();

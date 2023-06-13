@@ -23,6 +23,8 @@ public class PlayerPortraitVisual : MonoBehaviour
     public Button OpButton3;
     [Header("Skills")]
     public VerticalLayoutGroup SkillGroup;
+    [Header("Target Component")]
+    public GameObject TargetComponent;
 
     void Awake()
     {

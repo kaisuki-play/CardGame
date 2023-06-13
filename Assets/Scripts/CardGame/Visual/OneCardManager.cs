@@ -50,6 +50,7 @@ public class OneCardManager : MonoBehaviour
     public CardLocation CardLocation;
     public Player PlayCardPlayer;
     public List<int> TargetsPlayerIDs;
+    public int SpecialTargetPlayerID;
     public bool isUsedCard = false;
 
     public static Dictionary<int, OneCardManager> CardsCreatedThisGame = new Dictionary<int, OneCardManager>();

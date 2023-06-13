@@ -5,6 +5,7 @@ using UnityEngine;
 public class TipCardManager : MonoBehaviour
 {
     public static TipCardManager Instance;
+    public Player PlayCardOwner;
     private void Awake()
     {
         Instance = this;
@@ -43,6 +44,27 @@ public class TipCardManager : MonoBehaviour
                     break;
                 case SubTypeOfCards.Wanjianqifa:
                     PlayCardManager.Instance.NeedToPlayJink();
+                    break;
+                case SubTypeOfCards.Juedou:
+                    if (this.PlayCardOwner != null)
+                    {
+                        Debug.Log("进来决斗了");
+                        if (this.PlayCardOwner.ID == TargetsManager.Instance.Targets[0])
+                        {
+                            Debug.Log("出牌是目标，高亮决斗出牌人");
+                            PlayCardManager.Instance.NeedToPlaySlash(cardManager.Owner);
+                        }
+                        else
+                        {
+                            Debug.Log("出牌是决斗出牌人，高亮目标");
+                            PlayCardManager.Instance.NeedToPlaySlash();
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("出牌是决斗出牌人，高亮目标");
+                        PlayCardManager.Instance.NeedToPlaySlash();
+                    }
                     break;
                 case SubTypeOfCards.Wugufengdeng:
                 case SubTypeOfCards.Shunshouqianyang:

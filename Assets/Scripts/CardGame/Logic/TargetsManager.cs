@@ -6,7 +6,10 @@ using System.Linq;
 public class TargetsManager : MonoBehaviour
 {
     public static TargetsManager Instance;
+    // 正常目标
     public List<int> Targets = new List<int>();
+    // 借刀目标
+    public int SpecialTarget = -1;
 
     private void Awake()
     {

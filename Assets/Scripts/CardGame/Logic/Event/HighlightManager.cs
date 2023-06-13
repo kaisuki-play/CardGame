@@ -72,7 +72,16 @@ public class HighlightManager : MonoBehaviour
         foreach (int cardId in player.Hand.CardsInHand)
         {
             OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
-            oneCardManager.CanBePlayedNow = (oneCardManager.CardAsset.SubTypeOfCard == cardType);
+            if (cardType == SubTypeOfCards.Slash)
+            {
+                oneCardManager.CanBePlayedNow = (oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
+                || oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash
+                || oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash);
+            }
+            else
+            {
+                oneCardManager.CanBePlayedNow = (oneCardManager.CardAsset.SubTypeOfCard == cardType);
+            }
             if (oneCardManager.CardAsset.Targets != TargetingOptions.NoTarget)
             {
                 oneCardManager.TargetComponent.SetActive(true);

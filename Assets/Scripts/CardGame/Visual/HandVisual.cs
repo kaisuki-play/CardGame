@@ -165,7 +165,7 @@ public class HandVisual : MonoBehaviour
 
             OneCardManager cardManager = card.GetComponent<OneCardManager>();
             cardManager.CanBePlayedNow = false;
-            cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+            cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
         });
     }
 
@@ -292,7 +292,7 @@ public class HandVisual : MonoBehaviour
 
                             s1.OnComplete(() =>
                             {
-                                cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+                                cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
                                 PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
                             });
                         }

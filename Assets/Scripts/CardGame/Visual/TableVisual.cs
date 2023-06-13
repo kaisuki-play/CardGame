@@ -72,23 +72,38 @@ public class TableVisual : MonoBehaviour
 
     public void ClearCards()
     {
-        foreach (GameObject card in CardsOnTable)
+        GameObject card = CardsOnTable[0];
+        card.transform.SetParent(null);
+
+        Sequence s = DOTween.Sequence();
+        s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+        s.OnComplete(() =>
         {
-            card.transform.SetParent(null);
+            //Command.CommandExecutionComplete();
+            //Destroy(card);
+            card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
 
-            Sequence s = DOTween.Sequence();
-            s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-            s.OnComplete(() =>
-            {
-                //Command.CommandExecutionComplete();
-                //Destroy(card);
-                card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            cardManager.CanBePlayedNow = false;
+            cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+        });
+        //foreach (GameObject card in CardsOnTable)
+        //{
+        //    card.transform.SetParent(null);
 
-                OneCardManager cardManager = card.GetComponent<OneCardManager>();
-                cardManager.CanBePlayedNow = false;
-                cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
-            });
-        }
+        //    Sequence s = DOTween.Sequence();
+        //    s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+        //    s.OnComplete(() =>
+        //    {
+        //        //Command.CommandExecutionComplete();
+        //        //Destroy(card);
+        //        card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+        //        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+        //        cardManager.CanBePlayedNow = false;
+        //        cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+        //    });
+        //}
     }
 
 

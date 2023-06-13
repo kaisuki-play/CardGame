@@ -98,11 +98,11 @@ public class Player : MonoBehaviour
         int distanceCanTouch = 1;
         Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetID);
         //TODO 武器距离
-        //(bool hasWeapon, CardLogic cardLogic) = HasEquipmentWithType(TypeOfEquipment.Weapons);
-        //if (hasWeapon)
-        //{
-        //    distanceCanTouch = cardLogic.Ca.WeaponAttackDistance;
-        //}
+        (bool hasWeapon, OneCardManager cardManager) = EquipmentManager.Instance.HasEquipmentWithType(this, TypeOfEquipment.Weapons);
+        if (hasWeapon)
+        {
+            distanceCanTouch = cardManager.CardAsset.WeaponAttackDistance;
+        }
 
         int currentIndex = 0;
         int targetIndex = 0;
@@ -140,6 +140,8 @@ public class Player : MonoBehaviour
 
         int dis = CalculateDistance(targetPlayer, distance);
         int disR = CalculateDistance(targetPlayer, distanceReverse);
+
+        Debug.Log("dis: " + dis + " disR: " + disR + " distanceCanTouch: " + distanceCanTouch);
 
         if (dis <= distanceCanTouch || disR <= distanceCanTouch)
         {
@@ -270,6 +272,20 @@ public class Player : MonoBehaviour
         }
     }
 
+    private bool _showJiedaosharenTarget = false;
+    public bool ShowJiedaosharenTarget
+    {
+        get
+        {
+            return _showJiedaosharenTarget;
+        }
+        set
+        {
+            _showJiedaosharenTarget = value;
+            PArea.Portrait.TargetComponent.gameObject.SetActive(value);
+        }
+    }
+
     // ALL METHODS
     void Awake()
     {
@@ -394,7 +410,7 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public void UseACard(OneCardManager playedCard, List<int> targets)
     {
-        PlayAVisualCardFromHand(playedCard, targets);
+        PlayCardManager.Instance.PlayAVisualCardFromHand(playedCard, targets);
     }
 
     /// <summary>
@@ -404,55 +420,8 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public void PlayACard(OneCardManager playedCard, List<int> targets)
     {
-        PlayAVisualCardFromHand(playedCard, targets);
+        PlayCardManager.Instance.PlayAVisualCardFromHand(playedCard, targets);
     }
-
-    // 1
-    /// <summary>
-    /// 使用牌：当一个玩家，点了一张手牌，然后点了默认的目标，则视为玩家已经使用了此牌。
-    /// </summary>
-    /// <param name="playedCard"></param>
-    /// <param name="target"></param>
-    public void PlayAVisualCardFromHand(OneCardManager playedCard, List<int> targets)
-    {
-        // 默认赋值目标
-        switch (playedCard.CardAsset.SubTypeOfCard)
-        {
-            case SubTypeOfCards.Peach:
-                //TODO 濒死情况下目标是looser
-                targets.Add(playedCard.Owner.ID);
-                break;
-            case SubTypeOfCards.Wuzhongshengyou:
-            case SubTypeOfCards.Thunder:
-                targets.Add(playedCard.Owner.ID);
-                break;
-            case SubTypeOfCards.Nanmanruqin:
-            case SubTypeOfCards.Wanjianqifa:
-                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
-                {
-                    if (player.ID != playedCard.Owner.ID)
-                    {
-                        targets.Add(player.ID);
-                    }
-                }
-                break;
-            case SubTypeOfCards.Wugufengdeng:
-            case SubTypeOfCards.Taoyuanjieyi:
-                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
-                {
-                    targets.Add(player.ID);
-                }
-                break;
-        }
-
-        playedCard.TargetsPlayerIDs = targets;
-
-        // remove this card from hand
-        Hand.DisCard(playedCard.UniqueCardID);
-
-        this.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
-    }
-
 
     public void DisAllCards()
     {
