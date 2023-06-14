@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using DG.Tweening;
 using UnityEngine;
 
@@ -70,40 +72,54 @@ public class TableVisual : MonoBehaviour
         _cursorOverThisTable = passedThroughTableCollider;
     }
 
-    public void ClearCards()
+    /// <summary>
+    /// 清理指定牌
+    /// </summary>
+    /// <param name="cardId"></param>
+    public void ClearCards(int cardId)
     {
-        GameObject card = CardsOnTable[0];
+        int index = CardIndexOnTable(cardId);
+        ClearCardsWithIndex(index);
+    }
+
+    /// <summary>
+    /// 按照索引清理牌
+    /// </summary>
+    /// <param name="index"></param>
+    public void ClearCardsWithIndex(int index)
+    {
+        GameObject card = CardsOnTable[index];
         card.transform.SetParent(null);
+
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+        cardManager.CanBePlayedNow = false;
+        cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+
+        TargetsManager.Instance.Targets.RemoveAt(index);
+        Debug.Log("结算完后的牌" + TargetsManager.Instance.Targets.Count);
 
         Sequence s = DOTween.Sequence();
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
         s.OnComplete(() =>
         {
-            //Command.CommandExecutionComplete();
-            //Destroy(card);
             card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-
-            OneCardManager cardManager = card.GetComponent<OneCardManager>();
-            cardManager.CanBePlayedNow = false;
-            cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
         });
-        //foreach (GameObject card in CardsOnTable)
-        //{
-        //    card.transform.SetParent(null);
+    }
 
-        //    Sequence s = DOTween.Sequence();
-        //    s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-        //    s.OnComplete(() =>
-        //    {
-        //        //Command.CommandExecutionComplete();
-        //        //Destroy(card);
-        //        card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+    /// <summary>
+    /// 清理第一张牌
+    /// </summary>
+    public void ClearCardsFromFirst()
+    {
+        ClearCardsWithIndex(0);
+    }
 
-        //        OneCardManager cardManager = card.GetComponent<OneCardManager>();
-        //        cardManager.CanBePlayedNow = false;
-        //        cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
-        //    });
-        //}
+    /// <summary>
+    /// 清理最后一张牌
+    /// </summary>
+    public void ClearCardsFromLast()
+    {
+        ClearCardsWithIndex(CardsOnTable.Count - 1);
     }
 
 
@@ -158,6 +174,45 @@ public class TableVisual : MonoBehaviour
         {
             g.transform.DOLocalMoveX(Slots.Children[CardsOnTable.IndexOf(g)].transform.localPosition.x, 0.3f);
         }
+    }
+
+    /// <summary>
+    /// pending状态下是否有某种类型的牌
+    /// </summary>
+    /// <param name="cardType"></param>
+    /// <returns></returns>
+    public (bool, OneCardManager) HasCardOnTable(SubTypeOfCards cardType)
+    {
+        foreach (GameObject gameObject in GlobalSettings.Instance.Table.CardsOnTable)
+        {
+            OneCardManager cardManager = gameObject.GetComponent<OneCardManager>();
+            if (cardManager.CardAsset.SubTypeOfCard == cardType)
+            {
+                return (true, cardManager);
+            }
+        }
+        return (false, null);
+    }
+
+    /// <summary>
+    /// 一张牌在pending状态下的索引
+    /// </summary>
+    /// <param name="cardId"></param>
+    /// <returns></returns>
+    public int CardIndexOnTable(int cardId)
+    {
+        int index = -1;
+        for (int i = 0; i < CardsOnTable.Count; i++)
+        {
+            GameObject tmpcard = CardsOnTable[i];
+            OneCardManager tmpcardManager = tmpcard.GetComponent<OneCardManager>();
+            if (tmpcardManager.UniqueCardID == cardId)
+            {
+                index = i;
+                break;
+            }
+        }
+        return index;
     }
 }
 

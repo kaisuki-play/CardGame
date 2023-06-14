@@ -149,6 +149,7 @@ public class DyingManager : MonoBehaviour
 
     public void Rescued()
     {
+        Debug.Log("~~~~~~~~~~~~~~~~救回来了");
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
         //清空濒死玩家

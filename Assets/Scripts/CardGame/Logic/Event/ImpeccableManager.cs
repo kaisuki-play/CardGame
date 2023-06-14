@@ -29,13 +29,13 @@ public class ImpeccableManager : MonoBehaviour
             else
             {
                 Debug.Log("锦囊是否生效：" + (TipWillWork ? "是" : "否"));
-                TargetsManager.Instance.Targets.RemoveAt(0);
-                if (TargetsManager.Instance.Targets.Count == 0)
+                TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
+                if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
                 {
                     //去掉所有目标高亮
                     HighlightManager.DisableAllTargetsGlow();
                     //移除pending卡牌
-                    GlobalSettings.Instance.Table.ClearCards();
+                    GlobalSettings.Instance.Table.ClearCardsFromLast();
                     //回到当前回合人
                     PlayCardManager.Instance.BackToWhoseTurn();
                 }
@@ -67,7 +67,7 @@ public class ImpeccableManager : MonoBehaviour
     {
         HighlightManager.DisableAllOpButtons();
 
-        int curTargetPlayerId = TargetsManager.Instance.Targets[0];
+        int curTargetPlayerId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
 
         //将目标高亮
         HighlightManager.DisableAllTargetsGlow();

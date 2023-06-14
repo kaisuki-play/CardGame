@@ -157,7 +157,7 @@ public class DragOnTarget : DraggingActions
             int targetID = _target.GetComponent<IDHolder>().UniqueID;
 
             GlobalSettings.Instance.FindPlayerByID(targetID).PArea.Portrait.Highlighted = false;
-            if (GlobalSettings.Instance.FindPlayerByID(CardManager.SpecialTargetPlayerID).CanAttack(targetID))
+            if (GlobalSettings.Instance.FindPlayerByID(CardManager.TargetsPlayerIDs[0]).CanAttack(targetID))
             {
                 UseSpellCard(targetValid, targetID);
             }
@@ -186,11 +186,9 @@ public class DragOnTarget : DraggingActions
     public void UseSpellCard(bool targetValid, int targetID)
     {
         Debug.Log("使用一张牌");
-        GlobalSettings.Instance.FindPlayerByID(CardManager.SpecialTargetPlayerID).ShowJiedaosharenTarget = false;
+        GlobalSettings.Instance.FindPlayerByID(CardManager.TargetsPlayerIDs[0]).ShowJiedaosharenTarget = false;
 
-        List<int> targets = new List<int>();
-        targets.Add(targetID);
-        PlayCardManager.Instance.HandleJiedaosharen(CardManager, targets);
+        PlayCardManager.Instance.HandleJiedaosharen(CardManager, targetID);
     }
 
     // NOT USED IN THIS SCRIPT

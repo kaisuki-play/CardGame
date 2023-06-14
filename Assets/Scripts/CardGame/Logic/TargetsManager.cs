@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Xml.Linq;
+using System;
 
 public class TargetsManager : MonoBehaviour
 {
     public static TargetsManager Instance;
     // 正常目标
-    public List<int> Targets = new List<int>();
+    public List<List<int>> Targets = new List<List<int>>();
     // 借刀目标
-    public int SpecialTarget = -1;
+    public List<int> SpecialTarget = new List<int>();
 
     private void Awake()
     {
@@ -18,17 +20,28 @@ public class TargetsManager : MonoBehaviour
 
     public void SetTargets(List<int> targets)
     {
-        Targets = targets;
+        if (Targets.Count < GlobalSettings.Instance.Table.CardsOnTable.Count)
+        {
+            Targets.Add(targets);
+        }
+        else
+        {
+            Targets[GlobalSettings.Instance.Table.CardsOnTable.Count - 1] = targets;
+        }
+        Debug.Log("目标数组" + Targets.Count);
     }
 
     public void Order(OneCardManager oneCardManager)
     {
-        List<int> targets = GenerateNewArray(Targets, FindClosestElement(Targets, oneCardManager.Owner));
+        int targetIndex = GlobalSettings.Instance.Table.CardsOnTable.Count - 1;
+        int closetPlayerIndex = FindClosestElement(Targets[targetIndex], oneCardManager.Owner);
+        Debug.Log("离开玩家最近的" + closetPlayerIndex);
+        List<int> targets = GenerateNewArray(Targets[targetIndex], closetPlayerIndex);
         foreach (int id in targets)
         {
             Debug.Log("排序后的位置: " + GlobalSettings.Instance.FindPlayerByID(id).PArea.Owner);
         }
-        Targets = targets;
+        this.SetTargets(targets);
     }
 
     public List<int> GenerateNewArray(List<int> originalList, int startIndex)
@@ -48,6 +61,7 @@ public class TargetsManager : MonoBehaviour
         return resultList;
     }
 
+
     public int FindClosestElement(List<int> originalList, Player targetPlayer)
     {
         if (originalList.IndexOf(targetPlayer.ID) != -1)
@@ -64,6 +78,19 @@ public class TargetsManager : MonoBehaviour
             {
                 closestElement = element.PArea.Owner;
                 closestPlayerId = element.ID;
+            }
+        }
+
+        if (closestPlayerId == -1)
+        {
+            closestElement = targetPlayer.PArea.Owner;
+            foreach (Player element in players)
+            {
+                if (element.PArea.Owner > closestElement)
+                {
+                    closestElement = element.PArea.Owner;
+                    closestPlayerId = element.ID;
+                }
             }
         }
 

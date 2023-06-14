@@ -26,6 +26,11 @@ public class DragSpellOnTable : DraggingActions
         _manager = GetComponent<OneCardManager>();
     }
 
+    private void Update()
+    {
+
+    }
+
     public override void OnStartDrag()
     {
         _savedHandSlot = _whereIsCard.Slot;

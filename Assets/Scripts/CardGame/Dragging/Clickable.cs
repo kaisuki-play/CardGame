@@ -18,4 +18,9 @@ public class Clickable : MonoBehaviour
             _ca.OnCardClick();
         }
     }
+
+    void Update()
+    {
+
+    }
 }

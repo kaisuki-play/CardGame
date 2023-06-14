@@ -10,6 +10,14 @@ public enum CardsType
 
 public class HighlightManager : MonoBehaviour
 {
+    public static void DisableAllHeroTarget()
+    {
+        foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+        {
+            player.ShowJiedaosharenTarget = false;
+        }
+    }
+
     public static void DisableAllCards()
     {
         foreach (Player player in GlobalSettings.Instance.PlayerInstances)

@@ -25,6 +25,12 @@ public enum CardRegion
     OutOfGame
 }
 
+public enum DragOrClick
+{
+    Drag,
+    Click
+}
+
 // holds the refs to all the Text, Images on the card
 public class OneCardManager : MonoBehaviour
 {
@@ -50,7 +56,7 @@ public class OneCardManager : MonoBehaviour
     public CardLocation CardLocation;
     public Player PlayCardPlayer;
     public List<int> TargetsPlayerIDs;
-    public int SpecialTargetPlayerID;
+    public List<int> SpecialTargetPlayerIDs;
     public bool isUsedCard = false;
 
     public static Dictionary<int, OneCardManager> CardsCreatedThisGame = new Dictionary<int, OneCardManager>();

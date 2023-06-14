@@ -360,6 +360,21 @@ public class Player : MonoBehaviour
 
     }
 
+    public void GiveWeaponToTargetWithCardType(Player targetPlayer)
+    {
+        Debug.Log("给刀 " + this.PArea.Owner);
+        Debug.Log("给刀 " + targetPlayer.PArea.Owner);
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(this, TypeOfEquipment.Weapons);
+
+        weaponCard.ChangeOwnerAndLocation(targetPlayer, CardLocation.Hand);
+        //删除装备来源的人的卡
+        this.EquipmentLogic.CardsInEquipment.Remove(weaponCard.UniqueCardID);
+        //新增给目标人的卡
+        targetPlayer.Hand.CardsInHand.Insert(0, weaponCard.UniqueCardID);
+
+        targetPlayer.PArea.HandVisual.DrawACard(weaponCard.gameObject);
+    }
+
     /// <summary>
     /// 拖拽目标
     /// </summary>

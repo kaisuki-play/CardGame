@@ -19,16 +19,40 @@ public class PlayerDeckVisual : MonoBehaviour
     {
         Debug.Log("卡牌总数: " + DeckSource.Instance.Cards.Count);
         CardAsset JiedaoSharenAsset = null;
+        CardAsset NanmanAsset = null;
+        CardAsset JuedouAsset = null;
+        CardAsset FthjAsset = null;
+        CardAsset ZbsmAsset = null;
         foreach (CardAsset cardAsset1 in DeckSource.Instance.Cards)
         {
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
             {
                 JiedaoSharenAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Nanmanruqin)
+            {
+                NanmanAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Juedou)
+            {
+                JuedouAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Fangtianhuaji)
+            {
+                FthjAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Zhangbashemao)
+            {
+                ZbsmAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
         InsertNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
+        InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 3);
     }
 
     void HandleCards(CardAsset cardAsset)

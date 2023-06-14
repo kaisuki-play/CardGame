@@ -20,7 +20,7 @@ public class SettleManager : MonoBehaviour
     //伤害前
     public void BeforeDamage()
     {
-        OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
+        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
         if (cardManager != null)
         {
             switch (cardManager.CardAsset.TypeOfCard)
@@ -55,7 +55,7 @@ public class SettleManager : MonoBehaviour
                                 else
                                 {
                                     Player player1 = cardManager.Owner;
-                                    Player player2 = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
+                                    Player player2 = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
                                     if (TipCardManager.Instance.PlayCardOwner.ID == player1.ID)
                                     {
                                         CalculateDamage(player2);
@@ -79,7 +79,7 @@ public class SettleManager : MonoBehaviour
     //计算伤害
     public void CalculateDamage(Player curTargetPlayer = null)
     {
-        OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
+        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
         if (cardManager != null)
         {
 
@@ -87,7 +87,7 @@ public class SettleManager : MonoBehaviour
 
             if (curTargetPlayer == null)
             {
-                curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
+                curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
             }
 
             //结算伤害
@@ -96,9 +96,9 @@ public class SettleManager : MonoBehaviour
             SettleManager.Instance.DamageSourceId = cardManager.Owner.ID;
 
             //移除已经结算完伤害的玩家
-            if (TargetsManager.Instance.Targets.Count > 0)
+            if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count > 0)
             {
-                TargetsManager.Instance.Targets.RemoveAt(0);
+                TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
             }
 
             //是否进入濒死流程
@@ -131,20 +131,39 @@ public class SettleManager : MonoBehaviour
     //完成结算
     public void FinishSettle()
     {
-        if (TargetsManager.Instance.Targets.Count == 0)
+        if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
         {
             //去除所有目标高亮
             HighlightManager.DisableAllTargetsGlow();
             //移除卡
-            GlobalSettings.Instance.Table.ClearCards();
-            //高亮当前回合人
-            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            GlobalSettings.Instance.Table.ClearCardsFromLast();
+            if (TargetsManager.Instance.Targets.Count == 0)
+            {
+                //高亮当前回合人
+                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            }
+            else
+            {
+                ActiveLastOneCardOnTable();
+            }
         }
         else
         {
-            OneCardManager cardManager = GlobalSettings.Instance.FirstOneCardOnTable();
+            ActiveLastOneCardOnTable();
+        }
+    }
 
-            Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0]);
+    public void ActiveLastOneCardOnTable()
+    {
+        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+
+        if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
+        {
+            TipCardManager.Instance.JiedaoSharenNextTarget();
+        }
+        else
+        {
+            Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
             PlayCardManager.Instance.ActiveEffect(cardManager);
         }
     }

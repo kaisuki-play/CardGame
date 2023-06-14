@@ -7,6 +7,7 @@ using System.Linq;
 public class GlobalSettings : MonoBehaviour
 {
     [Header("Golden Finger")]
+    public bool TestJiedaoShaRenMultiplayers;
     public bool OneKeyImpeccable;
     public bool UseGoldenFinger;
     public GameObject GoldenFingerCardPrefab;
@@ -18,6 +19,8 @@ public class GlobalSettings : MonoBehaviour
     [Header("DisCard ShowCard")]
     public DisDeckVisual DisDeck;
     public TableVisual Table;
+    [Header("Target Cards Panel")]
+    public TargetCardsPanel TargetCardsPanel;
     [Header("Deck")]
     public DeckSource DeckSource;
     [Header("Colors")]
@@ -31,9 +34,10 @@ public class GlobalSettings : MonoBehaviour
     public float CardTransitionTimeFast = 0.1f;
     [Header("Prefabs and Assets")]
     //public GameObject NoTargetSupportDragOnTargetPrefab;
-    public GameObject ShowCardsForSelectingPrefab;
-    public GameObject ShowCardAreaCardNoGiveOtherCardPrefab;
-    public GameObject ShowCardAreaCardPrefab;
+    //public GameObject ShowCardsForSelectingPrefab;
+    //public GameObject ShowCardAreaCardNoGiveOtherCardPrefab;
+    //public GameObject ShowCardAreaCardPrefab;
+    public GameObject TargetAllCardsPrefab;
     public GameObject DisCardAreaCardPrefab;
     public GameObject BaseCardPrefab;
     public GameObject BaseNoTargetCardPrefab;
@@ -104,6 +108,20 @@ public class GlobalSettings : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public OneCardManager LastOneCardOnTable()
+    {
+        if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
+        {
+            GameObject card = GlobalSettings.Instance.Table.CardsOnTable[GlobalSettings.Instance.Table.CardsOnTable.Count - 1];
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            return cardManager;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public OneCardManager FirstOneCardOnTable()

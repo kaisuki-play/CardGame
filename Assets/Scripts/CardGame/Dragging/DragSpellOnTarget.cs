@@ -206,8 +206,19 @@ public class DragSpellOnTarget : DraggingActions
                     UseSpellCard(targetValid, targetID);
                     break;
                 case TargetingOptions.EnemyCharacters:
+                    if (targetID != _playerOwner.ID)
                     {
-                        UseSpellCard(targetValid, targetID);
+                        if (GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen).Item1)
+                        {
+                            if (TargetsManager.Instance.SpecialTarget.Contains(targetID))
+                            {
+                                UseSpellCard(targetValid, targetID);
+                            }
+                        }
+                        else
+                        {
+                            UseSpellCard(targetValid, targetID);
+                        }
                     }
                     break;
                 case TargetingOptions.YourCharacters:

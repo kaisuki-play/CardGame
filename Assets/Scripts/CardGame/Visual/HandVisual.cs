@@ -123,6 +123,16 @@ public class HandVisual : MonoBehaviour
 
     public void DrawACard(GameObject card)
     {
+        AddACardToHand(card);
+    }
+
+    public void GetACard(GameObject card)
+    {
+        AddACardToHand(card);
+    }
+
+    public void AddACardToHand(GameObject card)
+    {
         AddCard(card);
 
         // Bring card to front while it travels from draw spot to hand
@@ -138,8 +148,6 @@ public class HandVisual : MonoBehaviour
         {
             PlaceCardsOnNewSlots();
             UpdatePlacementOfSlots();
-
-            //Command.CommandExecutionComplete();
         });
     }
 
@@ -218,7 +226,7 @@ public class HandVisual : MonoBehaviour
                         cardManager.CanBePlayedNow = false;
                         cardManager.ChangeOwnerAndLocation(player, CardLocation.Judgement);
 
-                        PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
+                        PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
                     });
                 }
                 break;
@@ -253,7 +261,7 @@ public class HandVisual : MonoBehaviour
                         cardManager.CanBePlayedNow = false;
                         cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
 
-                        PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
+                        PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
                     });
                 }
                 break;
@@ -293,42 +301,17 @@ public class HandVisual : MonoBehaviour
                             s1.OnComplete(() =>
                             {
                                 cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
-                                PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
+                                PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
                             });
                         }
                         else
                         {
-                            PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
+                            PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
                         }
 
                     });
                 }
                 break;
-                //case TypesOfCards.Tips:
-                //    {
-                //        RemoveCard(CardVisual);
-
-                //        CardVisual.transform.SetParent(null);
-
-                //        Sequence s = DOTween.Sequence();
-                //        s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
-                //        s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
-                //        s.AppendInterval(2f);
-                //        s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-                //        s.OnComplete(() =>
-                //        {
-                //            //Command.CommandExecutionComplete();
-                //            //Destroy(CardVisual);
-                //            CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-
-                //            OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
-                //            cardManager.CanBePlayedNow = false;
-                //            cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
-
-                //            PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs);
-                //        });
-                //    }
-                //    break;
         }
 
 
