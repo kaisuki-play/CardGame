@@ -366,13 +366,33 @@ public class Player : MonoBehaviour
         Debug.Log("给刀 " + targetPlayer.PArea.Owner);
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(this, TypeOfEquipment.Weapons);
 
-        weaponCard.ChangeOwnerAndLocation(targetPlayer, CardLocation.Hand);
-        //删除装备来源的人的卡
-        this.EquipmentLogic.CardsInEquipment.Remove(weaponCard.UniqueCardID);
-        //新增给目标人的卡
-        targetPlayer.Hand.CardsInHand.Insert(0, weaponCard.UniqueCardID);
+        GiveCardToTarget(targetPlayer, weaponCard);
+    }
 
-        targetPlayer.PArea.HandVisual.DrawACard(weaponCard.gameObject);
+    public void GiveCardToTarget(Player targetPlayer, OneCardManager cardManager)
+    {
+        switch (cardManager.CardLocation)
+        {
+            case CardLocation.Judgement:
+                //删除装备来源的人的卡
+                this.JudgementLogic.CardsInJudgement.Remove(cardManager.UniqueCardID);
+                this.PArea.JudgementVisual.RemoveCard(cardManager.gameObject);
+                break;
+            case CardLocation.Hand:
+                this.Hand.CardsInHand.Remove(cardManager.UniqueCardID);
+                this.PArea.HandVisual.RemoveCard(cardManager.gameObject);
+                break;
+            case CardLocation.Equipment:
+                this.EquipmentLogic.CardsInEquipment.Remove(cardManager.UniqueCardID);
+                this.PArea.EquipmentVisaul.RemoveCard(cardManager.gameObject);
+                break;
+        }
+        cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Hand);
+
+        //新增给目标人的卡
+        targetPlayer.Hand.CardsInHand.Insert(0, cardManager.UniqueCardID);
+
+        targetPlayer.PArea.HandVisual.GetACardFromOther(cardManager.gameObject, this);
     }
 
     /// <summary>

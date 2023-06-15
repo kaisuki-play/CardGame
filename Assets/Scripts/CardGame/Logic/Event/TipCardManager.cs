@@ -35,6 +35,7 @@ public class TipCardManager : MonoBehaviour
     /// </summary>
     public void ActiveTipCard()
     {
+        HighlightManager.DisableAllCards();
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
         if (cardManager != null)
         {
@@ -71,12 +72,15 @@ public class TipCardManager : MonoBehaviour
                     Debug.Log("借刀杀人出杀设定");
                     UseCardManager.Instance.NeedToPlaySlash(null, true);
                     break;
-                case SubTypeOfCards.Wugufengdeng:
                 case SubTypeOfCards.Shunshouqianyang:
+                    ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.Shunshouqianyang);
+                    break;
                 case SubTypeOfCards.Guohechaiqiao:
+                    ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.GuoheChaiqiao);
+                    break;
+                case SubTypeOfCards.Wugufengdeng:
                 default:
                     Debug.Log("锦囊");
-                    ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]));
                     //SkipTipCard();
                     break;
             }
@@ -118,8 +122,9 @@ public class TipCardManager : MonoBehaviour
         JiedaoSharenNextTarget();
     }
 
-    public void ShowTargetAllCards(Player targetPlayer)
+    public void ShowTargetAllCards(Player targetPlayer, TargetCardsPanelType targetCardsPanelType)
     {
+        GlobalSettings.Instance.TargetCardsPanel.PanelType = targetCardsPanelType;
         GlobalSettings.Instance.TargetCardsPanel.gameObject.SetActive(true);
         for (int i = 0; i < targetPlayer.Hand.CardsInHand.Count; i++)
         {

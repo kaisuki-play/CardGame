@@ -126,8 +126,10 @@ public class HandVisual : MonoBehaviour
         AddACardToHand(card);
     }
 
-    public void GetACard(GameObject card)
+    public void GetACardFromOther(GameObject card, Player otherPlayer)
     {
+        otherPlayer.PArea.HandVisual.PlaceCardsOnNewSlots();
+        otherPlayer.PArea.HandVisual.UpdatePlacementOfSlots();
         AddACardToHand(card);
     }
 

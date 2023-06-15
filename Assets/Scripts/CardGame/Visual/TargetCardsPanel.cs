@@ -2,8 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum TargetCardsPanelType
+{
+    GuoheChaiqiao,
+    Wugufengdeng,
+    Shunshouqianyang
+}
+
 public class TargetCardsPanel : MonoBehaviour
 {
+    public TargetCardsPanelType PanelType;
+
     public SameDistanceChildren HandSlots;
     public SameDistanceChildren JudgementSlots;
     public SameDistanceChildren EquipmentSlots;
@@ -11,6 +20,12 @@ public class TargetCardsPanel : MonoBehaviour
     public List<GameObject> CardsOnHand = new List<GameObject>();
     public List<GameObject> CardsOnJudgement = new List<GameObject>();
     public List<GameObject> CardsOnEquipment = new List<GameObject>();
+
+    public void Dismiss()
+    {
+        DisAllCards();
+        this.gameObject.SetActive(false);
+    }
 
     // 顺手牵羊、过河拆桥、寒冰剑 加牌
     public void AddHandCardsAtIndex(OneCardManager cardManager, int index)
@@ -44,6 +59,7 @@ public class TargetCardsPanel : MonoBehaviour
         manager.CardAsset = cardManager.CardAsset;
         manager.ReadCardFromAsset();
         manager.UniqueCardID = cardManager.UniqueCardID;
+        manager.Owner = cardManager.Owner;
 
         // parent a new creature gameObject to table slots
         card.transform.SetParent(slots.transform);
@@ -66,5 +82,24 @@ public class TargetCardsPanel : MonoBehaviour
 
         // end command execution
         Command.CommandExecutionComplete();
+    }
+
+    public void DisAllCards()
+    {
+        foreach (GameObject card in CardsOnHand)
+        {
+            Destroy(card);
+        }
+        foreach (GameObject card in CardsOnJudgement)
+        {
+            Destroy(card);
+        }
+        foreach (GameObject card in CardsOnEquipment)
+        {
+            Destroy(card);
+        }
+        CardsOnHand.Clear();
+        CardsOnJudgement.Clear();
+        CardsOnEquipment.Clear();
     }
 }

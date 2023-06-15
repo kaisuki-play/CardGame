@@ -30,5 +30,35 @@ public class ClickOnCard : ClickActions
     public override void OnCardClick()
     {
         Debug.Log("On Card Click");
+        GameObject originCard = IDHolder.GetGameObjectWithID(_manager.UniqueCardID);
+        OneCardManager originCardManager = originCard.GetComponent<OneCardManager>();
+        switch (GlobalSettings.Instance.TargetCardsPanel.PanelType)
+        {
+            //顺手牵羊
+            case TargetCardsPanelType.Shunshouqianyang:
+                {
+                    (bool hasShunshouqianyang, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Shunshouqianyang);
+                    if (hasShunshouqianyang)
+                    {
+                        originCardManager.Owner.GiveCardToTarget(cardManager.Owner, originCardManager);
+                        GlobalSettings.Instance.Table.ClearCardsFromLast();
+                        GlobalSettings.Instance.TargetCardsPanel.Dismiss();
+                        HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+                    }
+                }
+                break;
+            case TargetCardsPanelType.GuoheChaiqiao:
+                {
+                    (bool hasGuohechaiqiao, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Guohechaiqiao);
+                    if (hasGuohechaiqiao)
+                    {
+                        originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
+                        GlobalSettings.Instance.Table.ClearCardsFromLast();
+                        GlobalSettings.Instance.TargetCardsPanel.Dismiss();
+                        HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+                    }
+                }
+                break;
+        }
     }
 }

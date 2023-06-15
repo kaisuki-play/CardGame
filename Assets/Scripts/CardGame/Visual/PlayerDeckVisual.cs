@@ -23,8 +23,14 @@ public class PlayerDeckVisual : MonoBehaviour
         CardAsset JuedouAsset = null;
         CardAsset FthjAsset = null;
         CardAsset ZbsmAsset = null;
+        CardAsset ShunshouqianyangAsset = null;
+        CardAsset GuohechaiqiaoAsset = null;
         foreach (CardAsset cardAsset1 in DeckSource.Instance.Cards)
         {
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
+            {
+                ShunshouqianyangAsset = cardAsset1;
+            }
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
             {
                 JiedaoSharenAsset = cardAsset1;
@@ -45,6 +51,10 @@ public class PlayerDeckVisual : MonoBehaviour
             {
                 ZbsmAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Guohechaiqiao)
+            {
+                GuohechaiqiaoAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
@@ -53,6 +63,8 @@ public class PlayerDeckVisual : MonoBehaviour
         InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
         InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
         InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 3);
+        InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(GuohechaiqiaoAsset, CardSuits.Spades, CardRank.Rank_A);
     }
 
     void HandleCards(CardAsset cardAsset)

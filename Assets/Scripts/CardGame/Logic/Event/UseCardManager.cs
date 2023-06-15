@@ -165,7 +165,7 @@ public class UseCardManager : MonoBehaviour
     public void HandleImpeccable(OneCardManager playedCard)
     {
         //// 先进入无懈流程，之后再进入触发锦囊效果阶段
-        if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips)
+        if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && GlobalSettings.Instance.OneKeyImpeccable == false)
         {
             ImpeccableManager.Instance.StartInquireNextTarget();
         }
