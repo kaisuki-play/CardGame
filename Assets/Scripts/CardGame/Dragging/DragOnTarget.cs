@@ -188,7 +188,7 @@ public class DragOnTarget : DraggingActions
         Debug.Log("使用一张牌");
         GlobalSettings.Instance.FindPlayerByID(CardManager.TargetsPlayerIDs[0]).ShowJiedaosharenTarget = false;
 
-        PlayCardManager.Instance.HandleJiedaosharen(CardManager, targetID);
+        UseCardManager.Instance.HandleJiedaosharen(CardManager, targetID);
     }
 
     // NOT USED IN THIS SCRIPT

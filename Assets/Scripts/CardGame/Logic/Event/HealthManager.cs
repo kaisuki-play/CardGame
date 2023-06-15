@@ -28,5 +28,16 @@ public class HealthManager : MonoBehaviour
     {
         player.Health += amount;
         player.PArea.Portrait.TakeHealing(amount);
+        if (DyingManager.Instance.IsInDyingInquiry)
+        {
+            if (DyingManager.Instance.DyingPlayer.Health >= 1)
+            {
+                DyingManager.Instance.Rescued();
+            }
+        }
+        else
+        {
+            UseCardManager.Instance.FinishSettle();
+        }
     }
 }

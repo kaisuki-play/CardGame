@@ -21,11 +21,11 @@ public class TipCardManager : MonoBehaviour
             Debug.Log("现在还有几张牌的目标~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + TargetsManager.Instance.Targets.Count);
             if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count != 0)
             {
-                PlayCardManager.Instance.ActiveEffect(cardManager);
+                UseCardManager.Instance.HandleImpeccable(cardManager);
             }
             else
             {
-                PlayCardManager.Instance.BackToWhoseTurn();
+                UseCardManager.Instance.BackToWhoseTurn();
             }
         }
     }
@@ -41,10 +41,10 @@ public class TipCardManager : MonoBehaviour
             switch (cardManager.CardAsset.SubTypeOfCard)
             {
                 case SubTypeOfCards.Nanmanruqin:
-                    PlayCardManager.Instance.NeedToPlaySlash();
+                    UseCardManager.Instance.NeedToPlaySlash();
                     break;
                 case SubTypeOfCards.Wanjianqifa:
-                    PlayCardManager.Instance.NeedToPlayJink();
+                    UseCardManager.Instance.NeedToPlayJink();
                     break;
                 case SubTypeOfCards.Juedou:
                     if (this.PlayCardOwner != null)
@@ -53,23 +53,23 @@ public class TipCardManager : MonoBehaviour
                         if (this.PlayCardOwner.ID == TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0])
                         {
                             Debug.Log("出牌是目标，高亮决斗出牌人");
-                            PlayCardManager.Instance.NeedToPlaySlash(cardManager.Owner);
+                            UseCardManager.Instance.NeedToPlaySlash(cardManager.Owner);
                         }
                         else
                         {
                             Debug.Log("出牌是决斗出牌人，高亮目标");
-                            PlayCardManager.Instance.NeedToPlaySlash();
+                            UseCardManager.Instance.NeedToPlaySlash();
                         }
                     }
                     else
                     {
                         Debug.Log("出牌是决斗出牌人，高亮目标");
-                        PlayCardManager.Instance.NeedToPlaySlash();
+                        UseCardManager.Instance.NeedToPlaySlash();
                     }
                     break;
                 case SubTypeOfCards.Jiedaosharen:
                     Debug.Log("借刀杀人出杀设定");
-                    PlayCardManager.Instance.NeedToPlaySlashInJiedaosharen();
+                    UseCardManager.Instance.NeedToPlaySlash(null, true);
                     break;
                 case SubTypeOfCards.Wugufengdeng:
                 case SubTypeOfCards.Shunshouqianyang:
@@ -84,25 +84,6 @@ public class TipCardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 借刀杀人清理目标
-    /// </summary>
-    public void JiedaosharenTargetsClear()
-    {
-        if (TargetsManager.Instance.SpecialTarget.Count > 0)
-        {
-            TargetsManager.Instance.SpecialTarget.RemoveAt(0);
-        }
-
-        DebugManager.Instance.Print2LevelList(TargetsManager.Instance.Targets);
-
-        (bool hasJiedaosharen, OneCardManager jiedaoCardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen);
-        if (hasJiedaosharen && TargetsManager.Instance.SpecialTarget.Count == 0)
-        {
-            GlobalSettings.Instance.Table.ClearCards(jiedaoCardManager.UniqueCardID);
-        }
-    }
-
-    /// <summary>
     /// 借刀杀人多个目标的时候
     /// </summary>
     public void JiedaoSharenNextTarget()
@@ -113,16 +94,16 @@ public class TipCardManager : MonoBehaviour
             TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)].RemoveAt(0);
             if (TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)].Count > 0)
             {
-                PlayCardManager.Instance.ActiveEffect(jiedaosharenCard);
+                UseCardManager.Instance.HandleImpeccable(jiedaosharenCard);
             }
             else
             {
-                PlayCardManager.Instance.BackToWhoseTurn();
+                UseCardManager.Instance.BackToWhoseTurn();
             }
         }
         else
         {
-            PlayCardManager.Instance.BackToWhoseTurn();
+            UseCardManager.Instance.BackToWhoseTurn();
         }
 
     }
@@ -133,6 +114,8 @@ public class TipCardManager : MonoBehaviour
         int targetId = TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)][0];
         Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
         targetPlayer.GiveWeaponToTargetWithCardType(jiedaosharenCard.Owner);
+        //下一个目标
+        JiedaoSharenNextTarget();
     }
 
     public void ShowTargetAllCards(Player targetPlayer)

@@ -400,7 +400,10 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public void DragCard(OneCardManager playedCard, List<int> targets)
     {
-        if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Impeccable)
+        if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Impeccable
+            || (playedCard.CardAsset.TypeOfCard == TypesOfCards.Equipment)
+            || (playedCard.CardAsset.TypeOfCard == TypesOfCards.DelayTips
+            || (playedCard.CardAsset.TypeOfCard == TypesOfCards.Base && (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Peach || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Analeptic))))
         {
             playedCard.isUsedCard = true;
         }
@@ -425,7 +428,7 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public void UseACard(OneCardManager playedCard, List<int> targets)
     {
-        PlayCardManager.Instance.PlayAVisualCardFromHand(playedCard, targets);
+        UseCardManager.Instance.UseAVisualCardFromHand(playedCard, targets);
     }
 
     /// <summary>

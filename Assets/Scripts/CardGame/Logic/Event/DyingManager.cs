@@ -157,14 +157,14 @@ public class DyingManager : MonoBehaviour
         //重置濒死状态
         DyingManager.Instance.IsInDyingInquiry = false;
         //进入伤害后的流程
-        SettleManager.Instance.AfterDamage();
+        TaskManager.Instance.UnBlockTask();
     }
 
     public void RealDie()
     {
         //设置濒死人为死亡
         DyingManager.Instance.DyingPlayer.IsDead = true;
-        //全局移除玩家
+        ////全局移除玩家
         GlobalSettings.Instance.RemoveDiePlayer();
         //TODO 玩家所有牌进入弃牌堆
         DyingManager.Instance.DyingPlayer.DisAllCards();
@@ -172,7 +172,8 @@ public class DyingManager : MonoBehaviour
         DyingManager.Instance.DyingPlayer = null;
         //重置濒死状态
         DyingManager.Instance.IsInDyingInquiry = false;
-        //进入铁索流程
-        SettleManager.Instance.HandleIronChain();
+        //进入伤害后的流程
+        TaskManager.Instance.UnBlockTask();
+
     }
 }

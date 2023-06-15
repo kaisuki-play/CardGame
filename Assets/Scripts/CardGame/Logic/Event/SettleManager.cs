@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class SettleManager : MonoBehaviour
@@ -14,6 +15,7 @@ public class SettleManager : MonoBehaviour
     //开始结算
     public void StartSettle()
     {
+
         BeforeDamage();
     }
 
@@ -76,8 +78,9 @@ public class SettleManager : MonoBehaviour
         }
     }
 
+
     //计算伤害
-    public void CalculateDamage(Player curTargetPlayer = null)
+    public async void CalculateDamage(Player curTargetPlayer = null)
     {
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
         if (cardManager != null)
@@ -95,28 +98,25 @@ public class SettleManager : MonoBehaviour
 
             SettleManager.Instance.DamageSourceId = cardManager.Owner.ID;
 
-            //移除已经结算完伤害的玩家
-            if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count > 0)
-            {
-                TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
-            }
-
             //是否进入濒死流程
             if (curTargetPlayer.Health <= 0)
             {
                 Debug.Log("中断流程，进入濒死流程");
                 DyingManager.Instance.EnterDying(curTargetPlayer);
+                //阻塞不往下执行
+                await TaskManager.Instance.BlockTask();
             }
-            else
-            {
-                AfterDamage();
-            }
+
+            Debug.Log("没有濒死继续往下执行");
+            AfterDamage();
+
         }
     }
 
     //伤害后
     public void AfterDamage()
     {
+        //TODO 判断是否死亡，如果死亡则继续铁索
         //TODO 无属性的话不需要响应铁索连环
         HandleIronChain();
     }
@@ -125,48 +125,48 @@ public class SettleManager : MonoBehaviour
     public void HandleIronChain()
     {
         //TODO 铁索连环结算
-        FinishSettle();
+        UseCardManager.Instance.FinishSettle();
     }
 
-    //完成结算
-    public void FinishSettle()
-    {
-        if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
-        {
-            //去除所有目标高亮
-            HighlightManager.DisableAllTargetsGlow();
-            //移除卡
-            GlobalSettings.Instance.Table.ClearCardsFromLast();
-            if (TargetsManager.Instance.Targets.Count == 0)
-            {
-                //高亮当前回合人
-                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
-            }
-            else
-            {
-                ActiveLastOneCardOnTable();
-            }
-        }
-        else
-        {
-            ActiveLastOneCardOnTable();
-        }
-    }
+    ////完成结算
+    //public void FinishSettle()
+    //{
+    //    if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
+    //    {
+    //        //去除所有目标高亮
+    //        HighlightManager.DisableAllTargetsGlow();
+    //        //移除卡
+    //        GlobalSettings.Instance.Table.ClearCardsFromLast();
+    //        if (TargetsManager.Instance.Targets.Count == 0)
+    //        {
+    //            //高亮当前回合人
+    //            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+    //        }
+    //        else
+    //        {
+    //            ActiveLastOneCardOnTable();
+    //        }
+    //    }
+    //    else
+    //    {
+    //        ActiveLastOneCardOnTable();
+    //    }
+    //}
 
-    public void ActiveLastOneCardOnTable()
-    {
-        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+    //public void ActiveLastOneCardOnTable()
+    //{
+    //    OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
-        if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
-        {
-            TipCardManager.Instance.JiedaoSharenNextTarget();
-        }
-        else
-        {
-            Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
-            PlayCardManager.Instance.ActiveEffect(cardManager);
-        }
-    }
+    //    if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
+    //    {
+    //        TipCardManager.Instance.JiedaoSharenNextTarget();
+    //    }
+    //    else
+    //    {
+    //        Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+    //        UseCardManager.Instance.HandleImpeccable(cardManager);
+    //    }
+    //}
 
     //TODO 需要将伤害方法分离出来，并且统计伤害来源
 }

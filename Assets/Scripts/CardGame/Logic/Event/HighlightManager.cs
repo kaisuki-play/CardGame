@@ -58,6 +58,7 @@ public class HighlightManager : MonoBehaviour
 
     public static void EnableCardsWithType(Player player, CardsType cardsType = CardsType.Normal)
     {
+        //TODO 当前人出牌人死了
         HighlightManager.DisableAllCards();
         foreach (int cardId in player.Hand.CardsInHand)
         {

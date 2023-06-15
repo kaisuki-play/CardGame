@@ -180,19 +180,51 @@ public class HandVisual : MonoBehaviour
     // 2 Overloaded method to show a spell played from hand
     public void PlayASpellFromHand(int CardID)
     {
-        GameObject card = IDHolder.GetGameObjectWithID(CardID);
-        PlayASpellFromHand(card);
+        GameObject CardVisual = IDHolder.GetGameObjectWithID(CardID);
+        OneCardManager playedCard = CardVisual.GetComponent<OneCardManager>();
+        CardAsset cardAsset = playedCard.CardAsset;
+
+        RemoveCard(CardVisual);
+
+        CardVisual.transform.SetParent(null);
+
+        Player player = GlobalSettings.Instance.Players[Owner];
+        int index = GlobalSettings.Instance.Table.CardsOnTable.Count;
+
+        Sequence s = DOTween.Sequence();
+        s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
+        s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
+        s.AppendInterval(1f);
+        s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.Table.Slots.Children[index].transform.position, 1f));
+
+        s.OnComplete(() =>
+        {
+            CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
+            GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
+
+            OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+            cardManager.CanBePlayedNow = false;
+            cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
+
+            CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+            Sequence s1 = DOTween.Sequence();
+            s1.AppendInterval(0.1f);
+            s1.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+
+            s1.OnComplete(() =>
+            {
+                cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
+                PlayCardManager.Instance.ActivateEffect(playedCard);
+            });
+
+        });
     }
+
 
     public void UseASpellFromHand(int CardID)
     {
-        GameObject card = IDHolder.GetGameObjectWithID(CardID);
-        PlayASpellFromHand(card);
-    }
-
-    public void PlayASpellFromHand(GameObject CardVisual)
-    {
-        Command.CommandExecutionComplete();
+        GameObject CardVisual = IDHolder.GetGameObjectWithID(CardID);
         OneCardManager playedCard = CardVisual.GetComponent<OneCardManager>();
         CardAsset cardAsset = playedCard.CardAsset;
 
@@ -200,8 +232,6 @@ public class HandVisual : MonoBehaviour
         {
             case TypesOfCards.DelayTips:
                 {
-                    //获取卡牌脚本
-                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
 
                     RemoveCard(CardVisual);
 
@@ -212,7 +242,7 @@ public class HandVisual : MonoBehaviour
                     //可视化加卡
                     player.PArea.JudgementVisual.AddCard(CardVisual);
                     //逻辑加卡
-                    player.JudgementLogic.AddCard(cardManager.UniqueCardID);
+                    player.JudgementLogic.AddCard(playedCard.UniqueCardID);
 
                     Sequence s = DOTween.Sequence();
                     s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
@@ -223,10 +253,10 @@ public class HandVisual : MonoBehaviour
                     {
                         CardVisual.transform.SetParent(player.PArea.JudgementVisual.Slots.transform);
 
-                        cardManager.CanBePlayedNow = false;
-                        cardManager.ChangeOwnerAndLocation(player, CardLocation.Judgement);
+                        playedCard.CanBePlayedNow = false;
+                        playedCard.ChangeOwnerAndLocation(player, CardLocation.Judgement);
 
-                        PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
+                        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
                     });
                 }
                 break;
@@ -261,7 +291,7 @@ public class HandVisual : MonoBehaviour
                         cardManager.CanBePlayedNow = false;
                         cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
 
-                        PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
+                        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
                     });
                 }
                 break;
@@ -290,24 +320,8 @@ public class HandVisual : MonoBehaviour
                         cardManager.CanBePlayedNow = false;
                         cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
 
-                        if (!cardManager.isUsedCard)
-                        {
-                            CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
 
-                            Sequence s1 = DOTween.Sequence();
-                            s1.AppendInterval(0.1f);
-                            s1.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-
-                            s1.OnComplete(() =>
-                            {
-                                cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
-                                PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
-                            });
-                        }
-                        else
-                        {
-                            PlayCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
-                        }
+                        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
 
                     });
                 }
@@ -316,6 +330,4 @@ public class HandVisual : MonoBehaviour
 
 
     }
-
-
 }

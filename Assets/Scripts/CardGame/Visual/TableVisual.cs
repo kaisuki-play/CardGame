@@ -119,6 +119,10 @@ public class TableVisual : MonoBehaviour
     /// </summary>
     public void ClearCardsFromLast()
     {
+        if (CardsOnTable.Count == 0)
+        {
+            return;
+        }
         ClearCardsWithIndex(CardsOnTable.Count - 1);
     }
 

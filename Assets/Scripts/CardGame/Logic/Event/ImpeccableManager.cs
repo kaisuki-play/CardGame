@@ -24,7 +24,8 @@ public class ImpeccableManager : MonoBehaviour
         {
             if (TipWillWork == true)
             {
-                TipCardManager.Instance.ActiveTipCard();
+                OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+                UseCardManager.Instance.ActiveEffect(cardManager);
             }
             else
             {
@@ -37,7 +38,7 @@ public class ImpeccableManager : MonoBehaviour
                     //移除pending卡牌
                     GlobalSettings.Instance.Table.ClearCardsFromLast();
                     //回到当前回合人
-                    PlayCardManager.Instance.BackToWhoseTurn();
+                    UseCardManager.Instance.BackToWhoseTurn();
                 }
                 else
                 {
