@@ -29,6 +29,7 @@ public class PlayerDeckVisual : MonoBehaviour
         CardAsset TaoyuanjieyiAsset = null;
         CardAsset HuogongAsset = null;
         CardAsset AnalepticAsset = null;
+        CardAsset TiesuoAsset = null;
         foreach (CardAsset cardAsset1 in GlobalSettings.Instance.DeckSource.Cards)
         {
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
@@ -75,20 +76,25 @@ public class PlayerDeckVisual : MonoBehaviour
             {
                 AnalepticAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Tiesuolianhuan)
+            {
+                TiesuoAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
         InsertNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
-        InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 3);
-        InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(GuohechaiqiaoAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(TiesuoAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
+        //InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 3);
+        //InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(GuohechaiqiaoAsset, CardSuits.Spades, CardRank.Rank_A);
     }
 
     void HandleCards(CardAsset cardAsset)

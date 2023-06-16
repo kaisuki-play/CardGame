@@ -161,9 +161,13 @@ public class HandVisual : MonoBehaviour
     public void DisCardFromHand(int CardID)
     {
         GameObject card = IDHolder.GetGameObjectWithID(CardID);
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
         RemoveCard(card);
 
         card.transform.SetParent(null);
+
+        cardManager.CanBePlayedNow = false;
+        cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
 
         Sequence s = DOTween.Sequence();
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
@@ -173,9 +177,6 @@ public class HandVisual : MonoBehaviour
             //Destroy(card);
             card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
 
-            OneCardManager cardManager = card.GetComponent<OneCardManager>();
-            cardManager.CanBePlayedNow = false;
-            cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
         });
     }
 

@@ -123,6 +123,14 @@ public class TipCardManager : MonoBehaviour
                         }
                     }
                     break;
+                case SubTypeOfCards.Tiesuolianhuan:
+                    {
+                        int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        curTargetPlayer.IsInIronChain = !curTargetPlayer.IsInIronChain;
+                        UseCardManager.Instance.FinishSettle();
+                    }
+                    break;
                 default:
                     Debug.Log("锦囊");
                     //SkipTipCard();

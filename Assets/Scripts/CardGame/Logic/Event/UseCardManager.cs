@@ -62,52 +62,29 @@ public class UseCardManager : MonoBehaviour
         }
 
         playedCard.TargetsPlayerIDs = targets;
-        //借刀杀人单独出来1.5流程
-        if (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
+
+        switch (playedCard.CardAsset.SubTypeOfCard)
         {
-            HandleSpecialTarget(playedCard);
-            //阻塞
-            await TaskManager.Instance.BlockTask();
+            case SubTypeOfCards.Jiedaosharen:
+                {
+                    TargetsSelectManager.HandleSpecialTarget(playedCard);
+                    //阻塞
+                    await TaskManager.Instance.BlockTask();
+                }
+                break;
+            case SubTypeOfCards.Tiesuolianhuan:
+                {
+                    TargetsSelectManager.HandleMoreTargets(playedCard);
+                    //阻塞
+                    await TaskManager.Instance.BlockTask();
+                }
+                break;
         }
 
         // remove this card from hand
         playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
 
         playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
-    }
-
-    /// 1.5
-    /// <summary>
-    /// 有武器则需要指定杀目标
-    /// </summary>
-    /// <param name="playedCard"></param>
-    public void HandleSpecialTarget(OneCardManager playedCard)
-    {
-        Player specialTargetPlayer = GlobalSettings.Instance.FindPlayerByID(playedCard.TargetsPlayerIDs[0]);
-        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(specialTargetPlayer, TypeOfEquipment.Weapons);
-        //判断借刀对象是否有武器
-        if (hasWeapon)
-        {
-            Debug.Log("有武器");
-            // TODO 判断借刀对象是否有可杀的目标
-            specialTargetPlayer.PArea.Portrait.TargetComponent.GetComponent<DragOnTarget>().CardManager = playedCard;
-            specialTargetPlayer.ShowJiedaosharenTarget = true;
-        }
-    }
-
-    /// 1.5 第四类选择目标
-    /// <summary>
-    /// 选完借刀目标，杀人目标，出借刀杀人的牌
-    /// </summary>
-    /// <param name="playedCard"></param>
-    /// <param name="targets"></param>
-    public void HandleJiedaosharen(OneCardManager playedCard, int specialTarget = -1)
-    {
-        playedCard.SpecialTargetPlayerIDs.Add(specialTarget);
-
-        HighlightManager.DisableAllHeroTarget();
-
-        TaskManager.Instance.UnBlockTask();
     }
 
     // 2

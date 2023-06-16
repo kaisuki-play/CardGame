@@ -65,6 +65,21 @@ public class Player : MonoBehaviour
         }
     }
 
+    private bool _isInIronChain = false;
+    public bool IsInIronChain
+    {
+        get
+        {
+            return _isInIronChain;
+        }
+
+        set
+        {
+            _isInIronChain = value;
+            this.PArea.Portrait.TiesuoText.gameObject.SetActive(_isInIronChain);
+        }
+    }
+
     /// <summary>
     /// 寻找下一个逆时针玩家
     /// </summary>

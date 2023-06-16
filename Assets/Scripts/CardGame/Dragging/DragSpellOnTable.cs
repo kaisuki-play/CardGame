@@ -43,22 +43,48 @@ public class DragSpellOnTable : DraggingActions
 
     public override void OnEndDrag()
     {
-        if (DragSuccessful())
+        if (_manager.CardAsset.SubTypeOfCard == SubTypeOfCards.Tiesuolianhuan)
         {
-            (bool hasHuogong, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Huogong);
-            if (hasHuogong)
+            (bool isDragOnPlayer, int targetPlayerId) = isDragOnTarget();
+            if (isDragOnPlayer)
             {
-                HandleFireAttack(cardManager, _manager);
+                List<int> targets = new List<int>();
+                targets.Add(targetPlayerId);
+                _playerOwner.DragCard(_manager, targets);
             }
             else
             {
-                List<int> targets = new List<int>();
-                _playerOwner.DragCard(_manager, targets);
+                if (DragSuccessful())
+                {
+                    //弃掉铁索 摸一张牌
+                    _manager.Owner.DisACardFromHand(_manager.UniqueCardID);
+                    _manager.Owner.DrawACard();
+                }
+                else
+                {
+                    OnCancelDrag();
+                }
             }
         }
         else
         {
-            OnCancelDrag();
+            if (DragSuccessful())
+            {
+                (bool hasHuogong, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Huogong);
+                if (hasHuogong)
+                {
+                    HandleFireAttack(cardManager, _manager);
+                }
+                else
+                {
+                    List<int> targets = new List<int>();
+                    _playerOwner.DragCard(_manager, targets);
+                }
+            }
+            else
+            {
+                OnCancelDrag();
+            }
         }
     }
 
