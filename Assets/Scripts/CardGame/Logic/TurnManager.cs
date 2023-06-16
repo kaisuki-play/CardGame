@@ -78,7 +78,7 @@ public class TurnManager : MonoBehaviour
                     break;
                 case TurnPhase.EndTurn:
                     StatusText.text = "End Turn Phase";
-                    TurnManager.Instance.whoseTurn = TurnManager.Instance.whoseTurn.OtherPlayer;
+                    OnEndTurn();
                     break;
             }
         }
@@ -194,9 +194,18 @@ public class TurnManager : MonoBehaviour
                 TurnManager.Instance.TurnPhase = TurnPhase.EndTurn;
                 break;
             case TurnPhase.EndTurn:
-                TurnManager.Instance.whoseTurn = TurnManager.Instance.whoseTurn.OtherPlayer;
+                OnEndTurn();
                 break;
         }
+    }
+
+    public void OnEndTurn()
+    {
+        //重置杀的次数限制
+        CounterManager.Instance.ResetSlashLimit();
+        //重置酒的次数限制
+        CounterManager.Instance.ResetAnaleptic();
+        TurnManager.Instance.whoseTurn = TurnManager.Instance.whoseTurn.OtherPlayer;
     }
 
 

@@ -17,7 +17,7 @@ public class PlayerDeckVisual : MonoBehaviour
 
     public void AddDeckCards()
     {
-        Debug.Log("卡牌总数: " + DeckSource.Instance.Cards.Count);
+        Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
         CardAsset JiedaoSharenAsset = null;
         CardAsset NanmanAsset = null;
         CardAsset JuedouAsset = null;
@@ -25,7 +25,11 @@ public class PlayerDeckVisual : MonoBehaviour
         CardAsset ZbsmAsset = null;
         CardAsset ShunshouqianyangAsset = null;
         CardAsset GuohechaiqiaoAsset = null;
-        foreach (CardAsset cardAsset1 in DeckSource.Instance.Cards)
+        CardAsset WugufengdengAsset = null;
+        CardAsset TaoyuanjieyiAsset = null;
+        CardAsset HuogongAsset = null;
+        CardAsset AnalepticAsset = null;
+        foreach (CardAsset cardAsset1 in GlobalSettings.Instance.DeckSource.Cards)
         {
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
             {
@@ -55,10 +59,30 @@ public class PlayerDeckVisual : MonoBehaviour
             {
                 GuohechaiqiaoAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Wugufengdeng)
+            {
+                WugufengdengAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Taoyuanjieyi)
+            {
+                TaoyuanjieyiAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Huogong)
+            {
+                HuogongAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Analeptic)
+            {
+                AnalepticAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
         InsertNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
         InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
         InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
         InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
@@ -291,38 +315,38 @@ public class PlayerDeckVisual : MonoBehaviour
                 addNewCardAsset(cardAsset, CardSuits.Clubs, CardRank.Rank_2, TypeOfEquipment.Armor);
                 break;
             case SubTypeOfCards.FrostBlade://寒冰剑
-                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_2, TypeOfEquipment.Weapons, 2);
+                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_2, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Zhugeliannu://诸葛连弩
-                addNewCardAsset(cardAsset, CardSuits.Clubs, CardRank.Rank_A, TypeOfEquipment.Weapons, 1);
-                addNewCardAsset(cardAsset, CardSuits.Diamonds, CardRank.Rank_A, TypeOfEquipment.Weapons, 1);
+                addNewCardAsset(cardAsset, CardSuits.Clubs, CardRank.Rank_A, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
+                addNewCardAsset(cardAsset, CardSuits.Diamonds, CardRank.Rank_A, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Gudiandao://古锭刀
-                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 2);
+                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Zhuqueyushan://朱雀羽扇
-                addNewCardAsset(cardAsset, CardSuits.Diamonds, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
+                addNewCardAsset(cardAsset, CardSuits.Diamonds, CardRank.Rank_A, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.CixiongDoubleSwards://雌雄双股剑
-                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_2, TypeOfEquipment.Weapons, 2);
+                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_2, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Qinglongyanyuedao://青龙偃月刀
-                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_5, TypeOfEquipment.Weapons, 3);
+                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_5, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Guanshifu://贯石斧
-                addNewCardAsset(cardAsset, CardSuits.Diamonds, CardRank.Rank_5, TypeOfEquipment.Weapons, 3);
+                addNewCardAsset(cardAsset, CardSuits.Diamonds, CardRank.Rank_5, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Zhangbashemao://丈八蛇矛
-                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_Q, TypeOfEquipment.Weapons, 3);
+                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_Q, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Fangtianhuaji://方天画戟
-                addNewCardAsset(cardAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Weapons, 4);
+                addNewCardAsset(cardAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Qinghongjian://青釭剑
-                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_6, TypeOfEquipment.Weapons, 2);
+                addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_6, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Qilingong://麒麟弓
-                addNewCardAsset(cardAsset, CardSuits.Hearts, CardRank.Rank_5, TypeOfEquipment.Weapons, 5);
+                addNewCardAsset(cardAsset, CardSuits.Hearts, CardRank.Rank_5, TypeOfEquipment.Weapons, cardAsset.WeaponAttackDistance);
                 break;
             case SubTypeOfCards.Jueying:
                 addNewCardAsset(cardAsset, CardSuits.Spades, CardRank.Rank_5, TypeOfEquipment.AddAHorse);

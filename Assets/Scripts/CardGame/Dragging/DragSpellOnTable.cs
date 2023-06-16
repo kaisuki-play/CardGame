@@ -45,8 +45,16 @@ public class DragSpellOnTable : DraggingActions
     {
         if (DragSuccessful())
         {
-            List<int> targets = new List<int>();
-            _playerOwner.DragCard(_manager, targets);
+            (bool hasHuogong, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Huogong);
+            if (hasHuogong)
+            {
+                HandleFireAttack(cardManager, _manager);
+            }
+            else
+            {
+                List<int> targets = new List<int>();
+                _playerOwner.DragCard(_manager, targets);
+            }
         }
         else
         {
@@ -93,6 +101,36 @@ public class DragSpellOnTable : DraggingActions
         else
         {
             return (false, -1);
+        }
+    }
+
+    private void HandleFireAttack(OneCardManager huogongCard, OneCardManager otherCard)
+    {
+        if (huogongCard.ShownCard)
+        {
+            otherCard.Owner.DisACardFromHand(otherCard.UniqueCardID);
+            if (otherCard.CardAsset.Suits == huogongCard.ShownCardSuit)
+            {
+                SettleManager.Instance.StartSettle();
+            }
+            else
+            {
+                UseCardManager.Instance.FinishSettle();
+            }
+        }
+        else
+        {
+            Sequence s = DOTween.Sequence();
+            s.Append(transform.DOMove(TurnManager.Instance.whoseTurn.PArea.HandVisual.PlayPreviewSpot.position, 1f));
+            s.Insert(0f, transform.DORotate(Vector3.zero, 1f));
+            s.AppendInterval(2f);
+            s.OnComplete(() =>
+            {
+                huogongCard.ShownCard = true;
+                huogongCard.ShownCardSuit = otherCard.CardAsset.Suits;
+                OnCancelDrag();
+                TipCardManager.Instance.ActiveTipCard();
+            });
         }
     }
 }

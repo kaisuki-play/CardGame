@@ -219,6 +219,13 @@ public class UseCardManager : MonoBehaviour
                             break;
                         // TODO 1.酒的红色高亮 2.濒死把酒对自己当桃
                         case SubTypeOfCards.Analeptic:
+                            {
+                                CounterManager.Instance.UsedAnalepticThisTurn = true;
+                                Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+                                targetPlayer.ChangePortraitColor(Color.red);
+                                HighlightManager.EnableCardsWithType(targetPlayer);
+                                FinishSettle();
+                            }
                             break;
                     }
                 }
@@ -237,6 +244,11 @@ public class UseCardManager : MonoBehaviour
     /// </summary>
     public void FinishSettle()
     {
+        //移除另外目标的玩家
+        if (TargetsManager.Instance.SpecialTarget.Count > 0)
+        {
+            TargetsManager.Instance.SpecialTarget.RemoveAt(0);
+        }
         //移除已经结算完伤害的玩家
         if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count > 0)
         {
@@ -246,6 +258,7 @@ public class UseCardManager : MonoBehaviour
         {
             //去除所有目标高亮
             HighlightManager.DisableAllTargetsGlow();
+            HighlightManager.DisableAllOpButtons();
             //移除卡
             GlobalSettings.Instance.Table.ClearCardsFromLast();
             if (TargetsManager.Instance.Targets.Count == 0)

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using DG.Tweening;
 
 public class TipCardManager : MonoBehaviour
 {
@@ -73,12 +75,54 @@ public class TipCardManager : MonoBehaviour
                     UseCardManager.Instance.NeedToPlaySlash(null, true);
                     break;
                 case SubTypeOfCards.Shunshouqianyang:
-                    ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.Shunshouqianyang);
+                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.Shunshouqianyang);
+
+                    //ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.Shunshouqianyang);
                     break;
                 case SubTypeOfCards.Guohechaiqiao:
-                    ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.GuoheChaiqiao);
+                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.GuoheChaiqiao);
+
+                    //ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.GuoheChaiqiao);
                     break;
                 case SubTypeOfCards.Wugufengdeng:
+                    {
+                        int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                        ShowCardsFromDeck(TargetsManager.Instance.Targets[cardIndex].Count, TargetCardsPanelType.Wugufengdeng);
+                    }
+                    break;
+                case SubTypeOfCards.Taoyuanjieyi:
+                    {
+                        int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        if (curTargetPlayer.Health < curTargetPlayer.PArea.Portrait.TotalHealth)
+                        {
+                            HealthManager.Instance.HealingEffect(1, curTargetPlayer);
+                        }
+                        UseCardManager.Instance.FinishSettle();
+                    }
+                    break;
+                case SubTypeOfCards.Huogong:
+                    {
+                        if (cardManager.ShownCard)
+                        {
+                            Debug.Log("需要火攻");
+                            HighlightManager.DisACards(cardManager.Owner);
+                            cardManager.Owner.ShowOp1Button = true;
+                            cardManager.Owner.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                            cardManager.Owner.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                            {
+                                cardManager.Owner.ShowOp1Button = false;
+                                UseCardManager.Instance.FinishSettle();
+                            });
+                        }
+                        else
+                        {
+                            int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                            Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                            HighlightManager.ShowACards(curTargetPlayer);
+                        }
+                    }
+                    break;
                 default:
                     Debug.Log("锦囊");
                     //SkipTipCard();
@@ -122,27 +166,54 @@ public class TipCardManager : MonoBehaviour
         JiedaoSharenNextTarget();
     }
 
-    public void ShowTargetAllCards(Player targetPlayer, TargetCardsPanelType targetCardsPanelType)
+    /// <summary>
+    /// 从堆顶展示牌
+    /// </summary>
+    /// <param name="cardsNumber"></param>
+    /// <param name="targetCardsPanelType"></param>
+    public void ShowCardsFromDeck(int cardsNumber, TargetCardsPanelType targetCardsPanelType)
     {
-        GlobalSettings.Instance.TargetCardsPanel.PanelType = targetCardsPanelType;
-        GlobalSettings.Instance.TargetCardsPanel.gameObject.SetActive(true);
-        for (int i = 0; i < targetPlayer.Hand.CardsInHand.Count; i++)
+        if (!GlobalSettings.Instance.CardSelectVisual.gameObject.activeSelf)
+        {
+            GlobalSettings.Instance.CardSelectVisual.PanelType = targetCardsPanelType;
+            GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+
+            for (int i = cardsNumber - 1; i >= 0; i--)
+            {
+                GameObject card = GlobalSettings.Instance.PDeck.DeckCards[i];
+                OneCardManager cardManager = card.GetComponent<OneCardManager>();
+                GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 展示目标的牌供选择
+    /// </summary>
+    /// <param name="targetPlayer"></param>
+    /// <param name="targetCardsPanelType"></param>
+    public void ShowCardsSelection(Player targetPlayer, TargetCardsPanelType targetCardsPanelType)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = targetCardsPanelType;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+
+        for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
         {
             GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.Hand.CardsInHand[i]);
             OneCardManager cardManager = card.GetComponent<OneCardManager>();
-            GlobalSettings.Instance.TargetCardsPanel.AddHandCardsAtIndex(cardManager, i);
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
         }
-        for (int i = 0; i < targetPlayer.JudgementLogic.CardsInJudgement.Count; i++)
+        for (int i = targetPlayer.JudgementLogic.CardsInJudgement.Count - 1; i >= 0; i--)
         {
             GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.JudgementLogic.CardsInJudgement[i]);
             OneCardManager cardManager = card.GetComponent<OneCardManager>();
-            GlobalSettings.Instance.TargetCardsPanel.AddHandCardsAtIndex(cardManager, i);
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
         }
-        for (int i = 0; i < targetPlayer.EquipmentLogic.CardsInEquipment.Count; i++)
+        for (int i = targetPlayer.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
         {
             GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.EquipmentLogic.CardsInEquipment[i]);
             OneCardManager cardManager = card.GetComponent<OneCardManager>();
-            GlobalSettings.Instance.TargetCardsPanel.AddHandCardsAtIndex(cardManager, i);
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
         }
     }
 }

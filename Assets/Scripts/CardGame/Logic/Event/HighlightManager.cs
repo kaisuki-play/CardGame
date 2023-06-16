@@ -106,6 +106,28 @@ public class HighlightManager : MonoBehaviour
         }
     }
 
+    public static void ShowACards(Player player)
+    {
+        HighlightManager.DisableAllCards();
+        foreach (int cardId in player.Hand.CardsInHand)
+        {
+            OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
+            oneCardManager.CanBePlayedNow = true;
+            oneCardManager.TargetComponent.SetActive(false);
+        }
+    }
+
+    public static void DisACards(Player player)
+    {
+        HighlightManager.DisableAllCards();
+        foreach (int cardId in player.Hand.CardsInHand)
+        {
+            OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
+            oneCardManager.CanBePlayedNow = true;
+            oneCardManager.TargetComponent.SetActive(false);
+        }
+    }
+
     public static bool CanBePlayedNow(OneCardManager oneCardManager)
     {
         switch (oneCardManager.CardAsset.SubTypeOfCard)

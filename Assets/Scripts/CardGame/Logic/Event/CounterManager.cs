@@ -34,6 +34,24 @@ public class CounterManager : MonoBehaviour
         set
         {
             _usedAnalepticThisTurn = value;
+            if (!_usedAnalepticThisTurn)
+            {
+                TurnManager.Instance.whoseTurn.ChangePortraitColor(Color.green);
+            }
+        }
+    }
+
+    private int _analepticWorkCount;
+    public int AnalepticWorkCount
+    {
+        get { return _analepticWorkCount; }
+        set
+        {
+            _analepticWorkCount = value;
+            if (_analepticWorkCount > 0)
+            {
+                TurnManager.Instance.whoseTurn.ChangePortraitColor(Color.green);
+            }
         }
     }
 
@@ -53,5 +71,6 @@ public class CounterManager : MonoBehaviour
     public void ResetAnaleptic()
     {
         this.UsedAnalepticThisTurn = false;
+        this.AnalepticWorkCount = 0;
     }
 }

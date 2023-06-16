@@ -59,6 +59,10 @@ public class OneCardManager : MonoBehaviour
     public List<int> SpecialTargetPlayerIDs;
     public bool isUsedCard = false;
 
+    [Header("Fire Attack")]
+    public bool ShownCard;
+    public CardSuits ShownCardSuit;
+
     public static Dictionary<int, OneCardManager> CardsCreatedThisGame = new Dictionary<int, OneCardManager>();
 
     void Awake()

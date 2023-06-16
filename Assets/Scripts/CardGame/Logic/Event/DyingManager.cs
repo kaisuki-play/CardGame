@@ -165,7 +165,7 @@ public class DyingManager : MonoBehaviour
         //设置濒死人为死亡
         DyingManager.Instance.DyingPlayer.IsDead = true;
         ////全局移除玩家
-        GlobalSettings.Instance.RemoveDiePlayer();
+        //GlobalSettings.Instance.RemoveDiePlayer();
         //TODO 玩家所有牌进入弃牌堆
         DyingManager.Instance.DyingPlayer.DisAllCards();
         //清空濒死玩家

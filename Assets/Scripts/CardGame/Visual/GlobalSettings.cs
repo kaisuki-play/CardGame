@@ -21,12 +21,13 @@ public class GlobalSettings : MonoBehaviour
     public TableVisual Table;
     [Header("Target Cards Panel")]
     public TargetCardsPanel TargetCardsPanel;
+    public CardSelectVisual CardSelectVisual;
     [Header("Deck")]
     public DeckSource DeckSource;
     [Header("Colors")]
-    public Color32 CardBodyStandardColor;
-    public Color32 CardRibbonsStandardColor;
-    public Color32 CardGlowColor;
+    public Color NormalColor;
+    public Color HotBloodColor;
+    public Color CardGlowColor;
     [Header("Numbers and Values")]
     public float CardPreviewTime = 0.1f;
     public float CardTransitionTime = 0.1f;
@@ -46,6 +47,7 @@ public class GlobalSettings : MonoBehaviour
     public GameObject ButtonPrefab;
     public GameObject SkillShowCardPrefab;
     public GameObject HealthPrefab;
+    public GameObject CardToSelectPrefab;
     [Header("Other")]
     public Button CenterButton;
     public GameObject GameOverPanel;

@@ -68,6 +68,9 @@ public class SettleManager : MonoBehaviour
                                     }
                                 }
                                 break;
+                            case SubTypeOfCards.Huogong:
+                                CalculateDamage();
+                                break;
                             default:
                                 break;
                         }
@@ -92,6 +95,9 @@ public class SettleManager : MonoBehaviour
             {
                 curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
             }
+
+            //酒杀钩子
+            originDamage = AnalepticHook(originDamage);
 
             //结算伤害
             HealthManager.Instance.DamageEffect(originDamage, curTargetPlayer);
@@ -128,45 +134,19 @@ public class SettleManager : MonoBehaviour
         UseCardManager.Instance.FinishSettle();
     }
 
-    ////完成结算
-    //public void FinishSettle()
-    //{
-    //    if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
-    //    {
-    //        //去除所有目标高亮
-    //        HighlightManager.DisableAllTargetsGlow();
-    //        //移除卡
-    //        GlobalSettings.Instance.Table.ClearCardsFromLast();
-    //        if (TargetsManager.Instance.Targets.Count == 0)
-    //        {
-    //            //高亮当前回合人
-    //            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
-    //        }
-    //        else
-    //        {
-    //            ActiveLastOneCardOnTable();
-    //        }
-    //    }
-    //    else
-    //    {
-    //        ActiveLastOneCardOnTable();
-    //    }
-    //}
-
-    //public void ActiveLastOneCardOnTable()
-    //{
-    //    OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
-
-    //    if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
-    //    {
-    //        TipCardManager.Instance.JiedaoSharenNextTarget();
-    //    }
-    //    else
-    //    {
-    //        Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
-    //        UseCardManager.Instance.HandleImpeccable(cardManager);
-    //    }
-    //}
-
-    //TODO 需要将伤害方法分离出来，并且统计伤害来源
+    //酒杀的钩子
+    public int AnalepticHook(int originDamage)
+    {
+        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+        if ((cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
+            || cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash
+            || cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash)
+            && CounterManager.Instance.UsedAnalepticThisTurn
+            && CounterManager.Instance.AnalepticWorkCount == 0)
+        {
+            CounterManager.Instance.AnalepticWorkCount++;
+            return originDamage + 1;
+        }
+        return originDamage;
+    }
 }

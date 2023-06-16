@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using System.Linq;
 using static UnityEngine.GraphicsBuffer;
+using UnityEngine.UI;
 
 public class PersonComparer : IComparer<Player>
 {
@@ -46,6 +47,9 @@ public class Player : MonoBehaviour
         get { return PlayerID; }
     }
 
+    /// <summary>
+    /// 是否已经死亡
+    /// </summary>
     private bool _isDead = false;
     public bool IsDead
     {
@@ -61,7 +65,9 @@ public class Player : MonoBehaviour
         }
     }
 
-    // Look counterclockwise to find the player next in the current player's pick
+    /// <summary>
+    /// 寻找下一个逆时针玩家
+    /// </summary>
     public Player OtherPlayer
     {
         get
@@ -75,24 +81,40 @@ public class Player : MonoBehaviour
                     break;
                 }
             }
+            Player curPlayer = null;
             if (currentIndex > 0)
             {
-                return GlobalSettings.Instance.PlayerInstances[currentIndex - 1];
+                curPlayer = GlobalSettings.Instance.PlayerInstances[currentIndex - 1];
             }
             else
             {
-                return GlobalSettings.Instance.PlayerInstances[GlobalSettings.Instance.PlayerInstances.Length - 1];
+                curPlayer = GlobalSettings.Instance.PlayerInstances[GlobalSettings.Instance.PlayerInstances.Length - 1];
+            }
+            if (curPlayer.IsDead)
+            {
+                return curPlayer.OtherPlayer;
+            }
+            else
+            {
+                return curPlayer;
             }
         }
     }
 
+    /// <summary>
+    /// 给玩家加ID
+    /// </summary>
     public void TransmitInfoAboutPlayerToVisual()
     {
         PArea.Portrait.gameObject.AddComponent<IDHolder>().UniqueID = PlayerID;
     }
 
 
-    // Calculate clockwise according to counterclockwise whether it is within range of the attack TODO:need to add distance in the future.
+    /// <summary>
+    /// 计算距离，看是否可以攻击到
+    /// </summary>
+    /// <param name="targetID"></param>
+    /// <returns></returns>
     public bool CanAttack(int targetID)
     {
         int distanceCanTouch = 1;
@@ -153,6 +175,12 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 先就+1马、-1马进行计算距离
+    /// </summary>
+    /// <param name="targetPlayer"></param>
+    /// <param name="originDistance"></param>
+    /// <returns></returns>
     int CalculateDistance(Player targetPlayer, int originDistance)
     {
         bool playerHasMinusHorse = false;
@@ -180,7 +208,9 @@ public class Player : MonoBehaviour
         return originDistance - (playerHasMinusHorse ? 1 : 0) + (targetHasAddHorse ? 1 : 0);
     }
 
-    // health for character
+    /// <summary>
+    /// 血量
+    /// </summary>
     private int _health;
     public int Health
     {
@@ -199,6 +229,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 显示第一个操作按钮
+    /// </summary>
     private bool _showOp1Button = false;
     public bool ShowOp1Button
     {
@@ -214,6 +247,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 显示第二个操作按钮
+    /// </summary>
     private bool _showOp2Button = false;
     public bool ShowOp2Button
     {
@@ -229,6 +265,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 显示第三个操作按钮
+    /// </summary>
     private bool _showOp3Button = false;
     public bool ShowOp3Button
     {
@@ -244,6 +283,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 显示目标头像高亮
+    /// </summary>
     private bool _showTargetGlow = false;
     public bool ShowTargetGlow
     {
@@ -258,6 +300,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 是否是本玩家回合，如果是则高亮头像
+    /// </summary>
     private bool _isThisTurn = false;
     public bool IsThisTurn
     {
@@ -272,6 +317,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 被借刀者拖拽到被杀目标头上
+    /// </summary>
     private bool _showJiedaosharenTarget = false;
     public bool ShowJiedaosharenTarget
     {
@@ -293,16 +341,9 @@ public class Player : MonoBehaviour
         PlayerID = IDFactory.GetUniqueID();
     }
 
-    public virtual void OnTurnStart()
+    public void ChangePortraitColor(Color color)
     {
-
-    }
-
-    public void OnTurnEnd()
-    {
-        //重置杀的次数限制
-        CounterManager.Instance.ResetSlashLimit();
-        CounterManager.Instance.ResetAnaleptic();
+        this.PArea.Portrait.PortraitGlowImage.GetComponent<Image>().color = color;
     }
 
 
@@ -343,11 +384,35 @@ public class Player : MonoBehaviour
                 GameObject card = GlobalSettings.Instance.PDeck.DeckCards[0];
                 OneCardManager cardManager = card.GetComponent<OneCardManager>();
 
-                OneCardManager newCard = card.GetComponent<OneCardManager>();
-                newCard.ChangeOwnerAndLocation(this, CardLocation.Hand);
+                cardManager.ChangeOwnerAndLocation(this, CardLocation.Hand);
 
-                Hand.CardsInHand.Insert(0, newCard.UniqueCardID);
+                Hand.CardsInHand.Insert(0, cardManager.UniqueCardID);
                 GlobalSettings.Instance.PDeck.DeckCards.RemoveAt(0);
+
+                // 2) create a command
+                this.PArea.HandVisual.DrawACard(card);
+            }
+        }
+        else
+        {
+            // there are no cards in the deck, take fatigue damage.
+        }
+
+    }
+
+    public void DrawACard(int cardId)
+    {
+        if (GlobalSettings.Instance.PDeck.DeckCards.Count > 0)
+        {
+            if (Hand.CardsInHand.Count < PArea.HandVisual.Slots.Children.Length)
+            {
+                GameObject card = IDHolder.GetGameObjectWithID(cardId);
+                OneCardManager cardManager = card.GetComponent<OneCardManager>();
+
+                cardManager.ChangeOwnerAndLocation(this, CardLocation.Hand);
+
+                Hand.CardsInHand.Insert(0, cardManager.UniqueCardID);
+                GlobalSettings.Instance.PDeck.DeckCards.Remove(card);
 
                 // 2) create a command
                 this.PArea.HandVisual.DrawACard(card);
@@ -461,6 +526,20 @@ public class Player : MonoBehaviour
         PlayCardManager.Instance.PlayAVisualCardFromHand(playedCard, targets);
     }
 
+    /// <summary>
+    /// 根据cardId弃一张牌
+    /// </summary>
+    /// <param name="cardId"></param>
+    public void DisACardFromHand(int cardId)
+    {
+        Debug.Log("火攻弃牌" + cardId);
+        this.Hand.DisCard(cardId);
+        this.PArea.HandVisual.DisCardFromHand(cardId);
+    }
+
+    /// <summary>
+    /// 所有牌都弃掉
+    /// </summary>
     public void DisAllCards()
     {
         foreach (int cardId in this.Hand.CardsInHand)
