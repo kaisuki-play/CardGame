@@ -305,6 +305,12 @@ public class TurnManager : MonoBehaviour
         CounterManager.Instance.ResetSlashLimit();
         //重置酒的次数限制
         CounterManager.Instance.ResetAnaleptic();
+        //重置各种跳过阶段的参数
+        SkipJudgementPhase = false;
+        SkipDrawCardPhase = false;
+        SkipPlayCardPhase = false;
+        SkipDisCardPhase = false;
+
         TurnManager.Instance.whoseTurn = TurnManager.Instance.whoseTurn.OtherPlayer;
     }
 
