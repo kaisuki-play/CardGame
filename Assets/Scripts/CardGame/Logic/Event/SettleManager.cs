@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class SettleManager : MonoBehaviour
 {
@@ -13,16 +14,19 @@ public class SettleManager : MonoBehaviour
     }
 
     //开始结算
-    public void StartSettle()
+    public void StartSettle(OneCardManager cardManager = null)
     {
 
-        BeforeDamage();
+        BeforeDamage(cardManager);
     }
 
     //伤害前
-    public void BeforeDamage()
+    public void BeforeDamage(OneCardManager cardManager = null)
     {
-        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+        if (cardManager == null)
+        {
+            cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+        }
         if (cardManager != null)
         {
             switch (cardManager.CardAsset.TypeOfCard)
@@ -76,6 +80,12 @@ public class SettleManager : MonoBehaviour
                         }
                     }
                     break;
+                case TypesOfCards.DelayTips:
+                    if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Thunder)
+                    {
+                        CalculateDamage(TurnManager.Instance.whoseTurn, cardManager, 3);
+                    }
+                    break;
             }
 
         }
@@ -83,13 +93,19 @@ public class SettleManager : MonoBehaviour
 
 
     //计算伤害
-    public async void CalculateDamage(Player curTargetPlayer = null)
+    public async void CalculateDamage(Player curTargetPlayer = null, OneCardManager cardManager = null, int originDamage = 0)
     {
-        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+        if (cardManager == null)
+        {
+            cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+        }
         if (cardManager != null)
         {
 
-            int originDamage = cardManager.CardAsset.SpecialSpellAmount;
+            if (originDamage == 0)
+            {
+                originDamage = cardManager.CardAsset.SpecialSpellAmount;
+            }
 
             if (curTargetPlayer == null)
             {
@@ -110,34 +126,46 @@ public class SettleManager : MonoBehaviour
                 Debug.Log("中断流程，进入濒死流程");
                 DyingManager.Instance.EnterDying(curTargetPlayer);
                 //阻塞不往下执行
-                await TaskManager.Instance.BlockTask();
+                await TaskManager.Instance.BlockTask(TaskType.DyingTask);
             }
 
             Debug.Log("没有濒死继续往下执行");
-            AfterDamage();
+            AfterDamage(cardManager);
 
         }
     }
 
     //伤害后
-    public void AfterDamage()
+    public void AfterDamage(OneCardManager cardManager = null)
     {
         //TODO 判断是否死亡，如果死亡则继续铁索
         //TODO 无属性的话不需要响应铁索连环
-        HandleIronChain();
+        HandleIronChain(cardManager);
     }
 
     //铁索连环结算
-    public void HandleIronChain()
+    public void HandleIronChain(OneCardManager cardManager = null)
     {
         //TODO 铁索连环结算
         //TODO 自己回合死亡，回合需要传到下一个玩家手里
-        UseCardManager.Instance.FinishSettle();
+        if (cardManager.CardAsset.TypeOfCard == TypesOfCards.DelayTips)
+        {
+            TaskManager.Instance.DelayTipTask.SetResult(true);
+            //DelayTipManager.HandleDelayTip(TurnManager.Instance.whoseTurn);
+        }
+        else
+        {
+            UseCardManager.Instance.FinishSettle();
+        }
     }
 
     //酒杀的钩子
     public int AnalepticHook(int originDamage)
     {
+        if (GlobalSettings.Instance.Table.CardsOnTable.Count == 0)
+        {
+            return originDamage;
+        }
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
         if ((cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
             || cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash

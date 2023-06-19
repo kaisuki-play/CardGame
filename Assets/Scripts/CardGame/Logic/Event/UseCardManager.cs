@@ -20,59 +20,44 @@ public class UseCardManager : MonoBehaviour
     /// <param name="target"></param>
     public async void UseAVisualCardFromHand(OneCardManager playedCard, List<int> targets)
     {
+        // 出杀次数Hook
+        CounterManager.Instance.AddSlashUsedCount(playedCard);
         // 默认赋值目标
-        switch (playedCard.CardAsset.TypeOfCard)
+        switch (playedCard.CardAsset.SubTypeOfCard)
         {
-            case TypesOfCards.DelayTips:
+            case SubTypeOfCards.Peach:
+                // 濒死情况下需要判断
+                // TODO 濒死求桃的目标是濒死角色
+                if (!DyingManager.Instance.IsInDyingInquiry)
                 {
-                    switch (playedCard.CardAsset.SubTypeOfCard)
+                    targets.Add(playedCard.Owner.ID);
+                }
+                else
+                {
+                    targets.Add(DyingManager.Instance.DyingPlayer.ID);
+                }
+                break;
+            case SubTypeOfCards.Analeptic:
+                targets.Add(playedCard.Owner.ID);
+                break;
+            case SubTypeOfCards.Wuzhongshengyou:
+                targets.Add(playedCard.Owner.ID);
+                break;
+            case SubTypeOfCards.Nanmanruqin:
+            case SubTypeOfCards.Wanjianqifa:
+                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                {
+                    if (player.ID != playedCard.Owner.ID)
                     {
-                        case SubTypeOfCards.Thunder:
-                            targets.Add(playedCard.Owner.ID);
-                            break;
+                        targets.Add(player.ID);
                     }
                 }
                 break;
-            default:
+            case SubTypeOfCards.Wugufengdeng:
+            case SubTypeOfCards.Taoyuanjieyi:
+                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
                 {
-                    switch (playedCard.CardAsset.SubTypeOfCard)
-                    {
-                        case SubTypeOfCards.Peach:
-                            // 濒死情况下需要判断
-                            // TODO 濒死求桃的目标是濒死角色
-                            if (!DyingManager.Instance.IsInDyingInquiry)
-                            {
-                                targets.Add(playedCard.Owner.ID);
-                            }
-                            else
-                            {
-                                targets.Add(DyingManager.Instance.DyingPlayer.ID);
-                            }
-                            break;
-                        case SubTypeOfCards.Analeptic:
-                            targets.Add(playedCard.Owner.ID);
-                            break;
-                        case SubTypeOfCards.Wuzhongshengyou:
-                            targets.Add(playedCard.Owner.ID);
-                            break;
-                        case SubTypeOfCards.Nanmanruqin:
-                        case SubTypeOfCards.Wanjianqifa:
-                            foreach (Player player in GlobalSettings.Instance.PlayerInstances)
-                            {
-                                if (player.ID != playedCard.Owner.ID)
-                                {
-                                    targets.Add(player.ID);
-                                }
-                            }
-                            break;
-                        case SubTypeOfCards.Wugufengdeng:
-                        case SubTypeOfCards.Taoyuanjieyi:
-                            foreach (Player player in GlobalSettings.Instance.PlayerInstances)
-                            {
-                                targets.Add(player.ID);
-                            }
-                            break;
-                    }
+                    targets.Add(player.ID);
                 }
                 break;
         }
@@ -86,14 +71,14 @@ public class UseCardManager : MonoBehaviour
                 {
                     TargetsSelectManager.HandleSpecialTarget(playedCard);
                     //阻塞
-                    await TaskManager.Instance.BlockTask();
+                    await TaskManager.Instance.BlockTask(TaskType.SpecialTargetsTask);
                 }
                 break;
             case SubTypeOfCards.Tiesuolianhuan:
                 {
                     TargetsSelectManager.HandleMoreTargets(playedCard);
                     //阻塞
-                    await TaskManager.Instance.BlockTask();
+                    await TaskManager.Instance.BlockTask(TaskType.SpecialTargetsTask);
                 }
                 break;
         }
@@ -146,8 +131,16 @@ public class UseCardManager : MonoBehaviour
     /// 4 指定目标后：目标已经不变了，在此牌结算前，是否有额外的效果。
     /// </summary>
     /// <param name="playedCard"></param>
-    public void HandleFixedTargets(OneCardManager playedCard)
+    public async void HandleFixedTargets(OneCardManager playedCard)
     {
+        Debug.Log("阶段4");
+        //雌雄双股hook，自带阻塞
+        bool cixiongBlock = EquipmentManager.Instance.CixiongHook(playedCard.Owner, playedCard, GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]));
+        if (cixiongBlock)
+        {
+            await TaskManager.Instance.Block(TaskType.CixiongShuangguTask);
+        }
+        Debug.Log("继续第五步");
         HandleImpeccable(playedCard);
     }
 
@@ -379,7 +372,7 @@ public class UseCardManager : MonoBehaviour
                 }
             }
 
-            await TaskManager.Instance.BlockTask();
+            await TaskManager.Instance.BlockTask(TaskType.SpecialTargetsTask);
         }
     }
 

@@ -39,7 +39,7 @@ public class JudgementVisual : MonoBehaviour
     /// 移除卡牌到弃牌堆
     /// </summary>
     /// <param name="CardID"></param>
-    public void DisCardFromHand(int CardID)
+    public void DisCardFromJudgement(int CardID)
     {
         GameObject card = IDHolder.GetGameObjectWithID(CardID);
         RemoveCard(card);

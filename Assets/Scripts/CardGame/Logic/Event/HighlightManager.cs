@@ -135,6 +135,7 @@ public class HighlightManager : MonoBehaviour
             case SubTypeOfCards.Slash:
             case SubTypeOfCards.ThunderSlash:
             case SubTypeOfCards.FireSlash:
+                Debug.Log("最大杀的限制~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + CounterManager.Instance.SlashLimit);
                 if (CounterManager.Instance.SlashCount < CounterManager.Instance.SlashLimit)
                 {
                     return true;

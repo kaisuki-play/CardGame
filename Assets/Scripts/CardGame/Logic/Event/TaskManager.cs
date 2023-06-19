@@ -2,38 +2,57 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
-
+public enum TaskType
+{
+    DyingTask,
+    DelayTask,
+    SpecialTargetsTask,
+    CixiongShuangguTask
+}
 public class TaskManager : MonoBehaviour
 {
     public static TaskManager Instance;
-    public List<TaskCompletionSource<bool>> TaskBlockList = new List<TaskCompletionSource<bool>>();
+    //public List<TaskCompletionSource<bool>> TaskBlockList = new List<TaskCompletionSource<bool>>();
+    public Dictionary<TaskType, TaskCompletionSource<bool>> TaskBlockDic = new Dictionary<TaskType, TaskCompletionSource<bool>>();
+    public TaskCompletionSource<bool> DelayTipTask = new TaskCompletionSource<bool>();
     private void Awake()
     {
         Instance = this;
     }
 
-    public void AddATask()
+    public void AddATask(TaskType taskType)
     {
         TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
-        TaskBlockList.Add(tcs);
+        TaskManager.Instance.TaskBlockDic[taskType] = tcs;
     }
 
-    public async Task BlockTask()
+    public async Task Block(TaskType taskType)
     {
-        AddATask();
-        Debug.Log("新增之后，有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskBlockList.Count);
-        await TaskManager.Instance.TaskBlockList[TaskManager.Instance.TaskBlockList.Count - 1].Task;
+        await TaskManager.Instance.TaskBlockDic[taskType].Task;
     }
 
-    public void UnBlockTask()
+    public async Task BlockTask(TaskType taskType)
     {
-        if (TaskBlockList.Count == 0)
+        AddATask(taskType);
+        foreach (TaskType taskt in TaskManager.Instance.TaskBlockDic.Keys)
         {
-            return;
+            Debug.Log("加入阻塞后，还有几个阻塞任务~~~~~~~~~~~" + taskt + "~~~~~~~~~~~~~~~");
         }
-        TaskBlockList[TaskBlockList.Count - 1].SetResult(true);
-        TaskBlockList.RemoveAt(TaskBlockList.Count - 1);
-        Debug.Log("解除阻塞后，还有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskBlockList.Count);
+        await TaskManager.Instance.TaskBlockDic[taskType].Task;
+    }
+
+    public void UnBlockTask(TaskType taskType)
+    {
+        foreach (TaskType taskt in TaskManager.Instance.TaskBlockDic.Keys)
+        {
+            Debug.Log("需要解除任务~~~~~~~~~~~" + taskt + "~~~~~~~~~~~~~~~");
+        }
+        if (TaskManager.Instance.TaskBlockDic.ContainsKey(taskType))
+        {
+            Debug.Log("1解除阻塞后，还有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskManager.Instance.TaskBlockDic.Keys.Count);
+            TaskManager.Instance.TaskBlockDic[taskType].SetResult(true);
+            TaskManager.Instance.TaskBlockDic.Remove(taskType);
+        }
     }
 
 }

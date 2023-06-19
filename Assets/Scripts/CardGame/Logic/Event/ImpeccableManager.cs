@@ -22,30 +22,46 @@ public class ImpeccableManager : MonoBehaviour
         //如果摁了不出无懈的当前玩家的下一个顺位玩家是当前回合人，则进入对当前目标的结算
         if (inquirePlayer.OtherPlayer.ID == TurnManager.Instance.whoseTurn.ID)
         {
-            if (TipWillWork == true)
+            //延时锦囊的情况
+            if (GlobalSettings.Instance.Table.CardsOnTable.Count == 0)
             {
-                OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
-                UseCardManager.Instance.ActiveEffect(cardManager);
-            }
-            else
-            {
-                Debug.Log("锦囊是否生效：" + (TipWillWork ? "是" : "否"));
-                TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
-                if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
+                if (TipWillWork == true)
                 {
-                    //去掉所有目标高亮
-                    HighlightManager.DisableAllTargetsGlow();
-                    //移除pending卡牌
-                    GlobalSettings.Instance.Table.ClearCardsFromLast();
-                    //回到当前回合人
-                    UseCardManager.Instance.BackToWhoseTurn();
+                    DelayTipManager.HandleDelayTip(TurnManager.Instance.whoseTurn);
                 }
                 else
                 {
-                    StartInquireNextTarget();
+                    DelayTipManager.DisDelayTip(TurnManager.Instance.whoseTurn);
                 }
-
             }
+            else
+            {
+                if (TipWillWork == true)
+                {
+                    OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+                    UseCardManager.Instance.ActiveEffect(cardManager);
+                }
+                else
+                {
+                    Debug.Log("锦囊是否生效：" + (TipWillWork ? "是" : "否"));
+                    TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
+                    if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
+                    {
+                        //去掉所有目标高亮
+                        HighlightManager.DisableAllTargetsGlow();
+                        //移除pending卡牌
+                        GlobalSettings.Instance.Table.ClearCardsFromLast();
+                        //回到当前回合人
+                        UseCardManager.Instance.BackToWhoseTurn();
+                    }
+                    else
+                    {
+                        StartInquireNextTarget();
+                    }
+
+                }
+            }
+
         }
         else
         {
@@ -68,7 +84,15 @@ public class ImpeccableManager : MonoBehaviour
     {
         HighlightManager.DisableAllOpButtons();
 
-        int curTargetPlayerId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
+        int curTargetPlayerId = -1;
+        if (TargetsManager.Instance.Targets.Count == 0)
+        {
+            curTargetPlayerId = TurnManager.Instance.whoseTurn.ID;
+        }
+        else
+        {
+            curTargetPlayerId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
+        }
 
         //将目标高亮
         HighlightManager.DisableAllTargetsGlow();

@@ -93,11 +93,18 @@ public class TurnManager : MonoBehaviour
                 StatusText.text = "Judgement Phase";
                 if (DelayTipManager.HasDelayTips(whoseTurn))
                 {
-                    DelayTipManager.HandleDelayTip(whoseTurn);
-                    await TaskManager.Instance.BlockTask();
+                    //DelayTipManager.HandleDelayTip(whoseTurn);
+                    ImpeccableManager.Instance.StartInquireNextTarget();
+                    await TaskManager.Instance.BlockTask(TaskType.DelayTask);
                 }
-                Debug.Log("跳过判定阶段");
-                TurnManager.Instance.EndPhase();
+                if (whoseTurn.IsDead)
+                {
+                    OnEndTurn();
+                }
+                else
+                {
+                    TurnManager.Instance.TurnPhase = TurnPhase.EndJudgement;
+                }
                 break;
             case TurnPhase.EndJudgement:
                 //TODO 技能Hook
@@ -139,6 +146,7 @@ public class TurnManager : MonoBehaviour
                 break;
             case TurnPhase.StartPlay:
                 //TODO 技能Hook
+                EquipmentManager.Instance.ZhugeliannuHook(TurnManager.Instance.whoseTurn);
                 TurnManager.Instance.TurnPhase = TurnPhase.PlayCard;
                 break;
             case TurnPhase.PlayCard:

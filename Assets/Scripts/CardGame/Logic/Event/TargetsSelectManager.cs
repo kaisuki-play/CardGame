@@ -36,7 +36,7 @@ public class TargetsSelectManager : MonoBehaviour
 
         HighlightManager.DisableAllHeroTarget();
 
-        TaskManager.Instance.UnBlockTask();
+        TaskManager.Instance.UnBlockTask(TaskType.SpecialTargetsTask);
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class TargetsSelectManager : MonoBehaviour
                 {
                     HighlightManager.DisableAllOpButtons();
                     playedCard.TargetsPlayerIDs.Add(targetPlayer.ID);
-                    TaskManager.Instance.UnBlockTask();
+                    TaskManager.Instance.UnBlockTask(TaskType.SpecialTargetsTask);
                 });
             }
         }
@@ -68,7 +68,7 @@ public class TargetsSelectManager : MonoBehaviour
         {
             HighlightManager.DisableAllOpButtons();
             TurnManager.Instance.whoseTurn.ShowOp1Button = false;
-            TaskManager.Instance.UnBlockTask();
+            TaskManager.Instance.UnBlockTask(TaskType.SpecialTargetsTask);
         });
     }
 }

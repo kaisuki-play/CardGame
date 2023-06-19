@@ -35,10 +35,35 @@ public class EquipmentVisaul : MonoBehaviour
     }
 
     /// <summary>
+    /// 装备上装备
+    /// </summary>
+    /// <param name="cardId"></param>
+    public void EquipWithCard(int cardId, Player player)
+    {
+        GameObject card = IDHolder.GetGameObjectWithID(cardId);
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+
+        AddCard(card);
+
+        Sequence s = DOTween.Sequence();
+        s.Append(card.transform.DOMove(player.PArea.HandVisual.PlayPreviewSpot.position, 1f));
+        s.Insert(0f, card.transform.DORotate(Vector3.zero, 1f));
+        s.AppendInterval(2f);
+        s.Append(card.transform.DOLocalMove(player.PArea.EquipmentVisaul.Slots.Children[0].transform.localPosition, 1f));
+        s.OnComplete(() =>
+        {
+            card.transform.SetParent(player.PArea.EquipmentVisaul.Slots.transform);
+
+            cardManager.CanBePlayedNow = false;
+            cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
+        });
+    }
+
+    /// <summary>
     /// 移除卡牌到弃牌堆
     /// </summary>
     /// <param name="CardID"></param>
-    public void DisCardFromHand(int CardID)
+    public void DisCardFromEquipment(int CardID)
     {
         GameObject card = IDHolder.GetGameObjectWithID(CardID);
         RemoveCard(card);

@@ -60,6 +60,20 @@ public class CounterManager : MonoBehaviour
         Instance = this;
     }
 
+    /// <summary>
+    /// 增加已使用杀的次数
+    /// </summary>
+    /// <param name="playedCard"></param>
+    public void AddSlashUsedCount(OneCardManager playedCard)
+    {
+        if (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
+            || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash
+            || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash)
+        {
+            CounterManager.Instance.SlashCount++;
+        }
+    }
+
 
     public void ResetSlashLimit()
     {

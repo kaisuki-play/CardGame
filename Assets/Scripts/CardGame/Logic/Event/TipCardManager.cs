@@ -13,14 +13,15 @@ public class TipCardManager : MonoBehaviour
         Instance = this;
     }
 
+    /// <summary>
+    /// 无懈可击询问完毕，跳过锦囊效果
+    /// </summary>
     public void SkipTipCard()
     {
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
         if (cardManager != null)
         {
             TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
-            //cardManager.TargetsPlayerIDs.RemoveAt(0);
-            Debug.Log("现在还有几张牌的目标~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + TargetsManager.Instance.Targets.Count);
             if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count != 0)
             {
                 UseCardManager.Instance.HandleImpeccable(cardManager);
@@ -43,47 +44,49 @@ public class TipCardManager : MonoBehaviour
         {
             switch (cardManager.CardAsset.SubTypeOfCard)
             {
+                //南蛮入侵
                 case SubTypeOfCards.Nanmanruqin:
                     UseCardManager.Instance.NeedToPlaySlash();
                     break;
+                //万箭齐发
                 case SubTypeOfCards.Wanjianqifa:
                     UseCardManager.Instance.NeedToPlayJink();
                     break;
+                //决斗
                 case SubTypeOfCards.Juedou:
                     if (this.PlayCardOwner != null)
                     {
-                        Debug.Log("进来决斗了");
+                        //Debug.Log("进来决斗了");
                         if (this.PlayCardOwner.ID == TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0])
                         {
-                            Debug.Log("出牌是目标，高亮决斗出牌人");
+                            //Debug.Log("出牌是目标，高亮决斗出牌人");
                             UseCardManager.Instance.NeedToPlaySlash(cardManager.Owner);
                         }
                         else
                         {
-                            Debug.Log("出牌是决斗出牌人，高亮目标");
+                            //Debug.Log("出牌是决斗出牌人，高亮目标");
                             UseCardManager.Instance.NeedToPlaySlash();
                         }
                     }
                     else
                     {
-                        Debug.Log("出牌是决斗出牌人，高亮目标");
+                        //Debug.Log("出牌是决斗出牌人，高亮目标");
                         UseCardManager.Instance.NeedToPlaySlash();
                     }
                     break;
+                //借刀杀人
                 case SubTypeOfCards.Jiedaosharen:
-                    Debug.Log("借刀杀人出杀设定");
                     UseCardManager.Instance.NeedToPlaySlash(null, true);
                     break;
+                //顺手牵羊
                 case SubTypeOfCards.Shunshouqianyang:
                     ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.Shunshouqianyang);
-
-                    //ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.Shunshouqianyang);
                     break;
+                //过河拆桥
                 case SubTypeOfCards.Guohechaiqiao:
                     ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.GuoheChaiqiao);
-
-                    //ShowTargetAllCards(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.GuoheChaiqiao);
                     break;
+                //五谷丰登
                 case SubTypeOfCards.Wugufengdeng:
                     {
                         if (GlobalSettings.Instance.CardSelectVisual.CardsOnHand.Count != 0)
@@ -93,10 +96,11 @@ public class TipCardManager : MonoBehaviour
                         else
                         {
                             int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                            ShowCardsFromDeck(TargetsManager.Instance.Targets[cardIndex].Count, TargetCardsPanelType.Wugufengdeng);
+                            ShowCardsFromDeck(cardManager.TargetsPlayerIDs.Count, TargetCardsPanelType.Wugufengdeng);
                         }
                     }
                     break;
+                //桃园结义
                 case SubTypeOfCards.Taoyuanjieyi:
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
@@ -108,11 +112,11 @@ public class TipCardManager : MonoBehaviour
                         UseCardManager.Instance.FinishSettle();
                     }
                     break;
+                //火攻
                 case SubTypeOfCards.Huogong:
                     {
                         if (cardManager.ShownCard)
                         {
-                            Debug.Log("需要火攻");
                             HighlightManager.DisACards(cardManager.Owner);
                             cardManager.Owner.ShowOp1Button = true;
                             cardManager.Owner.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
@@ -130,6 +134,7 @@ public class TipCardManager : MonoBehaviour
                         }
                     }
                     break;
+                //铁索连环
                 case SubTypeOfCards.Tiesuolianhuan:
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
@@ -138,9 +143,16 @@ public class TipCardManager : MonoBehaviour
                         UseCardManager.Instance.FinishSettle();
                     }
                     break;
+                case SubTypeOfCards.Wuzhongshengyou:
+                    {
+                        int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        curTargetPlayer.DrawSomeCards(2);
+                        UseCardManager.Instance.FinishSettle();
+                    }
+                    break;
                 default:
                     Debug.Log("锦囊");
-                    //SkipTipCard();
                     break;
             }
         }
@@ -188,17 +200,14 @@ public class TipCardManager : MonoBehaviour
     /// <param name="targetCardsPanelType"></param>
     public void ShowCardsFromDeck(int cardsNumber, TargetCardsPanelType targetCardsPanelType)
     {
-        if (!GlobalSettings.Instance.CardSelectVisual.gameObject.activeSelf)
-        {
-            GlobalSettings.Instance.CardSelectVisual.PanelType = targetCardsPanelType;
-            GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.PanelType = targetCardsPanelType;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
 
-            for (int i = cardsNumber - 1; i >= 0; i--)
-            {
-                GameObject card = GlobalSettings.Instance.PDeck.DeckCards[i];
-                OneCardManager cardManager = card.GetComponent<OneCardManager>();
-                GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
-            }
+        for (int i = cardsNumber - 1; i >= 0; i--)
+        {
+            GameObject card = GlobalSettings.Instance.PDeck.DeckCards[i];
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
         }
     }
 

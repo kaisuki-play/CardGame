@@ -61,6 +61,9 @@ public class DyingManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 非救治技能询问
+    /// </summary>
     public void InquiryNonMedicalSkills()
     {
         DyingInquirePhase = DyingInquirePhase.NonMedicalSkill;
@@ -79,6 +82,10 @@ public class DyingManager : MonoBehaviour
             DyingManager.Instance.ClickCancel();
         });
     }
+
+    /// <summary>
+    /// 救治技能询问
+    /// </summary>
     public void InquiryMedicalSkills()
     {
         DyingInquirePhase = DyingInquirePhase.MedicalSkill;
@@ -138,15 +145,6 @@ public class DyingManager : MonoBehaviour
 
     }
 
-    public void Healing()
-    {
-        HealthManager.Instance.HealingEffect(1, this.DyingPlayer);
-        if (this.DyingPlayer.Health >= 1)
-        {
-            Rescued();
-        }
-    }
-
     public void Rescued()
     {
         Debug.Log("~~~~~~~~~~~~~~~~救回来了");
@@ -157,7 +155,7 @@ public class DyingManager : MonoBehaviour
         //重置濒死状态
         DyingManager.Instance.IsInDyingInquiry = false;
         //进入伤害后的流程
-        TaskManager.Instance.UnBlockTask();
+        TaskManager.Instance.UnBlockTask(TaskType.DyingTask);
     }
 
     public void RealDie()
@@ -173,7 +171,7 @@ public class DyingManager : MonoBehaviour
         //重置濒死状态
         DyingManager.Instance.IsInDyingInquiry = false;
         //进入伤害后的流程
-        TaskManager.Instance.UnBlockTask();
+        TaskManager.Instance.UnBlockTask(TaskType.DyingTask);
 
     }
 }

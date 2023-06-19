@@ -272,28 +272,7 @@ public class HandVisual : MonoBehaviour
 
                     Player player = GlobalSettings.Instance.Players[Owner];
 
-                    //可视化加卡
-                    player.PArea.EquipmentVisaul.AddCard(CardVisual);
-                    //逻辑加卡
-                    player.EquipmentLogic.AddCard(cardManager.UniqueCardID);
-
-                    Sequence s = DOTween.Sequence();
-                    s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
-                    s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
-                    s.AppendInterval(2f);
-                    s.Append(CardVisual.transform.DOLocalMove(player.PArea.EquipmentVisaul.Slots.Children[0].transform.localPosition, 1f));
-                    s.OnComplete(() =>
-                    {
-                        //Command.CommandExecutionComplete();
-                        //Destroy(CardVisual);
-
-                        CardVisual.transform.SetParent(player.PArea.EquipmentVisaul.Slots.transform);
-
-                        cardManager.CanBePlayedNow = false;
-                        cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
-
-                        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
-                    });
+                    EquipmentManager.Instance.AddOrReplaceEquipment(player, CardVisual.GetComponent<OneCardManager>());
                 }
                 break;
             case TypesOfCards.Base:

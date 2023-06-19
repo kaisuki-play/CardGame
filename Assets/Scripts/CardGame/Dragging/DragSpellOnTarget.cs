@@ -200,9 +200,11 @@ public class DragSpellOnTarget : DraggingActions
             int targetID = _target.GetComponent<IDHolder>().UniqueID;
 
             GlobalSettings.Instance.FindPlayerByID(targetID).PArea.Portrait.Highlighted = false;
+            _targetType = _manager.CardAsset.Targets;
             Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~" + _targetType);
             switch (_targetType)
             {
+                //TODO 加个hook哪些角色不能成为目标
                 case TargetingOptions.AllCharacters:
                     UseSpellCard(targetValid, targetID);
                     break;
