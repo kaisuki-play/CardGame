@@ -124,6 +124,7 @@ public class CardSelectVisual : MonoBehaviour
                         else
                         {
                             Destroy(selectCard);
+                            GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(false);
                             UseCardManager.Instance.FinishSettle();
                         }
                     }

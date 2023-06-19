@@ -88,7 +88,7 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);

@@ -86,8 +86,15 @@ public class TipCardManager : MonoBehaviour
                     break;
                 case SubTypeOfCards.Wugufengdeng:
                     {
-                        int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                        ShowCardsFromDeck(TargetsManager.Instance.Targets[cardIndex].Count, TargetCardsPanelType.Wugufengdeng);
+                        if (GlobalSettings.Instance.CardSelectVisual.CardsOnHand.Count != 0)
+                        {
+                            GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                            ShowCardsFromDeck(TargetsManager.Instance.Targets[cardIndex].Count, TargetCardsPanelType.Wugufengdeng);
+                        }
                     }
                     break;
                 case SubTypeOfCards.Taoyuanjieyi:
