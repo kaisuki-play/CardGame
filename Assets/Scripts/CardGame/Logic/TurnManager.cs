@@ -61,109 +61,120 @@ public class TurnManager : MonoBehaviour
         set
         {
             _turnPhase = value;
-            switch (this.TurnPhase)
-            {
-                case TurnPhase.StartTurn:
-                    StatusText.text = "Start Turn";
-                    TurnManager.Instance.TurnPhase = TurnPhase.SkipJudgement;
-                    break;
-                ///是否跳过判定阶段
-                case TurnPhase.SkipJudgement:
-                    if (this.SkipJudgementPhase)
-                    {
-                        TurnManager.Instance.TurnPhase = TurnPhase.SkipDrawCard;
-                    }
-                    else
-                    {
-                        TurnManager.Instance.TurnPhase = TurnPhase.StartJudgement;
-                    }
-                    break;
-                case TurnPhase.StartJudgement:
-                    //TODO 技能Hook
-                    TurnManager.Instance.TurnPhase = TurnPhase.Judgement;
-                    break;
-                case TurnPhase.Judgement:
-                    StatusText.text = "Judgement Phase";
-                    //TODO 锦囊Hook
-                    TurnManager.Instance.EndPhase();
-                    break;
-                case TurnPhase.EndJudgement:
-                    //TODO 技能Hook
+            HandleTurnPhase();
+        }
+    }
+
+    //处理回合内小阶段的钩子
+    public async void HandleTurnPhase()
+    {
+        switch (this.TurnPhase)
+        {
+            case TurnPhase.StartTurn:
+                StatusText.text = "Start Turn";
+                TurnManager.Instance.TurnPhase = TurnPhase.SkipJudgement;
+                break;
+            ///是否跳过判定阶段
+            case TurnPhase.SkipJudgement:
+                if (this.SkipJudgementPhase)
+                {
                     TurnManager.Instance.TurnPhase = TurnPhase.SkipDrawCard;
-                    break;
-                ///是否跳过发牌阶段
-                case TurnPhase.SkipDrawCard:
-                    if (this.SkipDrawCardPhase)
-                    {
-                        TurnManager.Instance.TurnPhase = TurnPhase.SkipPlay;
-                    }
-                    else
-                    {
-                        TurnManager.Instance.TurnPhase = TurnPhase.StartDrawCard;
-                    }
-                    break;
-                case TurnPhase.StartDrawCard:
-                    TurnManager.Instance.TurnPhase = TurnPhase.DrawCard;
-                    break;
-                case TurnPhase.DrawCard:
-                    StatusText.text = "DrawCard Phase";
-                    whoseTurn.DrawACard();
-                    TurnManager.Instance.TurnPhase = TurnPhase.EndDrawCard;
-                    break;
-                case TurnPhase.EndDrawCard:
-                    //TODO 技能Hook
+                }
+                else
+                {
+                    TurnManager.Instance.TurnPhase = TurnPhase.StartJudgement;
+                }
+                break;
+            case TurnPhase.StartJudgement:
+                //TODO 技能Hook
+                TurnManager.Instance.TurnPhase = TurnPhase.Judgement;
+                break;
+            case TurnPhase.Judgement:
+                StatusText.text = "Judgement Phase";
+                if (DelayTipManager.HasDelayTips(whoseTurn))
+                {
+                    DelayTipManager.HandleDelayTip(whoseTurn);
+                    await TaskManager.Instance.BlockTask();
+                }
+                Debug.Log("跳过判定阶段");
+                TurnManager.Instance.EndPhase();
+                break;
+            case TurnPhase.EndJudgement:
+                //TODO 技能Hook
+                TurnManager.Instance.TurnPhase = TurnPhase.SkipDrawCard;
+                break;
+            ///是否跳过发牌阶段
+            case TurnPhase.SkipDrawCard:
+                if (this.SkipDrawCardPhase)
+                {
                     TurnManager.Instance.TurnPhase = TurnPhase.SkipPlay;
-                    break;
-                ///是否跳过出牌阶段
-                case TurnPhase.SkipPlay:
-                    if (this.SkipPlayCardPhase)
-                    {
-                        TurnManager.Instance.TurnPhase = TurnPhase.SkipDisCard;
-                    }
-                    else
-                    {
-                        TurnManager.Instance.TurnPhase = TurnPhase.StartPlay;
-                    }
-                    break;
-                case TurnPhase.StartPlay:
-                    //TODO 技能Hook
-                    TurnManager.Instance.TurnPhase = TurnPhase.PlayCard;
-                    break;
-                case TurnPhase.PlayCard:
-                    StatusText.text = "PlayCard Phase";
-                    HighlightManager.EnableCardsWithType(whoseTurn);
-                    break;
-                case TurnPhase.EndPlayCard:
-                    //TODO 技能Hook
+                }
+                else
+                {
+                    TurnManager.Instance.TurnPhase = TurnPhase.StartDrawCard;
+                }
+                break;
+            case TurnPhase.StartDrawCard:
+                TurnManager.Instance.TurnPhase = TurnPhase.DrawCard;
+                break;
+            case TurnPhase.DrawCard:
+                StatusText.text = "DrawCard Phase";
+                whoseTurn.DrawACard();
+                TurnManager.Instance.TurnPhase = TurnPhase.EndDrawCard;
+                break;
+            case TurnPhase.EndDrawCard:
+                //TODO 技能Hook
+                TurnManager.Instance.TurnPhase = TurnPhase.SkipPlay;
+                break;
+            ///是否跳过出牌阶段
+            case TurnPhase.SkipPlay:
+                if (this.SkipPlayCardPhase)
+                {
                     TurnManager.Instance.TurnPhase = TurnPhase.SkipDisCard;
-                    break;
-                ///是否跳过弃牌阶段
-                case TurnPhase.SkipDisCard:
-                    if (this.SkipPlayCardPhase)
-                    {
-                        TurnManager.Instance.TurnPhase = TurnPhase.EndTurn;
-                    }
-                    else
-                    {
-                        TurnManager.Instance.TurnPhase = TurnPhase.StartDisCard;
-                    }
-                    break;
-                case TurnPhase.StartDisCard:
-                    //TODO 技能Hook
-                    TurnManager.Instance.TurnPhase = TurnPhase.DisCard;
-                    break;
-                case TurnPhase.DisCard:
-                    StatusText.text = "DisCard Phase";
-                    break;
-                case TurnPhase.EndDisCard:
-                    //TODO 技能Hook
+                }
+                else
+                {
+                    TurnManager.Instance.TurnPhase = TurnPhase.StartPlay;
+                }
+                break;
+            case TurnPhase.StartPlay:
+                //TODO 技能Hook
+                TurnManager.Instance.TurnPhase = TurnPhase.PlayCard;
+                break;
+            case TurnPhase.PlayCard:
+                StatusText.text = "PlayCard Phase";
+                HighlightManager.EnableCardsWithType(whoseTurn);
+                break;
+            case TurnPhase.EndPlayCard:
+                //TODO 技能Hook
+                TurnManager.Instance.TurnPhase = TurnPhase.SkipDisCard;
+                break;
+            ///是否跳过弃牌阶段
+            case TurnPhase.SkipDisCard:
+                if (this.SkipPlayCardPhase)
+                {
                     TurnManager.Instance.TurnPhase = TurnPhase.EndTurn;
-                    break;
-                case TurnPhase.EndTurn:
-                    StatusText.text = "End Turn Phase";
-                    OnEndTurn();
-                    break;
-            }
+                }
+                else
+                {
+                    TurnManager.Instance.TurnPhase = TurnPhase.StartDisCard;
+                }
+                break;
+            case TurnPhase.StartDisCard:
+                //TODO 技能Hook
+                TurnManager.Instance.TurnPhase = TurnPhase.DisCard;
+                break;
+            case TurnPhase.DisCard:
+                StatusText.text = "DisCard Phase";
+                break;
+            case TurnPhase.EndDisCard:
+                //TODO 技能Hook
+                TurnManager.Instance.TurnPhase = TurnPhase.EndTurn;
+                break;
+            case TurnPhase.EndTurn:
+                StatusText.text = "End Turn Phase";
+                OnEndTurn();
+                break;
         }
     }
 
@@ -310,6 +321,10 @@ public class TurnManager : MonoBehaviour
         SkipDrawCardPhase = false;
         SkipPlayCardPhase = false;
         SkipDisCardPhase = false;
+        //所有卡牌高亮去掉、按钮变灰
+        HighlightManager.DisableAllCards();
+        HighlightManager.DisableAllOpButtons();
+        HighlightManager.DisableAllTargetsGlow();
 
         TurnManager.Instance.whoseTurn = TurnManager.Instance.whoseTurn.OtherPlayer;
     }

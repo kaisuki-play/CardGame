@@ -21,45 +21,62 @@ public class UseCardManager : MonoBehaviour
     public async void UseAVisualCardFromHand(OneCardManager playedCard, List<int> targets)
     {
         // 默认赋值目标
-        switch (playedCard.CardAsset.SubTypeOfCard)
+        switch (playedCard.CardAsset.TypeOfCard)
         {
-            case SubTypeOfCards.Peach:
-                // 濒死情况下需要判断
-                // TODO 濒死求桃的目标是濒死角色
-                if (!DyingManager.Instance.IsInDyingInquiry)
+            case TypesOfCards.DelayTips:
                 {
-                    targets.Add(playedCard.Owner.ID);
-                }
-                else
-                {
-                    targets.Add(DyingManager.Instance.DyingPlayer.ID);
-                }
-                break;
-            case SubTypeOfCards.Analeptic:
-                targets.Add(playedCard.Owner.ID);
-                break;
-            case SubTypeOfCards.Wuzhongshengyou:
-            case SubTypeOfCards.Thunder:
-                targets.Add(playedCard.Owner.ID);
-                break;
-            case SubTypeOfCards.Nanmanruqin:
-            case SubTypeOfCards.Wanjianqifa:
-                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
-                {
-                    if (player.ID != playedCard.Owner.ID)
+                    switch (playedCard.CardAsset.SubTypeOfCard)
                     {
-                        targets.Add(player.ID);
+                        case SubTypeOfCards.Thunder:
+                            targets.Add(playedCard.Owner.ID);
+                            break;
                     }
                 }
                 break;
-            case SubTypeOfCards.Wugufengdeng:
-            case SubTypeOfCards.Taoyuanjieyi:
-                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+            default:
                 {
-                    targets.Add(player.ID);
+                    switch (playedCard.CardAsset.SubTypeOfCard)
+                    {
+                        case SubTypeOfCards.Peach:
+                            // 濒死情况下需要判断
+                            // TODO 濒死求桃的目标是濒死角色
+                            if (!DyingManager.Instance.IsInDyingInquiry)
+                            {
+                                targets.Add(playedCard.Owner.ID);
+                            }
+                            else
+                            {
+                                targets.Add(DyingManager.Instance.DyingPlayer.ID);
+                            }
+                            break;
+                        case SubTypeOfCards.Analeptic:
+                            targets.Add(playedCard.Owner.ID);
+                            break;
+                        case SubTypeOfCards.Wuzhongshengyou:
+                            targets.Add(playedCard.Owner.ID);
+                            break;
+                        case SubTypeOfCards.Nanmanruqin:
+                        case SubTypeOfCards.Wanjianqifa:
+                            foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                            {
+                                if (player.ID != playedCard.Owner.ID)
+                                {
+                                    targets.Add(player.ID);
+                                }
+                            }
+                            break;
+                        case SubTypeOfCards.Wugufengdeng:
+                        case SubTypeOfCards.Taoyuanjieyi:
+                            foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                            {
+                                targets.Add(player.ID);
+                            }
+                            break;
+                    }
                 }
                 break;
         }
+
 
         playedCard.TargetsPlayerIDs = targets;
 
@@ -192,6 +209,7 @@ public class UseCardManager : MonoBehaviour
                                 Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
                                 //恢复一点体力
                                 HealthManager.Instance.HealingEffect(1, targetPlayer);
+                                HealthManager.Instance.SettleAfterHealing();
                             }
                             break;
                         // TODO 1.酒的红色高亮 2.濒死把酒对自己当桃

@@ -258,8 +258,6 @@ public class HandVisual : MonoBehaviour
 
                         playedCard.CanBePlayedNow = false;
                         playedCard.ChangeOwnerAndLocation(player, CardLocation.Judgement);
-
-                        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, new List<int>());
                     });
                 }
                 break;

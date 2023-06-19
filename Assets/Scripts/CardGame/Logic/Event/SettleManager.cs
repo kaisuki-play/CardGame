@@ -131,6 +131,7 @@ public class SettleManager : MonoBehaviour
     public void HandleIronChain()
     {
         //TODO 铁索连环结算
+        //TODO 自己回合死亡，回合需要传到下一个玩家手里
         UseCardManager.Instance.FinishSettle();
     }
 

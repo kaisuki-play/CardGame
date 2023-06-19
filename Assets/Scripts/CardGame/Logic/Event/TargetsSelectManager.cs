@@ -30,7 +30,7 @@ public class TargetsSelectManager : MonoBehaviour
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targets"></param>
-    public static void HandleJiedaosharen(OneCardManager playedCard, int specialTarget = -1)
+    public static void CompleteSpecialTargetSelection(OneCardManager playedCard, int specialTarget = -1)
     {
         playedCard.SpecialTargetPlayerIDs.Add(specialTarget);
 

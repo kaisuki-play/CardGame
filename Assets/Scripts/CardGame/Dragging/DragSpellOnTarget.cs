@@ -41,7 +41,6 @@ public class DragSpellOnTarget : DraggingActions
         _triangleSR = _triangle.GetComponent<SpriteRenderer>();
 
         _manager = GetComponentInParent<OneCardManager>();
-        _targetType = _manager.CardAsset.Targets;
         _whereIsThisCard = GetComponentInParent<WhereIsTheCardOrCreature>();
     }
 
@@ -201,6 +200,7 @@ public class DragSpellOnTarget : DraggingActions
             int targetID = _target.GetComponent<IDHolder>().UniqueID;
 
             GlobalSettings.Instance.FindPlayerByID(targetID).PArea.Portrait.Highlighted = false;
+            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~" + _targetType);
             switch (_targetType)
             {
                 case TargetingOptions.AllCharacters:

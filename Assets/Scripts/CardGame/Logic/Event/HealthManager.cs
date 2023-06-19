@@ -28,6 +28,13 @@ public class HealthManager : MonoBehaviour
     {
         player.Health += amount;
         player.PArea.Portrait.TakeHealing(amount);
+    }
+
+    /// <summary>
+    /// 治疗后的结算
+    /// </summary>
+    public void SettleAfterHealing()
+    {
         if (DyingManager.Instance.IsInDyingInquiry)
         {
             if (DyingManager.Instance.DyingPlayer.Health >= 1)

@@ -17,7 +17,6 @@ public class PlayerDeckVisual : MonoBehaviour
 
     public void AddDeckCards()
     {
-        Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
         CardAsset JiedaoSharenAsset = null;
         CardAsset NanmanAsset = null;
         CardAsset JuedouAsset = null;
@@ -30,6 +29,9 @@ public class PlayerDeckVisual : MonoBehaviour
         CardAsset HuogongAsset = null;
         CardAsset AnalepticAsset = null;
         CardAsset TiesuoAsset = null;
+        CardAsset LbssAsset = null;
+        CardAsset BlcdAsset = null;
+        CardAsset ThunderAsset = null;
         foreach (CardAsset cardAsset1 in GlobalSettings.Instance.DeckSource.Cards)
         {
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
@@ -80,14 +82,26 @@ public class PlayerDeckVisual : MonoBehaviour
             {
                 TiesuoAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Lebusishu)
+            {
+                LbssAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Binliangcunduan)
+            {
+                BlcdAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Thunder)
+            {
+                ThunderAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
-        InsertNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A);
         InsertNewCardAsset(TiesuoAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
         InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
@@ -95,6 +109,10 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 3);
         //InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(GuohechaiqiaoAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(LbssAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(BlcdAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(ThunderAsset, CardSuits.Spades, CardRank.Rank_A);
+        Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }
 
     void HandleCards(CardAsset cardAsset)
@@ -380,12 +398,13 @@ public class PlayerDeckVisual : MonoBehaviour
 
     void addNewCardAsset(CardAsset cardAsset, CardSuits cardSuits, CardRank cardRank, TypeOfEquipment typeOfEquipment = TypeOfEquipment.None, int weaponAttackDistance = 1)
     {
-        CardAsset ca = new CardAsset();
+        CardAsset ca = ScriptableObject.CreateInstance<CardAsset>();
         ca.ReadFromAsset(cardAsset);
         ca.Suits = cardSuits;
         ca.CardRank = cardRank;
         ca.TypeOfEquipment = typeOfEquipment;
         ca.WeaponAttackDistance = weaponAttackDistance;
+        ca.Targets = cardAsset.Targets;
 
         GameObject card = GameObject.Instantiate(GlobalSettings.Instance.BaseCardPrefab, GlobalSettings.Instance.PDeck.ChildCanvas.transform.position, Quaternion.identity) as GameObject;
 
@@ -417,12 +436,13 @@ public class PlayerDeckVisual : MonoBehaviour
 
     void InsertNewCardAsset(CardAsset cardAsset, CardSuits cardSuits, CardRank cardRank, TypeOfEquipment typeOfEquipment = TypeOfEquipment.None, int weaponAttackDistance = 1)
     {
-        CardAsset ca = new CardAsset();
+        CardAsset ca = ScriptableObject.CreateInstance<CardAsset>();
         ca.ReadFromAsset(cardAsset);
         ca.Suits = cardSuits;
         ca.CardRank = cardRank;
         ca.TypeOfEquipment = typeOfEquipment;
         ca.WeaponAttackDistance = weaponAttackDistance;
+        ca.Targets = cardAsset.Targets;
 
         GameObject card = GameObject.Instantiate(GlobalSettings.Instance.BaseCardPrefab, GlobalSettings.Instance.PDeck.ChildCanvas.transform.position, Quaternion.identity) as GameObject;
 

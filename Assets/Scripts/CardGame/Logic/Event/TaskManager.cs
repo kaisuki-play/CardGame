@@ -21,14 +21,19 @@ public class TaskManager : MonoBehaviour
     public async Task BlockTask()
     {
         AddATask();
+        Debug.Log("新增之后，有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskBlockList.Count);
         await TaskManager.Instance.TaskBlockList[TaskManager.Instance.TaskBlockList.Count - 1].Task;
     }
 
     public void UnBlockTask()
     {
+        if (TaskBlockList.Count == 0)
+        {
+            return;
+        }
         TaskBlockList[TaskBlockList.Count - 1].SetResult(true);
         TaskBlockList.RemoveAt(TaskBlockList.Count - 1);
-        Debug.Log("还有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskBlockList.Count);
+        Debug.Log("解除阻塞后，还有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskBlockList.Count);
     }
 
 }
