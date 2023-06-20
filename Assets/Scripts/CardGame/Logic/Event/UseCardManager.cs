@@ -134,12 +134,7 @@ public class UseCardManager : MonoBehaviour
     public async void HandleFixedTargets(OneCardManager playedCard)
     {
         Debug.Log("阶段4");
-        //雌雄双股hook，自带阻塞
-        bool cixiongBlock = EquipmentManager.Instance.CixiongHook(playedCard.Owner, playedCard, GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]));
-        if (cixiongBlock)
-        {
-            await TaskManager.Instance.Block(TaskType.CixiongShuangguTask);
-        }
+        await SkillManager.UseCard4(playedCard);
         Debug.Log("继续第五步");
         HandleImpeccable(playedCard);
     }

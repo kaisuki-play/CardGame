@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class PlayJinkManager : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class PlayJinkManager : MonoBehaviour
         Instance = this;
     }
 
-    public void ActiveEffect(OneCardManager playedCard)
+    public async void ActiveEffect(OneCardManager playedCard)
     {
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
@@ -33,11 +34,7 @@ public class PlayJinkManager : MonoBehaviour
                             case SubTypeOfCards.ThunderSlash:
                             case SubTypeOfCards.FireSlash:
                                 {
-                                    bool guanshifuBlock = EquipmentManager.Instance.GuanshifuHook(cardManager.Owner, playedCard.Owner);
-                                    if (!guanshifuBlock)
-                                    {
-                                        UseCardManager.Instance.BackToWhoseTurn();
-                                    }
+                                    await SkillManager.AfterPlayAJink(cardManager.Owner, playedCard.Owner);
                                 }
                                 break;
                             default:

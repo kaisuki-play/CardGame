@@ -89,14 +89,26 @@ public class TableVisual : MonoBehaviour
     public void ClearCardsWithIndex(int index)
     {
         GameObject card = CardsOnTable[index];
-        card.transform.SetParent(null);
-
-        OneCardManager cardManager = card.GetComponent<OneCardManager>();
-        cardManager.CanBePlayedNow = false;
-        cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
 
         TargetsManager.Instance.Targets.RemoveAt(index);
         Debug.Log("结算完后的牌" + TargetsManager.Instance.Targets.Count);
+
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+        if (cardManager.IsDisguisedCard)
+        {
+            foreach (int relationCardId in cardManager.RelationRealCardIds)
+            {
+                GameObject relationCard = IDHolder.GetGameObjectWithID(relationCardId);
+                OneCardManager relationCardManager = relationCard.GetComponent<OneCardManager>();
+                relationCardManager.Owner.DisACardFromHand(relationCardId);
+            }
+            Destroy(card);
+            return;
+        }
+
+        card.transform.SetParent(null);
+        cardManager.CanBePlayedNow = false;
+        cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
 
         Sequence s = DOTween.Sequence();
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));

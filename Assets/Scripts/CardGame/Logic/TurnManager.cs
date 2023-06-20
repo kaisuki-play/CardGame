@@ -146,7 +146,7 @@ public class TurnManager : MonoBehaviour
                 break;
             case TurnPhase.StartPlay:
                 //TODO 技能Hook
-                EquipmentManager.Instance.ZhugeliannuHook(TurnManager.Instance.whoseTurn);
+                await SkillManager.StartPlayPhase();
                 TurnManager.Instance.TurnPhase = TurnPhase.PlayCard;
                 break;
             case TurnPhase.PlayCard:

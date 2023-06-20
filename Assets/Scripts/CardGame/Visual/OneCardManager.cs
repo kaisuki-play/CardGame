@@ -63,6 +63,10 @@ public class OneCardManager : MonoBehaviour
     public bool ShownCard;
     public CardSuits ShownCardSuit;
 
+    [Header("Disguised Cards")]
+    public bool IsDisguisedCard;
+    public List<int> RelationRealCardIds;
+
     public static Dictionary<int, OneCardManager> CardsCreatedThisGame = new Dictionary<int, OneCardManager>();
 
     void Awake()

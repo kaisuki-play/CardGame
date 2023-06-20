@@ -134,6 +134,58 @@ public class PlayerDeckVisual : MonoBehaviour
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }
 
+    /// <summary>
+    /// 创造伪牌
+    /// </summary>
+    /// <param name="subTypeOfCards"></param>
+    /// <returns></returns>
+    public OneCardManager DisguisedCardAssetWithType(Player player, SubTypeOfCards subTypeOfCards, List<int> relationCardIds, bool needTarget)
+    {
+        foreach (CardAsset cardAsset in GlobalSettings.Instance.DeckSource.Cards)
+        {
+            if (cardAsset.SubTypeOfCard == subTypeOfCards)
+            {
+                CardAsset ca = ScriptableObject.CreateInstance<CardAsset>();
+                ca.ReadFromAsset(cardAsset);
+                ca.Suits = CardSuits.None;
+                ca.CardRank = CardRank.Rank_0;
+                ca.TypeOfEquipment = cardAsset.TypeOfEquipment;
+                ca.WeaponAttackDistance = cardAsset.WeaponAttackDistance;
+                ca.Targets = cardAsset.Targets;
+
+                GameObject card = GameObject.Instantiate(GlobalSettings.Instance.BaseCardPrefab, TurnManager.Instance.whoseTurn.PArea.HandVisual.OtherCardDrawSourceTransform.position, Quaternion.identity) as GameObject;
+
+                // apply the look from CardAsset
+                OneCardManager manager = card.GetComponent<OneCardManager>();
+                manager.CardAsset = ca;
+                manager.ReadCardFromAsset();
+                if (needTarget)
+                {
+                    manager.TargetComponent.SetActive(true);
+                }
+                else
+                {
+                    manager.TargetComponent.SetActive(false);
+                }
+
+                // parent a new creature gameObject to table slots
+                card.transform.SetParent(TurnManager.Instance.whoseTurn.PArea.HandVisual.OtherCardDrawSourceTransform.transform);
+
+                // add our unique ID to this creature
+                IDHolder id = card.AddComponent<IDHolder>();
+                id.UniqueID = IDFactory.GetUniqueID();
+
+                manager.CardLocation = CardLocation.DrawDeck;
+                manager.Owner = player;
+                manager.UniqueCardID = id.UniqueID;
+                manager.IsDisguisedCard = true;
+                manager.RelationRealCardIds = relationCardIds;
+                return manager;
+            }
+        }
+        return null;
+    }
+
     void HandleCards(CardAsset cardAsset)
     {
         switch (cardAsset.SubTypeOfCard)

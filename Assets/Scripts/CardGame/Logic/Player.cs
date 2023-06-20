@@ -41,6 +41,8 @@ public class Player : MonoBehaviour
     public Judgement JudgementLogic;
     public Equipment EquipmentLogic;
 
+    public bool IgnoreArmor = false;
+
 
     // PROPERTIES 
     // this property is a part of interface ICharacter

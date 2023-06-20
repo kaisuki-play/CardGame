@@ -32,6 +32,11 @@ public class TaskManager : MonoBehaviour
         await TaskManager.Instance.TaskBlockDic[taskType].Task;
     }
 
+    public async Task DontAwait()
+    {
+        await Task.Run(() => { Debug.Log("不需要阻塞"); });
+    }
+
     public async Task BlockTask(TaskType taskType)
     {
         AddATask(taskType);

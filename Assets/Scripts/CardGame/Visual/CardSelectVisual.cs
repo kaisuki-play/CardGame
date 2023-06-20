@@ -16,8 +16,11 @@ public class CardSelectVisual : MonoBehaviour
     public List<GameObject> CardsOnEquipment = new List<GameObject>();
 
     public System.Action AfterDisCardCompletion;
+    public System.Action AfterSelectCardAsOtherCardCompletion;
     public int DisCardNumber = 1;
     public int AlreadyDisCardNumber = 0;
+
+    public List<int> SelectCardIds = new List<int>();
 
     public void Dismiss()
     {
@@ -144,6 +147,18 @@ public class CardSelectVisual : MonoBehaviour
                     {
                         GlobalSettings.Instance.CardSelectVisual.Dismiss();
                         this.AfterDisCardCompletion.Invoke();
+                    }
+                }
+                break;
+            case TargetCardsPanelType.UseSomeCardAsSlash:
+                {
+                    this.SelectCardIds.Add(originCardManager.UniqueCardID);
+                    Destroy(selectCard);
+                    AlreadyDisCardNumber++;
+                    if (AlreadyDisCardNumber == DisCardNumber)
+                    {
+                        this.AfterSelectCardAsOtherCardCompletion.Invoke();
+                        GlobalSettings.Instance.CardSelectVisual.Dismiss();
                     }
                 }
                 break;

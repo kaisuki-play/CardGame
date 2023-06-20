@@ -12,6 +12,8 @@ public class TargetsManager : MonoBehaviour
     public List<List<int>> Targets = new List<List<int>>();
     // 借刀目标
     public List<int> SpecialTarget = new List<int>();
+    // 已经有的目标
+    public List<int> DefaultTarget = new List<int>();
 
     private void Awake()
     {

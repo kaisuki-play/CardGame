@@ -185,6 +185,20 @@ public class HandVisual : MonoBehaviour
     {
         GameObject CardVisual = IDHolder.GetGameObjectWithID(CardID);
         OneCardManager playedCard = CardVisual.GetComponent<OneCardManager>();
+
+        if (playedCard.IsDisguisedCard)
+        {
+            foreach (int relationCardId in playedCard.RelationRealCardIds)
+            {
+                GameObject relationCard = IDHolder.GetGameObjectWithID(relationCardId);
+                OneCardManager relationCardManager = relationCard.GetComponent<OneCardManager>();
+                relationCardManager.Owner.DisACardFromHand(relationCardId);
+            }
+            PlayCardManager.Instance.ActivateEffect(playedCard);
+            Destroy(CardVisual);
+            return;
+        }
+
         CardAsset cardAsset = playedCard.CardAsset;
 
         RemoveCard(CardVisual);
