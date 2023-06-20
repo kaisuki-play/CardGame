@@ -200,6 +200,7 @@ public class UseCardManager : MonoBehaviour
                         case SubTypeOfCards.Peach:
                             {
                                 Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+                                GlobalSettings.Instance.Table.ClearCards(playedCard.UniqueCardID);
                                 //恢复一点体力
                                 HealthManager.Instance.HealingEffect(1, targetPlayer);
                                 HealthManager.Instance.SettleAfterHealing();
@@ -242,6 +243,8 @@ public class UseCardManager : MonoBehaviour
         {
             TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
         }
+        Debug.Log("还有几个牌" + TargetsManager.Instance.Targets.Count);
+        Debug.Log("还有几个目标" + TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1]);
         if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
         {
             //去除所有目标高亮

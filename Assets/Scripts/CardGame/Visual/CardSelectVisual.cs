@@ -15,6 +15,10 @@ public class CardSelectVisual : MonoBehaviour
     public List<GameObject> CardsOnJudgement = new List<GameObject>();
     public List<GameObject> CardsOnEquipment = new List<GameObject>();
 
+    public System.Action AfterDisCardCompletion;
+    public int DisCardNumber = 1;
+    public int AlreadyDisCardNumber = 0;
+
     public void Dismiss()
     {
         DisAllCards();
@@ -130,6 +134,19 @@ public class CardSelectVisual : MonoBehaviour
                     }
                 }
                 break;
+            //弃牌
+            case TargetCardsPanelType.DisHandCard:
+                {
+                    originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
+                    Destroy(selectCard);
+                    AlreadyDisCardNumber++;
+                    if (AlreadyDisCardNumber == DisCardNumber)
+                    {
+                        GlobalSettings.Instance.CardSelectVisual.Dismiss();
+                        this.AfterDisCardCompletion.Invoke();
+                    }
+                }
+                break;
         }
     }
 
@@ -150,5 +167,7 @@ public class CardSelectVisual : MonoBehaviour
         CardsOnHand.Clear();
         CardsOnJudgement.Clear();
         CardsOnEquipment.Clear();
+        this.AlreadyDisCardNumber = 0;
+        this.DisCardNumber = 1;
     }
 }

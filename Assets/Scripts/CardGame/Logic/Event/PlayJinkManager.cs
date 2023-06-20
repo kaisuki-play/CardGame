@@ -27,16 +27,35 @@ public class PlayJinkManager : MonoBehaviour
                     break;
                 default:
                     {
-                        (bool hasJiedaosharen, OneCardManager jiedaosharenCard) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen);
-                        if (hasJiedaosharen)
+                        switch (cardManager.CardAsset.SubTypeOfCard)
                         {
-                            GlobalSettings.Instance.Table.ClearCardsFromLast();
-                            TipCardManager.Instance.JiedaoSharenNextTarget();
+                            case SubTypeOfCards.Slash:
+                            case SubTypeOfCards.ThunderSlash:
+                            case SubTypeOfCards.FireSlash:
+                                {
+                                    bool guanshifuBlock = EquipmentManager.Instance.GuanshifuHook(cardManager.Owner, playedCard.Owner);
+                                    if (!guanshifuBlock)
+                                    {
+                                        UseCardManager.Instance.BackToWhoseTurn();
+                                    }
+                                }
+                                break;
+                            default:
+                                {
+                                    (bool hasJiedaosharen, OneCardManager jiedaosharenCard) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen);
+                                    if (hasJiedaosharen)
+                                    {
+                                        GlobalSettings.Instance.Table.ClearCardsFromLast();
+                                        TipCardManager.Instance.JiedaoSharenNextTarget();
+                                    }
+                                    else
+                                    {
+                                        UseCardManager.Instance.BackToWhoseTurn();
+                                    }
+                                }
+                                break;
                         }
-                        else
-                        {
-                            UseCardManager.Instance.BackToWhoseTurn();
-                        }
+
                     }
                     break;
             }

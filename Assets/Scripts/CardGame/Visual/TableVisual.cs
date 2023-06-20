@@ -141,18 +141,6 @@ public class TableVisual : MonoBehaviour
         return CardUtils.Instance.TablePosForNewCreature(MouseX, Slots, CardsOnTable);
     }
 
-    // Destroy a card
-    public void RemoveCardWithID(int IDToRemove)
-    {
-        // TODO 从数组中移除 然后重新排列
-        //_cardsOnTable.Remove(creatureToRemove);
-
-
-        ShiftSlotsGameObjectAccordingToNumberOfCreatures();
-        PlaceCreaturesOnNewSlots();
-        Command.CommandExecutionComplete();
-    }
-
 
     /// <summary>
     /// Shifts the slots game object according to number of creatures.

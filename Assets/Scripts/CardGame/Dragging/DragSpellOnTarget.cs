@@ -206,10 +206,13 @@ public class DragSpellOnTarget : DraggingActions
             {
                 //TODO 加个hook哪些角色不能成为目标
                 case TargetingOptions.AllCharacters:
-                    UseSpellCard(targetValid, targetID);
+                    if (ValidateHandCards(targetID))
+                    {
+                        UseSpellCard(targetValid, targetID);
+                    }
                     break;
                 case TargetingOptions.EnemyCharacters:
-                    if (targetID != _playerOwner.ID && _manager.Owner.CanAttack(targetID))
+                    if (targetID != _playerOwner.ID && _manager.Owner.CanAttack(targetID) && ValidateHandCards(targetID) && ValidateDelayTipCards(targetID))
                     {
                         if (GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen).Item1)
                         {
@@ -232,7 +235,7 @@ public class DragSpellOnTarget : DraggingActions
                     }
                     break;
                 case TargetingOptions.EnemyNoDistanceLimit:
-                    if (targetID != _playerOwner.ID)
+                    if (targetID != _playerOwner.ID && ValidateDelayTipCards(targetID))
                     {
                         UseSpellCard(targetValid, targetID);
                     }
@@ -266,6 +269,53 @@ public class DragSpellOnTarget : DraggingActions
         targets.Add(targetID);
 
         _playerOwner.DragTarget(_manager, targets);
+    }
+
+    /// <summary>
+    /// 判断是否符合有手牌
+    /// </summary>
+    /// <param name="targetID"></param>
+    /// <returns></returns>
+    public bool ValidateHandCards(int targetID)
+    {
+        if (_manager.CardAsset.SubTypeOfCard == SubTypeOfCards.Huogong || _manager.CardAsset.SubTypeOfCard == SubTypeOfCards.Guohechaiqiao || _manager.CardAsset.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
+        {
+            Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetID);
+            if (targetPlayer.Hand.CardsInHand.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// 判断是否符合延时锦囊不重复
+    /// </summary>
+    /// <param name="targetID"></param>
+    /// <returns></returns>
+    public bool ValidateDelayTipCards(int targetID)
+    {
+        if (_manager.CardAsset.TypeOfCard != TypesOfCards.DelayTips)
+        {
+            return true;
+        }
+        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetID);
+        if (DelayTipManager.HasDelayTips(targetPlayer, _manager.CardAsset.SubTypeOfCard))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     // NOT USED IN THIS SCRIPT

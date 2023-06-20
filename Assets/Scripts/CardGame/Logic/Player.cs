@@ -276,6 +276,7 @@ public class Player : MonoBehaviour
         {
             _showOp1Button = value;
             PArea.Portrait.OpButton1.gameObject.SetActive(value);
+            PArea.Portrait.OpButton1.enabled = true;
             if (!value)
             {
                 PArea.Portrait.ChangeOp1ButtonText("Cancel");
@@ -298,6 +299,7 @@ public class Player : MonoBehaviour
         {
             _showOp2Button = value;
             PArea.Portrait.OpButton2.gameObject.SetActive(value);
+            PArea.Portrait.OpButton2.enabled = true;
             if (!value)
             {
                 PArea.Portrait.ChangeOp2ButtonText("Cancel");
@@ -319,7 +321,8 @@ public class Player : MonoBehaviour
         set
         {
             _showOp3Button = value;
-            PArea.Portrait.OpButton2.gameObject.SetActive(value);
+            PArea.Portrait.OpButton3.gameObject.SetActive(value);
+            PArea.Portrait.OpButton3.enabled = true;
             if (!value)
             {
                 PArea.Portrait.ChangeOp3Button2Text("Cancel");

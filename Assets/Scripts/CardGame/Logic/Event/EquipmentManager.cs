@@ -83,10 +83,7 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// 失去诸葛连弩hook
-    /// </summary>
-    /// <param name="player"></param>
     public void ZhugeliannuDisHook(Player player, OneCardManager equipmentCard)
     {
         if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Zhugeliannu)
@@ -100,6 +97,13 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 雌雄双股
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
     public bool CixiongHook(Player player, OneCardManager playedCard, Player targetPlayer)
     {
         TaskManager.Instance.AddATask(TaskType.CixiongShuangguTask);
@@ -111,7 +115,12 @@ public class EquipmentManager : MonoBehaviour
             || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash
             || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash))
         {
-            Debug.Log("-------------------------------");
+            //TODO 双武将 男男 男女判断
+            if (player.CharAsset.CharSex == targetPlayer.CharAsset.CharSex)
+            {
+                Debug.Log("想通性别");
+                return false;
+            }
             if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.CixiongDoubleSwards)
             {
                 Debug.Log("不解除");
@@ -150,6 +159,7 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
+    /// 目标选择弃一张牌，或者让对方摸一张牌
     public void HandleCixiong(Player player, Player targetPlayer)
     {
         HighlightManager.DisableAllCards();
@@ -160,9 +170,14 @@ public class EquipmentManager : MonoBehaviour
         targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
         {
             HighlightManager.DisableAllOpButtons();
-            targetPlayer.DisACardFromHand(targetPlayer.Hand.CardsInHand[0]);
-            TaskManager.Instance.UnBlockTask(TaskType.CixiongShuangguTask);
+            DisCardForCixiong(targetPlayer);
         });
+
+        //若没有牌则不能选择弃一张牌
+        if (targetPlayer.Hand.CardsInHand.Count == 0)
+        {
+            targetPlayer.PArea.Portrait.OpButton1.enabled = false;
+        }
 
         targetPlayer.ShowOp2Button = true;
         targetPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
@@ -170,8 +185,110 @@ public class EquipmentManager : MonoBehaviour
         targetPlayer.PArea.Portrait.OpButton2.onClick.AddListener(() =>
         {
             HighlightManager.DisableAllOpButtons();
-            player.DrawACard(1);
+            player.DrawSomeCards(1);
             TaskManager.Instance.UnBlockTask(TaskType.CixiongShuangguTask);
         });
+    }
+
+    /// 弃一张牌
+    public void DisCardForCixiong(Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
+        {
+            GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
+            TaskManager.Instance.UnBlockTask(TaskType.CixiongShuangguTask);
+        };
+
+        for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+    }
+
+    /// <summary>
+    /// 贯石斧
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public bool GuanshifuHook(Player player, Player targetPlayer)
+    {
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        if (hasEquipment)
+        {
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Guanshifu)
+            {
+                Debug.Log("不解除");
+                HighlightManager.DisableAllCards();
+                HighlightManager.DisableAllOpButtons();
+                player.ShowOp1Button = true;
+                player.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp1ButtonText("发动贯石斧");
+                player.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    DisCardForGuanshifu(player);
+                });
+
+                int handCount = player.Hand.CardsInHand.Count;
+                int equipmentCount = player.EquipmentLogic.CardsInEquipment.Count;
+                if (handCount + equipmentCount < 2)
+                {
+                    player.PArea.Portrait.OpButton1.enabled = false;
+                }
+
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("不发动贯石斧");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    UseCardManager.Instance.BackToWhoseTurn();
+                });
+
+                return true;
+            }
+            else
+            {
+                Debug.Log("解除");
+                return false;
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            return false;
+        }
+    }
+
+    //贯石斧弃两张牌造成伤害
+    public void DisCardForGuanshifu(Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 2;
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
+        {
+            GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
+            SettleManager.Instance.StartSettle();
+        };
+
+        for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        for (int i = targetPlayer.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.EquipmentLogic.CardsInEquipment[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
     }
 }

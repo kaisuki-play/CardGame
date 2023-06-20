@@ -20,8 +20,9 @@ public class GlobalSettings : MonoBehaviour
     public DisDeckVisual DisDeck;
     public TableVisual Table;
     [Header("Target Cards Panel")]
-    public TargetCardsPanel TargetCardsPanel;
+    //public TargetCardsPanel TargetCardsPanel;
     public CardSelectVisual CardSelectVisual;
+    public GoldenFingerVisual GoldenFingerVisual;
     [Header("Deck")]
     public DeckSource DeckSource;
     [Header("Colors")]

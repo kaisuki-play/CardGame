@@ -6,7 +6,8 @@ public enum TargetCardsPanelType
 {
     GuoheChaiqiao,
     Wugufengdeng,
-    Shunshouqianyang
+    Shunshouqianyang,
+    DisHandCard
 }
 
 public class TargetCardsPanel : MonoBehaviour

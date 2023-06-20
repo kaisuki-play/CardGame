@@ -34,6 +34,7 @@ public class PlayerDeckVisual : MonoBehaviour
         CardAsset ThunderAsset = null;
         CardAsset ZhugeliannuAsset = null;
         CardAsset CixiongAsset = null;
+        CardAsset GuanshifuAsset = null;
         foreach (CardAsset cardAsset1 in GlobalSettings.Instance.DeckSource.Cards)
         {
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
@@ -104,6 +105,10 @@ public class PlayerDeckVisual : MonoBehaviour
             {
                 CixiongAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Guanshifu)
+            {
+                GuanshifuAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
@@ -124,7 +129,7 @@ public class PlayerDeckVisual : MonoBehaviour
         InsertNewCardAsset(BlcdAsset, CardSuits.Spades, CardRank.Rank_A);
         InsertNewCardAsset(ZhugeliannuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, ZhugeliannuAsset.WeaponAttackDistance);
         InsertNewCardAsset(CixiongAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, CixiongAsset.WeaponAttackDistance);
-
+        InsertNewCardAsset(GuanshifuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, GuanshifuAsset.WeaponAttackDistance);
 
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }

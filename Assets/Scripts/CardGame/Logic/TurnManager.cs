@@ -159,12 +159,14 @@ public class TurnManager : MonoBehaviour
                 break;
             ///是否跳过弃牌阶段
             case TurnPhase.SkipDisCard:
-                if (this.SkipPlayCardPhase)
+                if (this.SkipDisCardPhase)
                 {
+                    Debug.Log("跳过弃牌阶段");
                     TurnManager.Instance.TurnPhase = TurnPhase.EndTurn;
                 }
                 else
                 {
+                    Debug.Log("不跳过弃牌阶段");
                     TurnManager.Instance.TurnPhase = TurnPhase.StartDisCard;
                 }
                 break;
@@ -240,7 +242,7 @@ public class TurnManager : MonoBehaviour
         s.Insert(0f, Players[2].PArea.Portrait.transform.DOMove(Players[2].PArea.PortraitPosition.position, 1f).SetEase(Ease.InQuad));
         s.Insert(0f, Players[1].PArea.Portrait.transform.DOMove(Players[1].PArea.PortraitPosition.position, 1f).SetEase(Ease.InQuad));
         s.PrependInterval(3f);
-        s.OnComplete(DrawCards);
+        s.OnComplete(GlobalSettings.Instance.UseGoldenFinger ? GoldenFinger : DrawCards);
     }
 
     void DrawCards()
@@ -255,6 +257,16 @@ public class TurnManager : MonoBehaviour
             }
         }
         TurnManager.Instance.whoseTurn = Players[5];
+    }
+
+    void GoldenFinger()
+    {
+        GlobalSettings.Instance.GoldenFingerVisual.curDrawCardPlayer = GlobalSettings.Instance.PlayerInstances[Players.Length - 1];
+        GlobalSettings.Instance.GoldenFingerVisual.Show();
+        GlobalSettings.Instance.GoldenFingerVisual.Completion = () =>
+        {
+            TurnManager.Instance.whoseTurn = Players[5];
+        };
     }
 
     void Update()

@@ -7,7 +7,8 @@ public enum TaskType
     DyingTask,
     DelayTask,
     SpecialTargetsTask,
-    CixiongShuangguTask
+    CixiongShuangguTask,
+    GuanshifuTask
 }
 public class TaskManager : MonoBehaviour
 {
