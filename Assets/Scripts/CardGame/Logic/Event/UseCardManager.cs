@@ -301,7 +301,7 @@ public class UseCardManager : MonoBehaviour
     /// <summary>
     /// 需要出杀
     /// </summary>
-    public void NeedToPlaySlash(Player targetPlayer = null, bool isJiedaoSharen = false)
+    public void NeedToPlaySlash(Player targetPlayer = null, bool isJiedaoSharen = false, bool needTarget = false)
     {
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
@@ -311,7 +311,7 @@ public class UseCardManager : MonoBehaviour
             targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
         }
 
-        HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Slash, needTargetComponent: isJiedaoSharen);
+        HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Slash, needTargetComponent: isJiedaoSharen || needTarget);
         targetPlayer.ShowOp1Button = true;
         targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
         targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
@@ -328,6 +328,8 @@ public class UseCardManager : MonoBehaviour
                 SettleManager.Instance.StartSettle();
             }
         });
+
+        SkillManager.NeedToPlaySlash(targetPlayer, needTarget);
     }
 
     public void BackToWhoseTurn()

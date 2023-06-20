@@ -56,7 +56,7 @@ public class HighlightManager : MonoBehaviour
         }
     }
 
-    public static void EnableCardsWithType(Player player, CardsType cardsType = CardsType.Normal)
+    public static async void EnableCardsWithType(Player player, CardsType cardsType = CardsType.Normal)
     {
         //TODO 当前人出牌人死了
         HighlightManager.DisableAllCards();
@@ -72,6 +72,10 @@ public class HighlightManager : MonoBehaviour
             {
                 oneCardManager.TargetComponent.SetActive(false);
             }
+        }
+        if (CounterManager.Instance.SlashCount < CounterManager.Instance.SlashLimit)
+        {
+            SkillManager.NeedToPlaySlash(player, true);
         }
     }
 

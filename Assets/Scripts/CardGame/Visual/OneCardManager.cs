@@ -146,6 +146,7 @@ public class OneCardManager : MonoBehaviour
             GlobalSettings.Instance.Table.CardsOnTable.Remove(this.gameObject);
             GlobalSettings.Instance.DisDeck.DisDeckCards.Add(this.gameObject);
         }
+        SkillManager.HandleEquipmentMove(owner, this.Owner, cardLocation, this.CardLocation, this);
         this.Owner = owner;
         this.CardLocation = cardLocation;
     }

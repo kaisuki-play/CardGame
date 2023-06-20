@@ -57,9 +57,8 @@ public class SkillManager : MonoBehaviour
         await EquipmentManager.Instance.QinglongyanyueHook(player, targetPlayer);
     }
 
-    public static async Task NeedToPlaySlash(Player player, bool needTarget)
+    public static void NeedToPlaySlash(Player player, bool needTarget)
     {
         EquipmentManager.Instance.ZhangbashemaoHook(player, needTarget);
-        await TaskManager.Instance.DontAwait();
     }
 }

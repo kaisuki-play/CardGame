@@ -103,6 +103,7 @@ public class TableVisual : MonoBehaviour
                 relationCardManager.Owner.DisACardFromHand(relationCardId);
             }
             Destroy(card);
+            CardsOnTable.RemoveAt(index);
             return;
         }
 

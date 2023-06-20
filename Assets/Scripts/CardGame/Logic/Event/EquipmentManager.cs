@@ -336,7 +336,6 @@ public class EquipmentManager : MonoBehaviour
         {
             if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Zhangbashemao)
             {
-                Debug.Log("不解除");
                 HighlightManager.DisableAllOpButtons();
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
