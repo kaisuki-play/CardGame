@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System.Xml.Linq;
 using System;
+using static UnityEngine.GraphicsBuffer;
 
 public class TargetsManager : MonoBehaviour
 {
@@ -36,9 +37,20 @@ public class TargetsManager : MonoBehaviour
     public void Order(OneCardManager oneCardManager)
     {
         int targetIndex = GlobalSettings.Instance.Table.CardsOnTable.Count - 1;
-        int closetPlayerIndex = FindClosestElement(Targets[targetIndex], oneCardManager.Owner);
+
+        List<Player> originalPlayerList = Targets[targetIndex].Select(n => GlobalSettings.Instance.FindPlayerByID(n)).ToList();
+        originalPlayerList.Sort((x, y) => y.PArea.Owner.CompareTo(x.PArea.Owner));
+
+        List<int> reverseOrderList = originalPlayerList.Select(n => n.ID).ToList();
+
+        foreach (int id in reverseOrderList)
+        {
+            Debug.Log("排序前的位置: " + GlobalSettings.Instance.FindPlayerByID(id).PArea.Owner);
+        }
+
+        int closetPlayerIndex = FindClosestElement(reverseOrderList, oneCardManager.Owner);
         Debug.Log("离开玩家最近的" + closetPlayerIndex);
-        List<int> targets = GenerateNewArray(Targets[targetIndex], closetPlayerIndex);
+        List<int> targets = GenerateNewArray(reverseOrderList, closetPlayerIndex);
         foreach (int id in targets)
         {
             Debug.Log("排序后的位置: " + GlobalSettings.Instance.FindPlayerByID(id).PArea.Owner);
@@ -50,12 +62,21 @@ public class TargetsManager : MonoBehaviour
     {
         List<int> resultList = new List<int>();
 
-        for (int i = startIndex; i >= 0; i--)
+        //if (startIndex == 0)
+        //{
+        //    for (int i = startIndex; i < originalList.Count; i++)
+        //    {
+        //        resultList.Add(originalList[i]);
+        //    }
+        //    return resultList;
+        //}
+
+        for (int i = startIndex; i < originalList.Count; i++)
         {
             resultList.Add(originalList[i]);
         }
 
-        for (int i = originalList.Count - 1; i > startIndex; i--)
+        for (int i = 0; i < startIndex; i++)
         {
             resultList.Add(originalList[i]);
         }

@@ -411,6 +411,12 @@ public class EquipmentManager : MonoBehaviour
                     TargetsManager.Instance.DefaultTarget.Add(targetPlayer.ID);
                     UseCardManager.Instance.BackToWhoseTurn();
                     UseCardManager.Instance.NeedToPlaySlash(player);
+                    player.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                    player.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        UseCardManager.Instance.BackToWhoseTurn();
+                    });
                 });
 
                 player.ShowOp3Button = true;
@@ -434,5 +440,103 @@ public class EquipmentManager : MonoBehaviour
             player.ShowOp2Button = false;
         }
         await TaskManager.Instance.DontAwait();
+    }
+
+    public async Task ActiveFangtianhuaji(OneCardManager playedCard)
+    {
+        Player player = playedCard.Owner;
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        if (hasEquipment)
+        {
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Fangtianhuaji)
+            {
+                Debug.Log("不解除");
+                HighlightManager.DisableAllOpButtons();
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("发动方天画戟");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    await MultipleTargetsForFangtianhuaji(playedCard);
+                });
+
+                player.ShowOp3Button = true;
+                player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp3Button2Text("不发动");
+                player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    TaskManager.Instance.UnBlockTask(TaskType.FangtianhuajiTask);
+                });
+            }
+            else
+            {
+                Debug.Log("解除");
+                player.ShowOp2Button = false;
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            player.ShowOp2Button = false;
+        }
+        await TaskManager.Instance.BlockTask(TaskType.FangtianhuajiTask);
+    }
+
+    /// <summary>
+    /// 方天画戟
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public async Task MultipleTargetsForFangtianhuaji(OneCardManager playedCard)
+    {
+        if (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
+            || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash
+            || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash)
+        {
+            (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
+            //判断借刀对象是否有武器
+            if (!hasWeapon || weaponCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Fangtianhuaji)
+            {
+                TaskManager.Instance.UnBlockTask(TaskType.FangtianhuajiTask);
+                await TaskManager.Instance.DontAwait();
+                return;
+            }
+            HighlightManager.DisableAllCards();
+            HighlightManager.DisableAllOpButtons();
+
+            int SelectTargetNumber = 0;
+
+            foreach (Player targetPlayer in GlobalSettings.Instance.PlayerInstances)
+            {
+                if (targetPlayer.ID != playedCard.Owner.ID && !playedCard.TargetsPlayerIDs.Contains(targetPlayer.ID))
+                {
+                    targetPlayer.ShowOp1Button = true;
+                    targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                    targetPlayer.PArea.Portrait.ChangeOp1ButtonText("多选对象");
+                    targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                    {
+                        targetPlayer.ShowOp1Button = false;
+                        playedCard.TargetsPlayerIDs.Add(targetPlayer.ID);
+                        SelectTargetNumber++;
+                        if (SelectTargetNumber == 2)
+                        {
+                            TaskManager.Instance.UnBlockTask(TaskType.FangtianhuajiTask);
+                        }
+                    });
+                }
+            }
+
+            TurnManager.Instance.whoseTurn.ShowOp2Button = true;
+            TurnManager.Instance.whoseTurn.PArea.Portrait.ChangeOp2ButtonText("完成");
+            TurnManager.Instance.whoseTurn.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+            TurnManager.Instance.whoseTurn.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+            {
+                HighlightManager.DisableAllOpButtons();
+                TurnManager.Instance.whoseTurn.ShowOp1Button = false;
+                TaskManager.Instance.UnBlockTask(TaskType.FangtianhuajiTask);
+            });
+        }
     }
 }

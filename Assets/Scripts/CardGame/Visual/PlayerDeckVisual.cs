@@ -35,6 +35,9 @@ public class PlayerDeckVisual : MonoBehaviour
         CardAsset ZhugeliannuAsset = null;
         CardAsset CixiongAsset = null;
         CardAsset GuanshifuAsset = null;
+        CardAsset QinggangjianAsset = null;
+        CardAsset QinglongyanyueAsset = null;
+        CardAsset FangtianhuajiAsset = null;
         foreach (CardAsset cardAsset1 in GlobalSettings.Instance.DeckSource.Cards)
         {
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
@@ -109,27 +112,42 @@ public class PlayerDeckVisual : MonoBehaviour
             {
                 GuanshifuAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Qinghongjian)
+            {
+                QinggangjianAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Qinglongyanyuedao)
+            {
+                QinglongyanyueAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Fangtianhuaji)
+            {
+                FangtianhuajiAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
         //InsertNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(TiesuoAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(ThunderAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(TiesuoAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(ThunderAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
-        InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 3);
-        InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
+        //InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 3);
+        //InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(GuohechaiqiaoAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(LbssAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(BlcdAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(ZhugeliannuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, ZhugeliannuAsset.WeaponAttackDistance);
-        InsertNewCardAsset(CixiongAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, CixiongAsset.WeaponAttackDistance);
-        InsertNewCardAsset(GuanshifuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, GuanshifuAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(LbssAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(BlcdAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(ZhugeliannuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, ZhugeliannuAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(CixiongAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, CixiongAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(GuanshifuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, GuanshifuAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(QinggangjianAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, QinggangjianAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(QinglongyanyueAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, QinglongyanyueAsset.WeaponAttackDistance);
+        InsertNewCardAsset(FangtianhuajiAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, FangtianhuajiAsset.WeaponAttackDistance);
 
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }

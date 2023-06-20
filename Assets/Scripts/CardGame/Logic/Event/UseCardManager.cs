@@ -98,7 +98,8 @@ public class UseCardManager : MonoBehaviour
     public async void HandleTargets(OneCardManager playedCard, List<int> targets, List<int> specialIds)
     {
         //模拟借刀杀人多个目标的技能。
-        await MultipleTargetsForJiedaosharen(playedCard);
+        //await MultipleTargetsForJiedaosharen(playedCard);
+        await SkillManager.StartHandleTargets(playedCard);
         // 默认目标
         if (targets.Count != 0)
         {
@@ -134,7 +135,7 @@ public class UseCardManager : MonoBehaviour
     public async void HandleFixedTargets(OneCardManager playedCard)
     {
         Debug.Log("阶段4");
-        await SkillManager.UseCard4(playedCard);
+        await SkillManager.StartFixedTargets(playedCard);
         Debug.Log("继续第五步");
         HandleImpeccable(playedCard);
     }
@@ -301,7 +302,7 @@ public class UseCardManager : MonoBehaviour
     /// <summary>
     /// 需要出杀
     /// </summary>
-    public void NeedToPlaySlash(Player targetPlayer = null, bool isJiedaoSharen = false, bool needTarget = false)
+    public async void NeedToPlaySlash(Player targetPlayer = null, bool isJiedaoSharen = false, bool needTarget = false)
     {
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
@@ -329,7 +330,7 @@ public class UseCardManager : MonoBehaviour
             }
         });
 
-        SkillManager.NeedToPlaySlash(targetPlayer, needTarget);
+        await SkillManager.NeedToPlaySlash(targetPlayer, needTarget);
     }
 
     public void BackToWhoseTurn()

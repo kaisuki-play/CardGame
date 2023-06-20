@@ -75,7 +75,7 @@ public class HighlightManager : MonoBehaviour
         }
         if (CounterManager.Instance.SlashCount < CounterManager.Instance.SlashLimit)
         {
-            SkillManager.NeedToPlaySlash(player, true);
+            await SkillManager.NeedToPlaySlash(player, true);
         }
     }
 

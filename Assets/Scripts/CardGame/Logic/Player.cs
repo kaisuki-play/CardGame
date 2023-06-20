@@ -624,7 +624,17 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public void PlayACard(OneCardManager playedCard, List<int> targets)
     {
-        PlayCardManager.Instance.PlayAVisualCardFromHand(playedCard, targets);
+        if (TargetsManager.Instance.DefaultTarget.Count != 0)
+        {
+            targets.AddRange(TargetsManager.Instance.DefaultTarget);
+            TargetsManager.Instance.DefaultTarget.Clear();
+            UseCardManager.Instance.UseAVisualCardFromHand(playedCard, targets);
+        }
+        else
+        {
+            PlayCardManager.Instance.PlayAVisualCardFromHand(playedCard, targets);
+        }
+
     }
 
     /// <summary>
