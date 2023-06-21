@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
+using System;
+
 public enum TaskType
 {
     DyingTask,
@@ -10,7 +12,11 @@ public enum TaskType
     CixiongShuangguTask,
     GuanshifuTask,
     ZhangbashemaoTask,
-    FangtianhuajiTask
+    FangtianhuajiTask,
+    ZhuqueyushanTask,
+    FrostBladeTask,
+    QilingongTask,
+    SilverMoonTask
 }
 public class TaskManager : MonoBehaviour
 {
@@ -59,6 +65,20 @@ public class TaskManager : MonoBehaviour
         {
             Debug.Log("1解除阻塞后，还有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskManager.Instance.TaskBlockDic.Keys.Count);
             TaskManager.Instance.TaskBlockDic[taskType].SetResult(true);
+            TaskManager.Instance.TaskBlockDic.Remove(taskType);
+        }
+    }
+
+    public void ExceptionBlockTask(TaskType taskType, string exMessage = "Jump Out")
+    {
+        foreach (TaskType taskt in TaskManager.Instance.TaskBlockDic.Keys)
+        {
+            Debug.Log("需要异常任务~~~~~~~~~~~" + taskt + "~~~~~~~~~~~~~~~");
+        }
+        if (TaskManager.Instance.TaskBlockDic.ContainsKey(taskType))
+        {
+            Exception exception = new Exception(exMessage);
+            TaskManager.Instance.TaskBlockDic[taskType].SetException(exception);
             TaskManager.Instance.TaskBlockDic.Remove(taskType);
         }
     }

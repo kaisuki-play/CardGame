@@ -15,6 +15,8 @@ public class TargetsManager : MonoBehaviour
     public List<int> SpecialTarget = new List<int>();
     // 已经有的目标
     public List<int> DefaultTarget = new List<int>();
+    // 出闪目标
+    public List<int> NeedToPlayJinkTargets = new List<int>();
 
     private void Awake()
     {

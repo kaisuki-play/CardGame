@@ -45,6 +45,7 @@ public enum SubTypeOfCards
     Zixing,//紫骍
     Dawan,//大宛
     Hualiu,//骅骝
+    SilverMoon,//银月枪
 }
 
 public enum TypeOfEquipment

@@ -9,8 +9,10 @@ public class PlayImpeccableManager : MonoBehaviour
     {
         Instance = this;
     }
-    public void ActiveEffect(OneCardManager playedCard)
+    public async void ActiveEffect(OneCardManager playedCard)
     {
+        await SkillManager.UseACard(playedCard);
+
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
         ImpeccableManager.Instance.TipWillWork = !ImpeccableManager.Instance.TipWillWork;

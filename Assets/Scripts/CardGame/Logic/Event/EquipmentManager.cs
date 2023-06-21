@@ -48,7 +48,6 @@ public class EquipmentManager : MonoBehaviour
             player.PArea.EquipmentVisaul.DisCardFromEquipment(oldEquipmentCard.UniqueCardID);
             player.EquipmentLogic.RemoveCard(oldEquipmentCard.UniqueCardID);
 
-            ZhugeliannuDisHook(player, oldEquipmentCard);
             //加新卡
             player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
             player.EquipmentLogic.AddCard(cardManager.UniqueCardID);
@@ -59,7 +58,6 @@ public class EquipmentManager : MonoBehaviour
             player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
             player.EquipmentLogic.AddCard(cardManager.UniqueCardID);
         }
-        ZhugeliannuHook(player);
     }
 
     /// <summary>
@@ -442,9 +440,19 @@ public class EquipmentManager : MonoBehaviour
         await TaskManager.Instance.DontAwait();
     }
 
+    /// <summary>
+    /// 触发方天画戟
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
     public async Task ActiveFangtianhuaji(OneCardManager playedCard)
     {
         Player player = playedCard.Owner;
+        //没有手牌的时候
+        if (player.Hand.CardsInHand.Count > 0)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasEquipment)
         {
@@ -485,7 +493,7 @@ public class EquipmentManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 方天画戟
+    /// 方天画戟多选目标
     /// </summary>
     /// <param name="playedCard"></param>
     /// <returns></returns>
@@ -496,8 +504,9 @@ public class EquipmentManager : MonoBehaviour
             || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash)
         {
             (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
-            //判断借刀对象是否有武器
-            if (!hasWeapon || weaponCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Fangtianhuaji)
+
+            //有武器但是武器不是方天画戟
+            if (!hasWeapon || (hasWeapon && weaponCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Fangtianhuaji))
             {
                 TaskManager.Instance.UnBlockTask(TaskType.FangtianhuajiTask);
                 await TaskManager.Instance.DontAwait();
@@ -539,4 +548,309 @@ public class EquipmentManager : MonoBehaviour
             });
         }
     }
+
+    /// <summary>
+    /// 触发朱雀羽扇
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public async Task ActiveZhuqueyushan(OneCardManager playedCard)
+    {
+        if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+        Player player = playedCard.Owner;
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        if (hasEquipment)
+        {
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Zhuqueyushan)
+            {
+                Debug.Log("不解除");
+                TaskManager.Instance.AddATask(TaskType.ZhuqueyushanTask);
+
+                HighlightManager.DisableAllOpButtons();
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("发动朱雀羽扇");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    playedCard.CardAsset.SpellAttribute = SpellAttribute.FireSlash;
+                    TaskManager.Instance.UnBlockTask(TaskType.ZhuqueyushanTask);
+                });
+
+                player.ShowOp3Button = true;
+                player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp3Button2Text("不发动");
+                player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    TaskManager.Instance.UnBlockTask(TaskType.ZhuqueyushanTask);
+                });
+
+                await TaskManager.Instance.TaskBlockDic[TaskType.ZhuqueyushanTask].Task;
+            }
+            else
+            {
+                Debug.Log("解除");
+                player.ShowOp2Button = false;
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            player.ShowOp2Button = false;
+        }
+    }
+
+    /// <summary>
+    /// 触发寒冰剑
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public async Task ActiveFrostBlade(OneCardManager playedCard, Player targetPlayer)
+    {
+        Player player = playedCard.Owner;
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        if (hasEquipment)
+        {
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.FrostBlade)
+            {
+                Debug.Log("不解除");
+                TaskManager.Instance.AddATask(TaskType.FrostBladeTask);
+
+                HighlightManager.DisableAllOpButtons();
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("发动寒冰剑");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    SelectCardForFrostBlade(targetPlayer);
+                });
+
+                player.ShowOp3Button = true;
+                player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp3Button2Text("不发动");
+                player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    TaskManager.Instance.UnBlockTask(TaskType.FrostBladeTask);
+                });
+
+                await TaskManager.Instance.TaskBlockDic[TaskType.FrostBladeTask].Task;
+            }
+            else
+            {
+                Debug.Log("解除");
+                player.ShowOp2Button = false;
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            player.ShowOp2Button = false;
+        }
+    }
+
+
+    //寒冰剑弃两张手牌，防止伤害
+    public void SelectCardForFrostBlade(Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 2;
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
+        {
+            GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
+            TaskManager.Instance.ExceptionBlockTask(TaskType.FrostBladeTask, "寒冰剑生效");
+            UseCardManager.Instance.FinishSettle();
+        };
+
+        for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        for (int i = targetPlayer.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.EquipmentLogic.CardsInEquipment[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+    }
+
+    /// <summary>
+    /// 麒麟弓触发
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public async Task ActiveQilingong(OneCardManager playedCard, Player targetPlayer)
+    {
+        //如果不是杀则不触发
+        if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
+             && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash
+             && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+
+        Player player = playedCard.Owner;
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        if (hasEquipment)
+        {
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Qilingong)
+            {
+                Debug.Log("不解除");
+                TaskManager.Instance.AddATask(TaskType.QilingongTask);
+
+                HighlightManager.DisableAllOpButtons();
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("发动麒麟弓");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    SelectCardForQilingong(targetPlayer);
+                });
+
+                bool hasAddAHorse = HasEquipmentWithType(targetPlayer, TypeOfEquipment.AddAHorse).Item1;
+                bool hasMinusAHorse = HasEquipmentWithType(targetPlayer, TypeOfEquipment.MinusAHorse).Item1;
+                if (!hasAddAHorse && !hasMinusAHorse)
+                {
+                    player.PArea.Portrait.OpButton2.enabled = false;
+                }
+
+                player.ShowOp3Button = true;
+                player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp3Button2Text("不发动");
+                player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    TaskManager.Instance.UnBlockTask(TaskType.QilingongTask);
+                });
+
+                await TaskManager.Instance.TaskBlockDic[TaskType.QilingongTask].Task;
+            }
+            else
+            {
+                Debug.Log("解除");
+                player.ShowOp2Button = false;
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            player.ShowOp2Button = false;
+        }
+    }
+
+    //发动麒麟弓
+    public void SelectCardForQilingong(Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 1;
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
+        {
+            GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
+            TaskManager.Instance.UnBlockTask(TaskType.QilingongTask);
+        };
+
+        for (int i = targetPlayer.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.EquipmentLogic.CardsInEquipment[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            if (cardManager.CardAsset.TypeOfEquipment == TypeOfEquipment.AddAHorse || cardManager.CardAsset.TypeOfEquipment == TypeOfEquipment.MinusAHorse)
+            {
+                GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+            }
+        }
+    }
+
+    public async Task ActiveSilverMoon(OneCardManager playedCard)
+    {
+        Player player = playedCard.Owner;
+        //不要是本回合出牌
+        if (player.ID == TurnManager.Instance.whoseTurn.ID)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+        //使用牌为黑色
+        if (playedCard.CardAsset.Suits == CardSuits.Spades || playedCard.CardAsset.Suits == CardSuits.Clubs)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        if (hasEquipment)
+        {
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.SilverMoon)
+            {
+                Debug.Log("不解除");
+                TaskManager.Instance.AddATask(TaskType.SilverMoonTask);
+
+                HighlightManager.DisableAllOpButtons();
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("发动银月枪");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    SelectOtherToPlayJink(player);
+                });
+
+                player.ShowOp3Button = true;
+                player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp3Button2Text("不发动");
+                player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
+                });
+
+                await TaskManager.Instance.TaskBlockDic[TaskType.SilverMoonTask].Task;
+            }
+            else
+            {
+                Debug.Log("解除");
+                player.ShowOp2Button = false;
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            player.ShowOp2Button = false;
+        }
+    }
+
+    public void SelectOtherToPlayJink(Player player)
+    {
+        foreach (Player targetPlayer in GlobalSettings.Instance.PlayerInstances)
+        {
+            if (targetPlayer.ID != player.ID)
+            {
+                targetPlayer.ShowOp1Button = true;
+                targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                targetPlayer.PArea.Portrait.ChangeOp1ButtonText("多选对象");
+                targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    TargetsManager.Instance.NeedToPlayJinkTargets.Add(targetPlayer.ID);
+                    UseCardManager.Instance.NeedToPlayJink(targetPlayer);
+                    targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                    targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                    {
+                        Debug.Log("流失体力");
+                        HealthManager.Instance.LooseHealth(1, targetPlayer);
+                        TargetsManager.Instance.NeedToPlayJinkTargets.Clear();
+                        TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
+                    });
+                });
+            }
+        }
+    }
+
 }

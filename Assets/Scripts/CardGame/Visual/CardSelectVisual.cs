@@ -145,6 +145,7 @@ public class CardSelectVisual : MonoBehaviour
                     AlreadyDisCardNumber++;
                     if (AlreadyDisCardNumber == DisCardNumber)
                     {
+                        Debug.Log("弃完牌了");
                         GlobalSettings.Instance.CardSelectVisual.Dismiss();
                         this.AfterDisCardCompletion.Invoke();
                     }

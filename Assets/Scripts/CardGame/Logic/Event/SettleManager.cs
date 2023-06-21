@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,14 +15,7 @@ public class SettleManager : MonoBehaviour
     }
 
     //开始结算
-    public void StartSettle(OneCardManager cardManager = null)
-    {
-
-        BeforeDamage(cardManager);
-    }
-
-    //伤害前
-    public void BeforeDamage(OneCardManager cardManager = null)
+    public void StartSettle(OneCardManager cardManager = null, Player targetPlayer = null, int originalDamage = 0, bool isFromIronChain = false)
     {
         if (cardManager == null)
         {
@@ -29,6 +23,24 @@ public class SettleManager : MonoBehaviour
         }
         if (cardManager != null)
         {
+            Debug.Log("伤害属性" + cardManager.CardAsset.SpellAttribute);
+        }
+        BeforeDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
+    }
+
+    //伤害前
+    public async void BeforeDamage(OneCardManager cardManager = null, Player targetPlayer = null, int originalDamage = 0, bool isFromIronChain = false)
+    {
+        if (cardManager == null)
+        {
+            cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+        }
+        if (cardManager != null)
+        {
+            if (targetPlayer == null)
+            {
+                targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+            }
             switch (cardManager.CardAsset.TypeOfCard)
             {
                 case TypesOfCards.Base:
@@ -38,7 +50,17 @@ public class SettleManager : MonoBehaviour
                             case SubTypeOfCards.Slash:
                             case SubTypeOfCards.FireSlash:
                             case SubTypeOfCards.ThunderSlash:
-                                CalculateDamage();
+                                try
+                                {
+                                    await SkillManager.BeforeCalculateDamage(cardManager, targetPlayer);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.Log("异常为：" + ex);
+                                    return;
+                                }
+                                Debug.Log("-----------------------------------------slash settle before calculate damage--------------------------");
+                                CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
                                 break;
                             default:
                                 break;
@@ -51,12 +73,12 @@ public class SettleManager : MonoBehaviour
                         {
                             case SubTypeOfCards.Nanmanruqin:
                             case SubTypeOfCards.Wanjianqifa:
-                                CalculateDamage();
+                                CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
                                 break;
                             case SubTypeOfCards.Juedou:
                                 if (TipCardManager.Instance.PlayCardOwner == null)
                                 {
-                                    CalculateDamage();
+                                    CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
                                 }
                                 else
                                 {
@@ -64,16 +86,16 @@ public class SettleManager : MonoBehaviour
                                     Player player2 = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
                                     if (TipCardManager.Instance.PlayCardOwner.ID == player1.ID)
                                     {
-                                        CalculateDamage(player2);
+                                        CalculateDamage(cardManager, player2, originalDamage, isFromIronChain);
                                     }
                                     else
                                     {
-                                        CalculateDamage(player1);
+                                        CalculateDamage(cardManager, player1, originalDamage, isFromIronChain);
                                     }
                                 }
                                 break;
                             case SubTypeOfCards.Huogong:
-                                CalculateDamage();
+                                CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
                                 break;
                             default:
                                 break;
@@ -83,7 +105,7 @@ public class SettleManager : MonoBehaviour
                 case TypesOfCards.DelayTips:
                     if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Thunder)
                     {
-                        CalculateDamage(TurnManager.Instance.whoseTurn, cardManager, 3);
+                        CalculateDamage(cardManager, TurnManager.Instance.whoseTurn, 3, isFromIronChain);
                     }
                     break;
             }
@@ -93,7 +115,7 @@ public class SettleManager : MonoBehaviour
 
 
     //计算伤害
-    public async void CalculateDamage(Player curTargetPlayer = null, OneCardManager cardManager = null, int originDamage = 0)
+    public async void CalculateDamage(OneCardManager cardManager = null, Player curTargetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
     {
         if (cardManager == null)
         {
@@ -102,9 +124,9 @@ public class SettleManager : MonoBehaviour
         if (cardManager != null)
         {
 
-            if (originDamage == 0)
+            if (originalDamage == 0)
             {
-                originDamage = cardManager.CardAsset.SpecialSpellAmount;
+                originalDamage = cardManager.CardAsset.SpecialSpellAmount;
             }
 
             if (curTargetPlayer == null)
@@ -113,10 +135,13 @@ public class SettleManager : MonoBehaviour
             }
 
             //酒杀钩子
-            originDamage = AnalepticHook(originDamage);
+            originalDamage = AnalepticHook(originalDamage);
+
+            //触发的计算伤害的
+            originalDamage = SkillManager.StartCalculateDamage(cardManager, curTargetPlayer, originalDamage);
 
             //结算伤害
-            HealthManager.Instance.DamageEffect(originDamage, curTargetPlayer);
+            await HealthManager.Instance.DamageEffect(originalDamage, curTargetPlayer);
 
             SettleManager.Instance.DamageSourceId = cardManager.Owner.ID;
 
@@ -130,21 +155,23 @@ public class SettleManager : MonoBehaviour
             }
 
             Debug.Log("没有濒死继续往下执行");
-            AfterDamage(cardManager);
+            AfterDamage(cardManager, curTargetPlayer, originalDamage, isFromIronChain);
 
         }
     }
 
     //伤害后
-    public void AfterDamage(OneCardManager cardManager = null)
+    public async void AfterDamage(OneCardManager cardManager = null, Player targetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
     {
+        await SkillManager.StartAfterDamage(cardManager, targetPlayer, isFromIronChain);
+        Debug.Log("-----------------------------------------slash settle after damage--------------------------");
         //TODO 判断是否死亡，如果死亡则继续铁索
         //TODO 无属性的话不需要响应铁索连环
-        HandleIronChain(cardManager);
+        HandleIronChain(cardManager, targetPlayer, originalDamage, isFromIronChain);
     }
 
     //铁索连环结算
-    public void HandleIronChain(OneCardManager cardManager = null)
+    public void HandleIronChain(OneCardManager cardManager = null, Player targetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
     {
         //TODO 铁索连环结算
         //TODO 自己回合死亡，回合需要传到下一个玩家手里

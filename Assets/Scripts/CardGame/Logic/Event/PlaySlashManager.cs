@@ -10,12 +10,15 @@ public class PlaySlashManager : MonoBehaviour
         Instance = this;
     }
 
-    public void ActiveEffect(OneCardManager playedCard)
+    public async void ActiveEffect(OneCardManager playedCard)
     {
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with attribute:" + cardAsset.SpellAttribute);
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+
+        await SkillManager.UseACard(playedCard);
+
         if (cardManager != null)
         {
             switch (cardManager.CardAsset.SubTypeOfCard)

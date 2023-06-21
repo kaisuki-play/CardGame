@@ -16,7 +16,16 @@ public class PlayJinkManager : MonoBehaviour
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with attribute:" + cardAsset.SpellAttribute);
+        if (TargetsManager.Instance.NeedToPlayJinkTargets.Count > 0)
+        {
+            Debug.Log("无事发生");
+            TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
+            return;
+        }
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+
+        await SkillManager.UseACard(playedCard);
+
         if (cardManager != null)
         {
             switch (cardManager.CardAsset.TypeOfCard)

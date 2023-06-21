@@ -25,6 +25,7 @@ public class SkillManager : MonoBehaviour
     /// <param name="cardManager"></param>
     public static void HandleEquipmentMove(Player newOwner, Player oldOwner, CardLocation newLocation, CardLocation oldLocation, OneCardManager cardManager)
     {
+        Debug.Log("new: " + newLocation + " old: " + oldLocation);
         if (TurnManager.Instance.whoseTurn == null)
         {
             return;
@@ -33,22 +34,32 @@ public class SkillManager : MonoBehaviour
         {
             case SubTypeOfCards.Zhugeliannu:
                 {
-                    if (newOwner == TurnManager.Instance.whoseTurn && newLocation == CardLocation.Equipment)
+                    //情况1，牌从不是装备区的牌到装备区
+                    //情况2，互换装备，卡牌的Owner不再是原来的主人 TODO之后进pending就不需要了
+                    if ((oldLocation != CardLocation.Equipment && newLocation == CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
                     {
-                        EquipmentManager.Instance.ZhugeliannuHook(TurnManager.Instance.whoseTurn);
+                        EquipmentManager.Instance.ZhugeliannuHook(newOwner);
                     }
                     else
                     {
-                        if (oldLocation != CardLocation.DrawDeck)
+                        //情况1，失去装备区的装备,卡牌的位置不再是装备区
+                        //情况2，互换装备，卡牌的Owner不再是原来的主人 TODO之后进pending就不需要了
+                        if ((oldLocation == CardLocation.Equipment && newLocation != CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
                         {
-                            EquipmentManager.Instance.ZhugeliannuDisHook(TurnManager.Instance.whoseTurn, cardManager);
+                            EquipmentManager.Instance.ZhugeliannuDisHook(oldOwner, cardManager);
                         }
                     }
                 }
                 break;
             case SubTypeOfCards.Zhangbashemao:
                 {
-                    EquipmentManager.Instance.ZhangbashemaoHook(TurnManager.Instance.whoseTurn, true);
+                    EquipmentManager.Instance.ZhangbashemaoHook(newOwner, true);
+                }
+                break;
+            case SubTypeOfCards.Qinghongjian:
+                if ((oldLocation == CardLocation.Equipment && newLocation != CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
+                {
+                    oldOwner.IgnoreArmor = false;
                 }
                 break;
         }
@@ -138,6 +149,35 @@ public class SkillManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 开始出一张牌 1-7的1
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public static async Task StartPlayACard(OneCardManager playedCard)
+    {
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
+        if (hasWeapon)
+        {
+            switch (weaponCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.Zhuqueyushan:
+                    await EquipmentManager.Instance.ActiveZhuqueyushan(playedCard);
+                    break;
+                case SubTypeOfCards.SilverMoon:
+                    await EquipmentManager.Instance.ActiveSilverMoon(playedCard);
+                    break;
+                default:
+                    await TaskManager.Instance.DontAwait();
+                    break;
+            }
+        }
+        else
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+    }
+
+    /// <summary>
     /// 1-7 第二步
     /// </summary>
     /// <param name="playedCard"></param>
@@ -162,4 +202,116 @@ public class SkillManager : MonoBehaviour
             await TaskManager.Instance.DontAwait();
         }
     }
+
+    /// <summary>
+    /// TODO 挪到一个专门的类中计算伤害
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <param name="originalDamage"></param>
+    /// <returns></returns>
+    public static int StartCalculateDamage(OneCardManager playedCard, Player targetPlayer, int originalDamage)
+    {
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
+        if (hasWeapon)
+        {
+            switch (weaponCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.Gudiandao:
+                    {
+                        if (targetPlayer.Hand.CardsInHand.Count == 0)
+                        {
+                            return originalDamage + 1;
+                        }
+                        else
+                        {
+                            return originalDamage;
+                        }
+                    }
+                default:
+                    return originalDamage;
+            }
+        }
+        else
+        {
+            return originalDamage;
+        }
+    }
+
+    /// <summary>
+    /// 计算伤害的时候
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public static async Task BeforeCalculateDamage(OneCardManager playedCard, Player targetPlayer)
+    {
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
+        if (hasWeapon)
+        {
+            switch (weaponCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.FrostBlade:
+                    {
+                        await EquipmentManager.Instance.ActiveFrostBlade(playedCard, targetPlayer);
+                    }
+                    break;
+            }
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    /// <summary>
+    /// 伤害后
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <param name="isFromIronChain"></param>
+    /// <returns></returns>
+    public static async Task StartAfterDamage(OneCardManager playedCard, Player targetPlayer, bool isFromIronChain = false)
+    {
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
+        if (hasWeapon)
+        {
+            switch (weaponCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.Qilingong:
+                    {
+                        if (isFromIronChain)
+                        {
+                            await TaskManager.Instance.DontAwait();
+                        }
+                        else
+                        {
+                            await EquipmentManager.Instance.ActiveQilingong(playedCard, targetPlayer);
+                        }
+                    }
+                    break;
+            }
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    /// <summary>
+    /// 使用了一张牌
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public static async Task UseACard(OneCardManager playedCard)
+    {
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
+        if (hasWeapon)
+        {
+            switch (weaponCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.SilverMoon:
+                    await EquipmentManager.Instance.ActiveSilverMoon(playedCard);
+                    break;
+            }
+        }
+        await TaskManager.Instance.DontAwait();
+
+    }
+
 }

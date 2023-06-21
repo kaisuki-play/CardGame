@@ -62,6 +62,8 @@ public class UseCardManager : MonoBehaviour
                 break;
         }
 
+        await SkillManager.StartPlayACard(playedCard);
+        Debug.Log("----------------------------------------use a card phase 1------------------------------------------");
 
         playedCard.TargetsPlayerIDs = targets;
 
@@ -282,12 +284,15 @@ public class UseCardManager : MonoBehaviour
     /// <summary>
     /// 需要出闪
     /// </summary>
-    public void NeedToPlayJink()
+    public void NeedToPlayJink(Player targetPlayer = null)
     {
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
-        int targetId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
-        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
+        if (targetPlayer == null)
+        {
+            int targetId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
+            targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
+        }
 
         HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Jink);
         targetPlayer.ShowOp1Button = true;
