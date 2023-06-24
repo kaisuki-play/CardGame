@@ -165,7 +165,7 @@ public class UseCardManager : MonoBehaviour
     /// 6 执行卡牌效果
     /// </summary>
     /// <param name="playedCard"></param>
-    public void ActiveEffect(OneCardManager playedCard)
+    public async void ActiveEffect(OneCardManager playedCard)
     {
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
@@ -191,6 +191,8 @@ public class UseCardManager : MonoBehaviour
                                 OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
                                 if (cardManager != null)
                                 {
+                                    await SkillManager.BeforeNeedPlayAJink();
+                                    Debug.Log("需要出闪");
                                     NeedToPlayJink();
                                 }
                             }
@@ -284,7 +286,7 @@ public class UseCardManager : MonoBehaviour
     /// <summary>
     /// 需要出闪
     /// </summary>
-    public void NeedToPlayJink(Player targetPlayer = null)
+    public async void NeedToPlayJink(Player targetPlayer = null)
     {
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
@@ -302,6 +304,8 @@ public class UseCardManager : MonoBehaviour
             targetPlayer.ShowOp1Button = false;
             SettleManager.Instance.StartSettle();
         });
+
+        await SkillManager.NeedPlayAJink(targetPlayer);
     }
 
     /// <summary>

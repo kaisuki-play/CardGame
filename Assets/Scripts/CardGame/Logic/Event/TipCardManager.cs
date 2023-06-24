@@ -36,7 +36,7 @@ public class TipCardManager : MonoBehaviour
     /// <summary>
     /// 无懈可击询问完毕，触发锦囊效果阶段
     /// </summary>
-    public void ActiveTipCard()
+    public async void ActiveTipCard()
     {
         HighlightManager.DisableAllCards();
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
@@ -46,11 +46,21 @@ public class TipCardManager : MonoBehaviour
             {
                 //南蛮入侵
                 case SubTypeOfCards.Nanmanruqin:
-                    UseCardManager.Instance.NeedToPlaySlash();
+                    {
+                        int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        await SkillManager.BeforeAOEForTarget(cardManager, curTargetPlayer);
+                        UseCardManager.Instance.NeedToPlaySlash();
+                    }
                     break;
                 //万箭齐发
                 case SubTypeOfCards.Wanjianqifa:
-                    UseCardManager.Instance.NeedToPlayJink();
+                    {
+                        int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        await SkillManager.BeforeAOEForTarget(cardManager, curTargetPlayer);
+                        UseCardManager.Instance.NeedToPlayJink();
+                    }
                     break;
                 //决斗
                 case SubTypeOfCards.Juedou:

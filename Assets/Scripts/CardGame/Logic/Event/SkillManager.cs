@@ -93,6 +93,77 @@ public class SkillManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 需要打出闪之前 1-7的6
+    /// </summary>
+    /// <param name="targetPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public static async Task BeforeNeedPlayAJink(OneCardManager playedCard = null, Player targetPlayer = null)
+    {
+        if (playedCard == null)
+        {
+            playedCard = GlobalSettings.Instance.LastOneCardOnTable();
+        }
+        if (targetPlayer == null)
+        {
+            targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+        }
+        (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+        if (hasArmor)
+        {
+            switch (armorCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.Renwangdun:
+                    await EquipmentManager.Instance.ActiveRenwangdun(playedCard, targetPlayer);
+                    break;
+                case SubTypeOfCards.Tengjia:
+                    await EquipmentManager.Instance.ActiveTengjia(playedCard, targetPlayer);
+                    break;
+                default:
+                    await TaskManager.Instance.DontAwait();
+                    break;
+            }
+        }
+        else
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+    }
+
+
+    /// <summary>
+    /// 需要出闪
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public static async Task NeedPlayAJink(Player targetPlayer, OneCardManager playedCard = null)
+    {
+        if (playedCard == null)
+        {
+            playedCard = GlobalSettings.Instance.LastOneCardOnTable();
+        }
+        (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+        if (hasArmor)
+        {
+            switch (armorCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.Baguazhen:
+                    await EquipmentManager.Instance.ActiveBaguazhen(playedCard, targetPlayer);
+                    break;
+                default:
+                    await TaskManager.Instance.DontAwait();
+                    break;
+            }
+        }
+        else
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+
+    }
+
+    /// <summary>
     /// 出了闪
     /// </summary>
     /// <param name="player"></param>
@@ -204,21 +275,35 @@ public class SkillManager : MonoBehaviour
     }
 
     /// <summary>
-    /// TODO 挪到一个专门的类中计算伤害
+    /// 开始计算伤害
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targetPlayer"></param>
     /// <param name="originalDamage"></param>
     /// <returns></returns>
-    public static int StartCalculateDamage(OneCardManager playedCard, Player targetPlayer, int originalDamage)
+    public static int StartCalculateDamageForSource(OneCardManager playedCard, Player targetPlayer, int originalDamage, bool isFromIronChain = false)
     {
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
         {
             switch (weaponCard.CardAsset.SubTypeOfCard)
             {
+                //伤害来源装备古锭刀
                 case SubTypeOfCards.Gudiandao:
                     {
+                        //1.伤害类型为杀
+                        if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
+                            && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
+                            && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
+                        {
+                            return originalDamage;
+                        }
+                        //2.非铁索传导
+                        if (isFromIronChain)
+                        {
+                            return originalDamage;
+                        }
+                        //3.受害者手牌为0
                         if (targetPlayer.Hand.CardsInHand.Count == 0)
                         {
                             return originalDamage + 1;
@@ -235,6 +320,89 @@ public class SkillManager : MonoBehaviour
         else
         {
             return originalDamage;
+        }
+    }
+
+    public static int StartCalculateDamageForTarget(OneCardManager playedCard, Player targetPlayer, int originalDamage)
+    {
+        (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+        if (hasArmor)
+        {
+            switch (armorCard.CardAsset.SubTypeOfCard)
+            {
+                //伤害目标装备藤甲
+                case SubTypeOfCards.Tengjia:
+                    {
+                        //忽视防具
+                        if (playedCard.Owner.IgnoreArmor)
+                        {
+                            return originalDamage;
+                        }
+                        //确保是火属性
+                        if (playedCard.CardAsset.SpellAttribute != SpellAttribute.FireSlash)
+                        {
+                            return originalDamage;
+                        }
+                        //藤甲伤害+1、其余暂时不加
+                        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+                        if (hasEquipment)
+                        {
+                            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Tengjia)
+                            {
+                                return originalDamage + 1;
+                            }
+                            else
+                            {
+                                return originalDamage;
+                            }
+                        }
+                        else
+                        {
+                            return originalDamage;
+                        }
+                    }
+                case SubTypeOfCards.SilverLion:
+                    if (playedCard.Owner.IgnoreArmor)
+                    {
+                        return originalDamage;
+                    }
+                    return 1;
+                default:
+                    return originalDamage;
+            }
+        }
+        else
+        {
+            return originalDamage;
+        }
+    }
+
+    /// <summary>
+    /// 1-7的6 南蛮入侵、万箭齐发AOE 需要出杀、需要出闪前
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public static async Task BeforeAOEForTarget(OneCardManager playedCard, Player targetPlayer)
+    {
+        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~询问是否有防具");
+        (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+        if (hasArmor)
+        {
+            switch (armorCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.Tengjia:
+                    Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~询问是否有防具:藤甲");
+                    await EquipmentManager.Instance.ActiveTengjia(playedCard, targetPlayer);
+                    break;
+                default:
+                    await TaskManager.Instance.DontAwait();
+                    break;
+            }
+        }
+        else
+        {
+            await TaskManager.Instance.DontAwait();
         }
     }
 

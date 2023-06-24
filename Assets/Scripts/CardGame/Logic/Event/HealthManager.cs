@@ -27,11 +27,11 @@ public class HealthManager : MonoBehaviour
     /// </summary>
     /// <param name="amount"></param>
     /// <param name="player"></param>
-    /// TODO 濒死判断
-    public void LooseHealth(int amount, Player player)
+    public async Task LooseHealth(int amount, Player player)
     {
         player.Health -= amount;
         player.PArea.Portrait.TakeDamage(amount);
+        await TaskManager.Instance.DontAwait();
     }
 
     /// <summary>

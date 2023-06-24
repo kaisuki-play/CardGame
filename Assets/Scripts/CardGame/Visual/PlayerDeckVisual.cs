@@ -44,6 +44,9 @@ public class PlayerDeckVisual : MonoBehaviour
         CardAsset DiluAsset = null;
         CardAsset SilverMoonAsset = null;
         CardAsset WanjianqifaAsset = null;
+        CardAsset BaguazhenAsset = null;
+        CardAsset RenwangdunAsset = null;
+        CardAsset TengjiaAsset = null;
         foreach (CardAsset cardAsset1 in GlobalSettings.Instance.DeckSource.Cards)
         {
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
@@ -154,6 +157,18 @@ public class PlayerDeckVisual : MonoBehaviour
             {
                 SilverMoonAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Baguazhen)
+            {
+                BaguazhenAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Renwangdun)
+            {
+                RenwangdunAsset = cardAsset1;
+            }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Tengjia)
+            {
+                TengjiaAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
@@ -164,7 +179,7 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(ThunderAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(WanjianqifaAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
@@ -185,6 +200,9 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(QilingongAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, QilingongAsset.WeaponAttackDistance);
         //InsertNewCardAsset(DiluAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.AddAHorse);
         InsertNewCardAsset(SilverMoonAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Weapons, SilverMoonAsset.WeaponAttackDistance);
+        InsertNewCardAsset(BaguazhenAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
+        InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
+        InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }
 

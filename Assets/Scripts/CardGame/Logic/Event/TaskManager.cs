@@ -16,7 +16,10 @@ public enum TaskType
     ZhuqueyushanTask,
     FrostBladeTask,
     QilingongTask,
-    SilverMoonTask
+    SilverMoonTask,
+    BaguazhenTask,
+    RenwangdunTask,
+    TengjiaTask
 }
 public class TaskManager : MonoBehaviour
 {

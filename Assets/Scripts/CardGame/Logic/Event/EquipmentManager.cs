@@ -452,6 +452,7 @@ public class EquipmentManager : MonoBehaviour
         if (player.Hand.CardsInHand.Count > 0)
         {
             await TaskManager.Instance.DontAwait();
+            return;
         }
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasEquipment)
@@ -559,6 +560,7 @@ public class EquipmentManager : MonoBehaviour
         if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash)
         {
             await TaskManager.Instance.DontAwait();
+            return;
         }
         Player player = playedCard.Owner;
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
@@ -696,6 +698,7 @@ public class EquipmentManager : MonoBehaviour
              && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash)
         {
             await TaskManager.Instance.DontAwait();
+            return;
         }
 
         Player player = playedCard.Owner;
@@ -771,6 +774,11 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 银月枪
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
     public async Task ActiveSilverMoon(OneCardManager playedCard)
     {
         Player player = playedCard.Owner;
@@ -778,11 +786,13 @@ public class EquipmentManager : MonoBehaviour
         if (player.ID == TurnManager.Instance.whoseTurn.ID)
         {
             await TaskManager.Instance.DontAwait();
+            return;
         }
         //使用牌为黑色
-        if (playedCard.CardAsset.Suits == CardSuits.Spades || playedCard.CardAsset.Suits == CardSuits.Clubs)
+        if (playedCard.CardAsset.Suits != CardSuits.Spades && playedCard.CardAsset.Suits != CardSuits.Clubs)
         {
             await TaskManager.Instance.DontAwait();
+            return;
         }
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasEquipment)
@@ -841,16 +851,196 @@ public class EquipmentManager : MonoBehaviour
                     TargetsManager.Instance.NeedToPlayJinkTargets.Add(targetPlayer.ID);
                     UseCardManager.Instance.NeedToPlayJink(targetPlayer);
                     targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-                    targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                    targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
                     {
                         Debug.Log("流失体力");
-                        HealthManager.Instance.LooseHealth(1, targetPlayer);
+                        await LooseHealthManager.LooseHealth(targetPlayer, 1);
                         TargetsManager.Instance.NeedToPlayJinkTargets.Clear();
                         TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
                     });
                 });
             }
         }
+    }
+
+    /// <summary>
+    /// 八卦阵
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public async Task ActiveBaguazhen(OneCardManager playedCard, Player targetPlayer)
+    {
+        if (playedCard.Owner.IgnoreArmor)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+        else
+        {
+            (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+            if (hasEquipment)
+            {
+                if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Baguazhen)
+                {
+                    Debug.Log("不解除");
+
+                    //HighlightManager.DisableAllOpButtons();
+                    targetPlayer.ShowOp2Button = true;
+                    targetPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                    targetPlayer.PArea.Portrait.ChangeOp2ButtonText("发动八卦阵");
+                    targetPlayer.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        HighlightManager.DisableAllCards();
+                        //翻卡牌
+                        OneCardManager flopedCard = await TurnManager.Instance.whoseTurn.FlopCard();
+                        Debug.Log("翻出卡牌的花色:" + flopedCard.CardAsset.Suits);
+                        //判定牌为黑色，无事发生
+                        if (flopedCard.CardAsset.Suits == CardSuits.Spades || flopedCard.CardAsset.Suits == CardSuits.Clubs)
+                        {
+                            targetPlayer.ShowOp2Button = false;
+                            UseCardManager.Instance.NeedToPlayJink(targetPlayer);
+                        }
+                        else
+                        {
+                            //TODO出闪的动画
+                            UseCardManager.Instance.FinishSettle();
+                        }
+                    });
+
+                    await TaskManager.Instance.DontAwait();
+                }
+                else
+                {
+                    Debug.Log("解除");
+                    targetPlayer.ShowOp2Button = false;
+                }
+            }
+            else
+            {
+                Debug.Log("解除");
+                targetPlayer.ShowOp2Button = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 触发仁王盾
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public async Task ActiveRenwangdun(OneCardManager playedCard, Player targetPlayer)
+    {
+        if (playedCard.Owner.IgnoreArmor)
+        {
+            await TaskManager.Instance.DontAwait();
+            return;
+        }
+        //如果不是杀则不触发
+        if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
+             && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash
+             && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash)
+        {
+            await TaskManager.Instance.DontAwait();
+            return;
+        }
+
+        //使用牌为黑色
+        if (playedCard.CardAsset.Suits != CardSuits.Spades && playedCard.CardAsset.Suits != CardSuits.Clubs)
+        {
+            await TaskManager.Instance.DontAwait();
+            return;
+        }
+
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+        if (hasEquipment)
+        {
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Renwangdun)
+            {
+                TaskManager.Instance.AddATask(TaskType.RenwangdunTask);
+
+                //直接进入结算
+                UseCardManager.Instance.FinishSettle();
+
+                TaskManager.Instance.ExceptionBlockTask(TaskType.RenwangdunTask);
+
+                await TaskManager.Instance.TaskBlockDic[TaskType.RenwangdunTask].Task;
+            }
+            else
+            {
+                Debug.Log("解除");
+                targetPlayer.ShowOp2Button = false;
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            targetPlayer.ShowOp2Button = false;
+        }
+    }
+
+    /// <summary>
+    /// 藤甲
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public async Task ActiveTengjia(OneCardManager playedCard, Player targetPlayer)
+    {
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+        //南蛮入侵、万箭齐发直接跳过
+        if (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Nanmanruqin || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Wanjianqifa)
+        {
+            if (hasEquipment && equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Tengjia)
+            {
+                //直接进入结算
+                UseCardManager.Instance.FinishSettle();
+
+                Debug.Log("到这里了");
+                // 创建一个已经完成且包含异常的Task对象
+                Exception exception = new Exception("直接跳到结算");
+                await Task.FromException(exception);
+            }
+        }
+        else
+        {
+            if (playedCard.Owner.IgnoreArmor)
+            {
+                await TaskManager.Instance.DontAwait();
+                return;
+            }
+            //如果不是杀则不触发
+            if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
+                 && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash
+                 && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash)
+            {
+                await TaskManager.Instance.DontAwait();
+                return;
+            }
+
+            //杀无属性
+            if (playedCard.CardAsset.SpellAttribute != SpellAttribute.None)
+            {
+                await TaskManager.Instance.DontAwait();
+                return;
+            }
+
+            if (hasEquipment && equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Tengjia)
+            {
+                //直接进入结算
+                UseCardManager.Instance.FinishSettle();
+
+                Exception exception = new Exception("直接跳到结算");
+                await Task.FromException(exception);
+            }
+            else
+            {
+                Debug.Log("解除");
+                targetPlayer.ShowOp2Button = false;
+            }
+        }
+
     }
 
 }

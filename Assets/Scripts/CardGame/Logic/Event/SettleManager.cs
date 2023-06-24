@@ -134,11 +134,8 @@ public class SettleManager : MonoBehaviour
                 curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
             }
 
-            //酒杀钩子
-            originalDamage = AnalepticHook(originalDamage);
-
-            //触发的计算伤害的
-            originalDamage = SkillManager.StartCalculateDamage(cardManager, curTargetPlayer, originalDamage);
+            //计算最终伤害
+            originalDamage = DamageCalManager.FinalDamage(originalDamage, cardManager, curTargetPlayer);
 
             //结算伤害
             await HealthManager.Instance.DamageEffect(originalDamage, curTargetPlayer);
@@ -186,23 +183,4 @@ public class SettleManager : MonoBehaviour
         }
     }
 
-    //酒杀的钩子
-    public int AnalepticHook(int originDamage)
-    {
-        if (GlobalSettings.Instance.Table.CardsOnTable.Count == 0)
-        {
-            return originDamage;
-        }
-        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
-        if ((cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
-            || cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash
-            || cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash)
-            && CounterManager.Instance.UsedAnalepticThisTurn
-            && CounterManager.Instance.AnalepticWorkCount == 0)
-        {
-            CounterManager.Instance.AnalepticWorkCount++;
-            return originDamage + 1;
-        }
-        return originDamage;
-    }
 }
