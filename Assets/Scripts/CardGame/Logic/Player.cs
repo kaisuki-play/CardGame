@@ -45,7 +45,27 @@ public class Player : MonoBehaviour
     //是否忽视防具
     public bool IgnoreArmor = false;
     //是否有宝物
-    public bool HasTreasure = false;
+    private bool _hasTreasure = false;
+    public bool HasTreasure
+    {
+        get
+        {
+            return _hasTreasure;
+        }
+        set
+        {
+            _hasTreasure = value;
+            if (this.ID == TurnManager.Instance.whoseTurn.ID)
+            {
+                GlobalSettings.Instance.GlobalButton2.gameObject.SetActive(value);
+                GlobalSettings.Instance.GlobalButton2.GetComponentInChildren<Text>().text = TurnManager.Instance.IsInTreasureOutIn ? "Stop Opreate for Cart" : "Insert Some Cards to Cart";
+            }
+            else
+            {
+                GlobalSettings.Instance.GlobalButton2.gameObject.SetActive(false);
+            }
+        }
+    }
 
 
     // PROPERTIES 
@@ -534,6 +554,33 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
+    /// 给别人装备上自己装备区的装备
+    /// </summary>
+    /// <param name="targetPlayer"></param>
+    /// <param name="cardManager"></param>
+    public async void PassTreasureToTarget(Player targetPlayer, int equipmentCardId)
+    {
+        GameObject card = IDHolder.GetGameObjectWithID(equipmentCardId);
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+
+        this.EquipmentLogic.CardsInEquipment.Remove(cardManager.UniqueCardID);
+        this.PArea.EquipmentVisaul.RemoveCard(cardManager.gameObject);
+
+        cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Equipment);
+
+        //新增给目标人的卡
+        targetPlayer.EquipmentLogic.CardsInEquipment.Insert(0, cardManager.UniqueCardID);
+
+        targetPlayer.PArea.EquipmentVisaul.EquipWithCard(equipmentCardId, targetPlayer);
+
+        while (TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure.Count > 0)
+        {
+            int cardId = TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure[0];
+            await targetPlayer.GiveCardToOtherTreasure(cardId);
+        }
+    }
+
+    /// <summary>
     /// 传递下一个目标
     /// </summary>
     /// <param name="targetPlayer"></param>
@@ -792,35 +839,46 @@ public class Player : MonoBehaviour
     /// 摸指定的牌给木流牛马
     /// </summary>
     /// <param name="cardId"></param>
-    public void GiveAssignCardToTreasure(int cardId)
+    public async Task GiveAssignCardToTreasure(int cardId)
     {
+        GameObject card = IDHolder.GetGameObjectWithID(cardId);
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+
+        Debug.Log("木流牛马生效");
         if (TreasureLogic.CardsInTreasure.Count < PArea.TreasureVisual.Slots.Children.Length)
         {
-            GameObject card = IDHolder.GetGameObjectWithID(cardId);
-            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            await GiveCardToOtherTreasure(cardId);
+            await TreasureManager.OnInsertCard();
+        }
+        await TaskManager.Instance.DontAwait();
+    }
 
-            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + cardManager.CardLocation);
-            switch (cardManager.CardLocation)
-            {
-                case CardLocation.Hand:
-                    cardManager.Owner.Hand.CardsInHand.Remove(cardManager.UniqueCardID);
-                    cardManager.Owner.PArea.HandVisual.RemoveCard(cardManager.gameObject);
-                    break;
-                case CardLocation.UnderCart:
-                    cardManager.Owner.TreasureLogic.CardsInTreasure.Remove(cardManager.UniqueCardID);
-                    cardManager.Owner.PArea.TreasureVisual.RemoveCard(cardManager.gameObject);
-                    break;
-            }
+    public async Task GiveCardToOtherTreasure(int cardId)
+    {
+        GameObject card = IDHolder.GetGameObjectWithID(cardId);
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
 
-            cardManager.ChangeOwnerAndLocation(this, CardLocation.UnderCart);
-            cardManager.CanBePlayedNow = false;
-
-            TreasureLogic.CardsInTreasure.Insert(0, cardManager.UniqueCardID);
-            GlobalSettings.Instance.PDeck.DeckCards.Remove(card);
-
-            // 2) create a command
-            this.PArea.TreasureVisual.DrawACard(card);
+        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + cardManager.CardLocation);
+        switch (cardManager.CardLocation)
+        {
+            case CardLocation.Hand:
+                cardManager.Owner.Hand.CardsInHand.Remove(cardManager.UniqueCardID);
+                cardManager.Owner.PArea.HandVisual.RemoveCard(cardManager.gameObject);
+                break;
+            case CardLocation.UnderCart:
+                cardManager.Owner.TreasureLogic.CardsInTreasure.Remove(cardManager.UniqueCardID);
+                cardManager.Owner.PArea.TreasureVisual.RemoveCard(cardManager.gameObject);
+                break;
         }
 
+        cardManager.ChangeOwnerAndLocation(this, CardLocation.UnderCart);
+        cardManager.CanBePlayedNow = false;
+
+        TreasureLogic.CardsInTreasure.Insert(0, cardManager.UniqueCardID);
+        GlobalSettings.Instance.PDeck.DeckCards.Remove(card);
+
+        // 2) create a command
+        this.PArea.TreasureVisual.DrawACard(card);
+        await TaskManager.Instance.DontAwait();
     }
 }

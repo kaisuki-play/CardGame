@@ -47,6 +47,7 @@ public class PlayerDeckVisual : MonoBehaviour
         CardAsset BaguazhenAsset = null;
         CardAsset RenwangdunAsset = null;
         CardAsset TengjiaAsset = null;
+        CardAsset CartAsset = null;
         foreach (CardAsset cardAsset1 in GlobalSettings.Instance.DeckSource.Cards)
         {
             if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Shunshouqianyang)
@@ -169,6 +170,10 @@ public class PlayerDeckVisual : MonoBehaviour
             {
                 TengjiaAsset = cardAsset1;
             }
+            if (cardAsset1.SubTypeOfCard == SubTypeOfCards.Cart)
+            {
+                CartAsset = cardAsset1;
+            }
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
@@ -181,7 +186,7 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
         InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(WanjianqifaAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
 
         //InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A);
@@ -203,6 +208,7 @@ public class PlayerDeckVisual : MonoBehaviour
         InsertNewCardAsset(BaguazhenAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
         InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
         InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
+        InsertNewCardAsset(CartAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Treasure);
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }
 

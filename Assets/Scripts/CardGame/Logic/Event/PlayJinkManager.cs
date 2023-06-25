@@ -26,6 +26,9 @@ public class PlayJinkManager : MonoBehaviour
 
         await SkillManager.UseACard(playedCard);
 
+        //TODO 挪到这里 await SkillManager.AfterPlayAJink(cardManager.Owner, playedCard.Owner);
+        await SkillManager.AfterPlayAJink(cardManager, playedCard.Owner);
+
         if (cardManager != null)
         {
             switch (cardManager.CardAsset.TypeOfCard)
@@ -43,7 +46,7 @@ public class PlayJinkManager : MonoBehaviour
                             case SubTypeOfCards.ThunderSlash:
                             case SubTypeOfCards.FireSlash:
                                 {
-                                    await SkillManager.AfterPlayAJink(cardManager.Owner, playedCard.Owner);
+                                    UseCardManager.Instance.BackToWhoseTurn();
                                 }
                                 break;
                             default:

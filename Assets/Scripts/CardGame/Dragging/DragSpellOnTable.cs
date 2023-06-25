@@ -41,14 +41,15 @@ public class DragSpellOnTable : DraggingActions
 
     }
 
-    public override void OnEndDrag()
+    public override async void OnEndDrag()
     {
         if (TurnManager.Instance.IsInTreasureOutIn)
         {
-            if (DragSuccessful())
+            if (DragSuccessful() && CounterManager.Instance.UnderCartCount < CounterManager.Instance.UnderCartLimit)
             {
-                //弃掉铁索 摸一张牌
-                _manager.Owner.GiveAssignCardToTreasure(_manager.UniqueCardID);
+                CounterManager.Instance.UnderCartCount++;
+                //把指定的牌给木流牛马
+                await _manager.Owner.GiveAssignCardToTreasure(_manager.UniqueCardID);
             }
             else
             {

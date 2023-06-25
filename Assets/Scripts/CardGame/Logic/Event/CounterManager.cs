@@ -6,6 +6,10 @@ public class CounterManager : MonoBehaviour
 {
     public static CounterManager Instance;
 
+    //木流牛马次数
+    public int UnderCartLimit = 1;
+    public int UnderCartCount = 0;
+
     //杀的限制
     public int MaxSlashLimit = 4;
 
@@ -86,5 +90,11 @@ public class CounterManager : MonoBehaviour
     {
         this.UsedAnalepticThisTurn = false;
         this.AnalepticWorkCount = 0;
+    }
+
+    public void ResetUnderCart()
+    {
+        this.UnderCartCount = 0;
+        this.UnderCartLimit = 1;
     }
 }

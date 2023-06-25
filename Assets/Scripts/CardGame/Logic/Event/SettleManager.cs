@@ -41,74 +41,78 @@ public class SettleManager : MonoBehaviour
             {
                 targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
             }
-            switch (cardManager.CardAsset.TypeOfCard)
+            //TODO 待验证 BeforeCalculateDamage 挪到这里
+            try
             {
-                case TypesOfCards.Base:
-                    {
-                        switch (cardManager.CardAsset.SubTypeOfCard)
-                        {
-                            case SubTypeOfCards.Slash:
-                            case SubTypeOfCards.FireSlash:
-                            case SubTypeOfCards.ThunderSlash:
-                                try
-                                {
-                                    await SkillManager.BeforeCalculateDamage(cardManager, targetPlayer);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.Log("异常为：" + ex);
-                                    return;
-                                }
-                                Debug.Log("-----------------------------------------slash settle before calculate damage--------------------------");
-                                CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-                case TypesOfCards.Tips:
-                    {
-                        switch (cardManager.CardAsset.SubTypeOfCard)
-                        {
-                            case SubTypeOfCards.Nanmanruqin:
-                            case SubTypeOfCards.Wanjianqifa:
-                                CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
-                                break;
-                            case SubTypeOfCards.Juedou:
-                                if (TipCardManager.Instance.PlayCardOwner == null)
-                                {
-                                    CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
-                                }
-                                else
-                                {
-                                    Player player1 = cardManager.Owner;
-                                    Player player2 = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
-                                    if (TipCardManager.Instance.PlayCardOwner.ID == player1.ID)
-                                    {
-                                        CalculateDamage(cardManager, player2, originalDamage, isFromIronChain);
-                                    }
-                                    else
-                                    {
-                                        CalculateDamage(cardManager, player1, originalDamage, isFromIronChain);
-                                    }
-                                }
-                                break;
-                            case SubTypeOfCards.Huogong:
-                                CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-                case TypesOfCards.DelayTips:
-                    if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Thunder)
-                    {
-                        CalculateDamage(cardManager, TurnManager.Instance.whoseTurn, 3, isFromIronChain);
-                    }
-                    break;
+                await SkillManager.BeforeCalculateDamage(cardManager, targetPlayer);
             }
+            catch (Exception ex)
+            {
+                Debug.Log("异常为：" + ex);
+                return;
+            }
+            Debug.Log("-----------------------------------------slash settle before calculate damage--------------------------");
+            CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
+
+            //switch (cardManager.CardAsset.TypeOfCard)
+            //{
+            //    case TypesOfCards.Base:
+            //        {
+            //            switch (cardManager.CardAsset.SubTypeOfCard)
+            //            {
+            //                case SubTypeOfCards.Slash:
+            //                case SubTypeOfCards.FireSlash:
+            //                case SubTypeOfCards.ThunderSlash:
+
+            //                    break;
+            //                default:
+            //                    break;
+            //            }
+            //        }
+            //        break;
+            //    case TypesOfCards.Tips:
+            //        {
+            //            switch (cardManager.CardAsset.SubTypeOfCard)
+            //            {
+            //                case SubTypeOfCards.Nanmanruqin:
+            //                case SubTypeOfCards.Wanjianqifa:
+            //                    CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
+            //                    break;
+            //                case SubTypeOfCards.Juedou:
+            //                    //TODO 决斗的这些放在第六步记录
+            //                    if (TipCardManager.Instance.PlayCardOwner == null)
+            //                    {
+            //                        CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
+            //                    }
+            //                    else
+            //                    {
+            //                        Player player1 = cardManager.Owner;
+            //                        Player player2 = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+            //                        if (TipCardManager.Instance.PlayCardOwner.ID == player1.ID)
+            //                        {
+            //                            CalculateDamage(cardManager, player2, originalDamage, isFromIronChain);
+            //                        }
+            //                        else
+            //                        {
+            //                            CalculateDamage(cardManager, player1, originalDamage, isFromIronChain);
+            //                        }
+            //                    }
+            //                    break;
+            //                case SubTypeOfCards.Huogong:
+            //                    CalculateDamage(cardManager, targetPlayer, originalDamage, isFromIronChain);
+            //                    break;
+            //                default:
+            //                    break;
+            //            }
+            //        }
+            //        break;
+            //    case TypesOfCards.DelayTips:
+            //        if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Thunder)
+            //        {
+            //            CalculateDamage(cardManager, TurnManager.Instance.whoseTurn, 3, isFromIronChain);
+            //        }
+            //        break;
+            //}
 
         }
     }
@@ -152,8 +156,14 @@ public class SettleManager : MonoBehaviour
             }
 
             Debug.Log("没有濒死继续往下执行");
-            AfterDamage(cardManager, curTargetPlayer, originalDamage, isFromIronChain);
-
+            if (curTargetPlayer.IsDead)
+            {
+                HandleIronChain(cardManager, curTargetPlayer, originalDamage, isFromIronChain);
+            }
+            else
+            {
+                AfterDamage(cardManager, curTargetPlayer, originalDamage, isFromIronChain);
+            }
         }
     }
 

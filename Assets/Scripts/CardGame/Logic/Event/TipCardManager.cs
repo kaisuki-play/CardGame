@@ -64,24 +64,31 @@ public class TipCardManager : MonoBehaviour
                     break;
                 //决斗
                 case SubTypeOfCards.Juedou:
-                    if (this.PlayCardOwner != null)
                     {
-                        //Debug.Log("进来决斗了");
-                        if (this.PlayCardOwner.ID == TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0])
+                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+
+                        if (this.PlayCardOwner != null)
                         {
-                            //Debug.Log("出牌是目标，高亮决斗出牌人");
-                            UseCardManager.Instance.NeedToPlaySlash(cardManager.Owner);
+                            //Debug.Log("进来决斗了");
+                            if (this.PlayCardOwner.ID == TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0])
+                            {
+                                //Debug.Log("出牌是目标，高亮决斗出牌人");
+                                UseCardManager.Instance.NeedToPlaySlash(cardManager.Owner);
+                                FixOpButton1Listener(cardManager.Owner);
+                            }
+                            else
+                            {
+                                //Debug.Log("出牌是决斗出牌人，高亮目标");
+                                UseCardManager.Instance.NeedToPlaySlash();
+                                FixOpButton1Listener(curTargetPlayer);
+                            }
                         }
                         else
                         {
                             //Debug.Log("出牌是决斗出牌人，高亮目标");
                             UseCardManager.Instance.NeedToPlaySlash();
+                            FixOpButton1Listener(curTargetPlayer);
                         }
-                    }
-                    else
-                    {
-                        //Debug.Log("出牌是决斗出牌人，高亮目标");
-                        UseCardManager.Instance.NeedToPlaySlash();
                     }
                     break;
                 //借刀杀人
@@ -166,6 +173,16 @@ public class TipCardManager : MonoBehaviour
                     break;
             }
         }
+    }
+
+    public void FixOpButton1Listener(Player targetPlayer)
+    {
+        targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+        {
+            targetPlayer.ShowOp1Button = false;
+            SettleManager.Instance.StartSettle(null, targetPlayer);
+        });
     }
 
     /// <summary>

@@ -62,6 +62,22 @@ public class SkillManager : MonoBehaviour
                     oldOwner.IgnoreArmor = false;
                 }
                 break;
+            case SubTypeOfCards.Cart:
+                {
+                    if ((oldLocation != CardLocation.Equipment && newLocation == CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
+                    {
+                        if (oldOwner != null)
+                        {
+                            oldOwner.HasTreasure = false;
+                        }
+                        EquipmentManager.Instance.CartHook(newOwner);
+                    }
+                    else if ((oldLocation == CardLocation.Equipment && newLocation != CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
+                    {
+                        EquipmentManager.Instance.CartDisHook(oldOwner, cardManager);
+                    }
+                }
+                break;
         }
     }
 
@@ -169,18 +185,18 @@ public class SkillManager : MonoBehaviour
     /// <param name="player"></param>
     /// <param name="targetPlayer"></param>
     /// <returns></returns>
-    public static async Task AfterPlayAJink(Player player, Player targetPlayer)
+    public static async Task AfterPlayAJink(OneCardManager playedCard, Player targetPlayer)
     {
-        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
         {
             switch (weaponCard.CardAsset.SubTypeOfCard)
             {
                 case SubTypeOfCards.Guanshifu:
-                    await EquipmentManager.Instance.GuanshifuHook(player, targetPlayer);
+                    await EquipmentManager.Instance.GuanshifuHook(playedCard, targetPlayer);
                     break;
                 case SubTypeOfCards.Qinglongyanyuedao:
-                    await EquipmentManager.Instance.QinglongyanyueHook(player, targetPlayer);
+                    await EquipmentManager.Instance.QinglongyanyueHook(playedCard, targetPlayer);
                     break;
                 default:
                     UseCardManager.Instance.FinishSettle();
@@ -421,6 +437,7 @@ public class SkillManager : MonoBehaviour
             {
                 case SubTypeOfCards.FrostBlade:
                     {
+                        //TODO 铁索传导
                         await EquipmentManager.Instance.ActiveFrostBlade(playedCard, targetPlayer);
                     }
                     break;

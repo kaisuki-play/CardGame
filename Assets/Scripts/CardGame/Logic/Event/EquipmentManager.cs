@@ -221,8 +221,15 @@ public class EquipmentManager : MonoBehaviour
     /// <param name="playedCard"></param>
     /// <param name="targetPlayer"></param>
     /// <returns></returns>
-    public async Task GuanshifuHook(Player player, Player targetPlayer)
+    public async Task GuanshifuHook(OneCardManager playedCard, Player targetPlayer)
     {
+        if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
+            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
+            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+        Player player = playedCard.Owner;
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasEquipment)
         {
@@ -239,6 +246,7 @@ public class EquipmentManager : MonoBehaviour
                 player.PArea.Portrait.OpButton1.onClick.AddListener(() =>
                 {
                     HighlightManager.DisableAllOpButtons();
+                    TaskManager.Instance.ExceptionBlockTask(TaskType.GuanshifuTask);
                     DisCardForGuanshifu(player);
                 });
 
@@ -391,8 +399,15 @@ public class EquipmentManager : MonoBehaviour
     /// <param name="player"></param>
     /// <param name="targetPlayer"></param>
     /// <returns></returns>
-    public async Task QinglongyanyueHook(Player player, Player targetPlayer)
+    public async Task QinglongyanyueHook(OneCardManager playedCard, Player targetPlayer)
     {
+        if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
+            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
+            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+        Player player = playedCard.Owner;
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasEquipment)
         {
@@ -613,6 +628,12 @@ public class EquipmentManager : MonoBehaviour
     /// <returns></returns>
     public async Task ActiveFrostBlade(OneCardManager playedCard, Player targetPlayer)
     {
+        if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
+            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
+            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
+        {
+            await TaskManager.Instance.DontAwait();
+        }
         Player player = playedCard.Owner;
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasEquipment)
@@ -1041,6 +1062,38 @@ public class EquipmentManager : MonoBehaviour
             }
         }
 
+    }
+
+    /// <summary>
+    /// 木流牛马hook
+    /// </summary>
+    /// <param name="player"></param>
+    public void CartHook(Player player)
+    {
+        (bool hasTreasure, OneCardManager treasureCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Treasure);
+        if (hasTreasure)
+        {
+            if (treasureCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Cart)
+            {
+                Debug.Log("木流牛马生效");
+                player.HasTreasure = true;
+            }
+        }
+    }
+
+    /// 失去木流牛马hook
+    public void CartDisHook(Player player, OneCardManager equipmentCard)
+    {
+        if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Cart)
+        {
+            Debug.Log("木流牛马失效");
+            player.HasTreasure = false;
+            while (TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure.Count > 0)
+            {
+                int cardId = TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure[0];
+                player.DisACardFromTreasure(cardId);
+            }
+        }
     }
 
 }

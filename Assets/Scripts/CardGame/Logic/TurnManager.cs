@@ -52,7 +52,20 @@ public class TurnManager : MonoBehaviour
     /// <summary>
     /// 是否在宝物拖拽阶段
     /// </summary>
-    public bool IsInTreasureOutIn = false;
+    private bool _isInTreasureOutIn = false;
+    public bool IsInTreasureOutIn
+    {
+        get
+        {
+            return _isInTreasureOutIn;
+        }
+        set
+        {
+            _isInTreasureOutIn = value;
+            GlobalSettings.Instance.GlobalButton2.GetComponentInChildren<Text>().text = TurnManager.Instance.IsInTreasureOutIn ? "Stop Opreate for Cart" : "Insert Some Cards to Cart";
+
+        }
+    }
 
     // Record the phases in per turn
     private TurnPhase _turnPhase;
@@ -188,10 +201,6 @@ public class TurnManager : MonoBehaviour
                 break;
             case TurnPhase.EndTurn:
                 StatusText.text = "End Turn Phase";
-                if (TurnManager.Instance.whoseTurn.HasTreasure)
-                {
-                    await TreasureManager.OnEndTurn();
-                }
                 OnEndTurn();
                 break;
         }
@@ -209,6 +218,7 @@ public class TurnManager : MonoBehaviour
         set
         {
             _whoseTurn = value;
+            TurnManager.Instance.whoseTurn.HasTreasure = EquipmentManager.Instance.HasEquipmentWithType(TurnManager.Instance.whoseTurn, TypeOfEquipment.Treasure).Item1;
 
             TurnManager.Instance.IsInTreasureOutIn = false;
             // 有宝物显示第二个全局按钮
@@ -352,6 +362,8 @@ public class TurnManager : MonoBehaviour
 
     public void OnEndTurn()
     {
+        //重置木流牛马闲置
+        CounterManager.Instance.ResetUnderCart();
         //重置杀的次数限制
         CounterManager.Instance.ResetSlashLimit();
         //重置酒的次数限制

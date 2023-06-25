@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 public class TreasureManager : MonoBehaviour
 {
-    public static async Task OnEndTurn()
+    public static async Task OnInsertCard()
     {
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
@@ -20,15 +20,19 @@ public class TreasureManager : MonoBehaviour
                 targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
                 {
                     targetPlayer.ShowOp1Button = false;
-                    while (TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure.Count > 0)
-                    {
-                        int cardId = TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure[0];
-                        targetPlayer.GiveAssignCardToTreasure(cardId);
-                    }
+
+                    //给目标装备上自己的装备
+                    (bool _, OneCardManager treasureCard) = EquipmentManager.Instance.HasEquipmentWithType(TurnManager.Instance.whoseTurn, TypeOfEquipment.Treasure);
+                    TurnManager.Instance.whoseTurn.PassTreasureToTarget(targetPlayer, treasureCard.UniqueCardID);
 
                     //重置宝物状态
-                    TurnManager.Instance.whoseTurn.HasTreasure = false;
-                    targetPlayer.HasTreasure = true;
+                    //TurnManager.Instance.whoseTurn.HasTreasure = false;
+                    //targetPlayer.HasTreasure = true;
+
+                    TurnManager.Instance.IsInTreasureOutIn = false;
+
+                    HighlightManager.DisableAllOpButtons();
+                    HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
 
                     TaskManager.Instance.UnBlockTask(TaskType.UnderCartTask);
                 });
@@ -41,7 +45,8 @@ public class TreasureManager : MonoBehaviour
         TurnManager.Instance.whoseTurn.PArea.Portrait.OpButton2.onClick.AddListener(() =>
         {
             HighlightManager.DisableAllOpButtons();
-            TurnManager.Instance.whoseTurn.ShowOp1Button = false;
+            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            TurnManager.Instance.IsInTreasureOutIn = false;
             TaskManager.Instance.UnBlockTask(TaskType.UnderCartTask);
         });
 

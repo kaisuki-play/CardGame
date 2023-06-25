@@ -147,7 +147,7 @@ public class OneCardManager : MonoBehaviour
             GlobalSettings.Instance.DisDeck.DisDeckCards.Add(this.gameObject);
         }
         SkillManager.HandleEquipmentMove(owner, this.Owner, cardLocation, this.CardLocation, this);
-        if (this.CardLocation == CardLocation.Equipment)
+        if (this.CardLocation == CardLocation.Equipment && cardLocation != CardLocation.Equipment)
         {
             Vector3 newScale = new Vector3(200, 200, 1f); // 设置为 (2, 2, 2) 的比例
             this.gameObject.transform.localScale = newScale;
