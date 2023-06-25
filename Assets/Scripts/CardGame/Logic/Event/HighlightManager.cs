@@ -70,12 +70,12 @@ public class HighlightManager : MonoBehaviour
         //手牌区
         foreach (int cardId in player.Hand.CardsInHand)
         {
-            EnableSingleCard(cardId);
+            EnableSingleCard(player, cardId);
         }
         //宝物区
         foreach (int cardId in player.TreasureLogic.CardsInTreasure)
         {
-            EnableSingleCard(cardId);
+            EnableSingleCard(player, cardId);
         }
 
         if (CounterManager.Instance.SlashCount < CounterManager.Instance.SlashLimit)
@@ -90,12 +90,12 @@ public class HighlightManager : MonoBehaviour
         //手牌区
         foreach (int cardId in player.Hand.CardsInHand)
         {
-            EnableSingleCardWithType(cardId, cardType, needTargetComponent);
+            EnableSingleCardWithType(player, cardId, cardType, needTargetComponent);
         }
         //宝物区
         foreach (int cardId in player.TreasureLogic.CardsInTreasure)
         {
-            EnableSingleCardWithType(cardId, cardType, needTargetComponent);
+            EnableSingleCardWithType(player, cardId, cardType, needTargetComponent);
         }
     }
 
@@ -167,7 +167,7 @@ public class HighlightManager : MonoBehaviour
         }
     }
 
-    public static void EnableSingleCard(int cardId)
+    public static void EnableSingleCard(Player player, int cardId)
     {
         OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
         oneCardManager.CanBePlayedNow = CanBePlayedNow(oneCardManager);
@@ -181,7 +181,7 @@ public class HighlightManager : MonoBehaviour
         }
     }
 
-    public static void EnableSingleCardWithType(int cardId, SubTypeOfCards cardType, bool needTargetComponent = true)
+    public static void EnableSingleCardWithType(Player player, int cardId, SubTypeOfCards cardType, bool needTargetComponent = true)
     {
         OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
         if (cardType == SubTypeOfCards.Slash)
@@ -205,6 +205,10 @@ public class HighlightManager : MonoBehaviour
         if (needTargetComponent == false)
         {
             oneCardManager.TargetComponent.SetActive(false);
+        }
+        if (cardType == SubTypeOfCards.Peach && DyingManager.Instance.DyingPlayer.ID == player.ID)
+        {
+            EnableCardWithCardType(player, SubTypeOfCards.Analeptic);
         }
     }
 }

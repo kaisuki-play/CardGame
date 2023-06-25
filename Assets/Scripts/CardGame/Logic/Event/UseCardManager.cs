@@ -27,7 +27,7 @@ public class UseCardManager : MonoBehaviour
         {
             case SubTypeOfCards.Peach:
                 // 濒死情况下需要判断
-                // TODO 濒死求桃的目标是濒死角色
+                // 濒死求桃的目标是濒死角色
                 if (!DyingManager.Instance.IsInDyingInquiry)
                 {
                     targets.Add(playedCard.Owner.ID);
@@ -161,7 +161,6 @@ public class UseCardManager : MonoBehaviour
     /// 5 执行卡牌统一入口脚本效果
     /// </summary>
     /// <param name="playedCard"></param>
-    /// TODO 这里写无懈
     public void HandleImpeccable(OneCardManager playedCard)
     {
         //// 先进入无懈流程，之后再进入触发锦囊效果阶段
@@ -221,14 +220,23 @@ public class UseCardManager : MonoBehaviour
                                 HealthManager.Instance.SettleAfterHealing();
                             }
                             break;
-                        // TODO 1.酒的红色高亮 2.濒死把酒对自己当桃
+                        // 1.酒的红色高亮 2.濒死把酒对自己当桃
                         case SubTypeOfCards.Analeptic:
                             {
                                 CounterManager.Instance.UsedAnalepticThisTurn = true;
                                 Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
-                                targetPlayer.ChangePortraitColor(Color.red);
-                                HighlightManager.EnableCardsWithType(targetPlayer);
-                                FinishSettle();
+                                if (DyingManager.Instance.IsInDyingInquiry)
+                                {
+                                    //恢复一点体力
+                                    HealthManager.Instance.HealingEffect(1, targetPlayer);
+                                    HealthManager.Instance.SettleAfterHealing();
+                                }
+                                else
+                                {
+                                    targetPlayer.ChangePortraitColor(Color.red);
+                                    HighlightManager.EnableCardsWithType(targetPlayer);
+                                    FinishSettle();
+                                }
                             }
                             break;
                     }

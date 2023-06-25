@@ -181,7 +181,7 @@ public class TipCardManager : MonoBehaviour
         targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
         {
             targetPlayer.ShowOp1Button = false;
-            SettleManager.Instance.StartSettle(null, targetPlayer);
+            SettleManager.Instance.StartSettle(null, SpellAttribute.None, targetPlayer);
         });
     }
 

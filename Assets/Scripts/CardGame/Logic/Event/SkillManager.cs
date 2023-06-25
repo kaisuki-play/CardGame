@@ -297,7 +297,7 @@ public class SkillManager : MonoBehaviour
     /// <param name="targetPlayer"></param>
     /// <param name="originalDamage"></param>
     /// <returns></returns>
-    public static int StartCalculateDamageForSource(OneCardManager playedCard, Player targetPlayer, int originalDamage, bool isFromIronChain = false)
+    public static int StartCalculateDamageForSource(OneCardManager playedCard, Player targetPlayer, int originalDamage, SpellAttribute spellAttribute = SpellAttribute.None, bool isFromIronChain = false)
     {
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
@@ -339,7 +339,7 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    public static int StartCalculateDamageForTarget(OneCardManager playedCard, Player targetPlayer, int originalDamage)
+    public static int StartCalculateDamageForTarget(OneCardManager playedCard, Player targetPlayer, int originalDamage, SpellAttribute spellAttribute = SpellAttribute.None, bool isFromIronChain = false)
     {
         (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
         if (hasArmor)
@@ -355,7 +355,7 @@ public class SkillManager : MonoBehaviour
                             return originalDamage;
                         }
                         //确保是火属性
-                        if (playedCard.CardAsset.SpellAttribute != SpellAttribute.FireSlash)
+                        if (spellAttribute != SpellAttribute.FireSlash)
                         {
                             return originalDamage;
                         }
