@@ -80,7 +80,7 @@ public class GoldenFingerVisual : MonoBehaviour
         OneCardManager originCardManager = originCard.GetComponent<OneCardManager>();
 
         Player targetPlayer = this.curDrawCardPlayer;
-        targetPlayer.DrawACard(originCardManager.UniqueCardID);
+        targetPlayer.DrawACardFromDeck(originCardManager.UniqueCardID);
 
         _playerDrawCardsCount++;
 

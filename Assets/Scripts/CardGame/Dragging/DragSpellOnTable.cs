@@ -43,6 +43,19 @@ public class DragSpellOnTable : DraggingActions
 
     public override void OnEndDrag()
     {
+        if (TurnManager.Instance.IsInTreasureOutIn)
+        {
+            if (DragSuccessful())
+            {
+                //弃掉铁索 摸一张牌
+                _manager.Owner.GiveAssignCardToTreasure(_manager.UniqueCardID);
+            }
+            else
+            {
+                OnCancelDrag();
+            }
+            return;
+        }
         if (_manager.CardAsset.SubTypeOfCard == SubTypeOfCards.Tiesuolianhuan)
         {
             (bool isDragOnPlayer, int targetPlayerId) = isDragOnTarget();
@@ -100,6 +113,11 @@ public class DragSpellOnTable : DraggingActions
 
     protected override bool DragSuccessful()
     {
+        //木流牛马
+        if (TurnManager.Instance.IsInTreasureOutIn)
+        {
+            return TurnManager.Instance.whoseTurn.PArea.TreasureVisual.CursorOverTreasure;
+        }
         return TableVisual.CursorOverSomeTable;
     }
 

@@ -22,7 +22,14 @@ public class HighlightManager : MonoBehaviour
     {
         foreach (Player player in GlobalSettings.Instance.PlayerInstances)
         {
+            //手牌区
             foreach (int cardId in player.Hand.CardsInHand)
+            {
+                OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
+                oneCardManager.CanBePlayedNow = false;
+            }
+            //装备区
+            foreach (int cardId in player.TreasureLogic.CardsInTreasure)
             {
                 OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
                 oneCardManager.CanBePlayedNow = false;
@@ -60,19 +67,17 @@ public class HighlightManager : MonoBehaviour
     {
         //TODO 当前人出牌人死了
         HighlightManager.DisableAllCards();
+        //手牌区
         foreach (int cardId in player.Hand.CardsInHand)
         {
-            OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
-            oneCardManager.CanBePlayedNow = CanBePlayedNow(oneCardManager);
-            if (oneCardManager.CardAsset.Targets != TargetingOptions.NoTarget)
-            {
-                oneCardManager.TargetComponent.SetActive(true);
-            }
-            else
-            {
-                oneCardManager.TargetComponent.SetActive(false);
-            }
+            EnableSingleCard(cardId);
         }
+        //宝物区
+        foreach (int cardId in player.TreasureLogic.CardsInTreasure)
+        {
+            EnableSingleCard(cardId);
+        }
+
         if (CounterManager.Instance.SlashCount < CounterManager.Instance.SlashLimit)
         {
             await SkillManager.NeedToPlaySlash(player, true);
@@ -82,34 +87,22 @@ public class HighlightManager : MonoBehaviour
     public static void EnableCardWithCardType(Player player, SubTypeOfCards cardType, bool needTargetComponent = true)
     {
         HighlightManager.DisableAllCards();
+        //手牌区
         foreach (int cardId in player.Hand.CardsInHand)
         {
-            OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
-            if (cardType == SubTypeOfCards.Slash)
-            {
-                oneCardManager.CanBePlayedNow = (oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
-                || oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash
-                || oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash);
-            }
-            else
-            {
-                oneCardManager.CanBePlayedNow = (oneCardManager.CardAsset.SubTypeOfCard == cardType);
-            }
-            if (oneCardManager.CardAsset.Targets != TargetingOptions.NoTarget)
-            {
-                oneCardManager.TargetComponent.SetActive(true);
-            }
-            else
-            {
-                oneCardManager.TargetComponent.SetActive(false);
-            }
-            if (needTargetComponent == false)
-            {
-                oneCardManager.TargetComponent.SetActive(false);
-            }
+            EnableSingleCardWithType(cardId, cardType, needTargetComponent);
+        }
+        //宝物区
+        foreach (int cardId in player.TreasureLogic.CardsInTreasure)
+        {
+            EnableSingleCardWithType(cardId, cardType, needTargetComponent);
         }
     }
 
+    /// <summary>
+    /// 没有目标组件高亮所有手牌
+    /// </summary>
+    /// <param name="player"></param>
     public static void ShowACards(Player player)
     {
         HighlightManager.DisableAllCards();
@@ -171,6 +164,47 @@ public class HighlightManager : MonoBehaviour
                 }
             default:
                 return true;
+        }
+    }
+
+    public static void EnableSingleCard(int cardId)
+    {
+        OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
+        oneCardManager.CanBePlayedNow = CanBePlayedNow(oneCardManager);
+        if (oneCardManager.CardAsset.Targets != TargetingOptions.NoTarget)
+        {
+            oneCardManager.TargetComponent.SetActive(true);
+        }
+        else
+        {
+            oneCardManager.TargetComponent.SetActive(false);
+        }
+    }
+
+    public static void EnableSingleCardWithType(int cardId, SubTypeOfCards cardType, bool needTargetComponent = true)
+    {
+        OneCardManager oneCardManager = IDHolder.GetGameObjectWithID(cardId).GetComponent<OneCardManager>();
+        if (cardType == SubTypeOfCards.Slash)
+        {
+            oneCardManager.CanBePlayedNow = (oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
+            || oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash
+            || oneCardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash);
+        }
+        else
+        {
+            oneCardManager.CanBePlayedNow = (oneCardManager.CardAsset.SubTypeOfCard == cardType);
+        }
+        if (oneCardManager.CardAsset.Targets != TargetingOptions.NoTarget)
+        {
+            oneCardManager.TargetComponent.SetActive(true);
+        }
+        else
+        {
+            oneCardManager.TargetComponent.SetActive(false);
+        }
+        if (needTargetComponent == false)
+        {
+            oneCardManager.TargetComponent.SetActive(false);
         }
     }
 }

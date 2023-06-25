@@ -40,8 +40,12 @@ public class Player : MonoBehaviour
     public Hand Hand;
     public Judgement JudgementLogic;
     public Equipment EquipmentLogic;
+    public Treasure TreasureLogic;
 
+    //是否忽视防具
     public bool IgnoreArmor = false;
+    //是否有宝物
+    public bool HasTreasure = false;
 
 
     // PROPERTIES 
@@ -410,7 +414,7 @@ public class Player : MonoBehaviour
                 for (int i = 0; i < numberOfCards; i++)
                 {
                     // 1) logic: add card to hand
-                    GameObject card = GlobalSettings.Instance.PDeck.DeckCards[i];
+                    GameObject card = GlobalSettings.Instance.PDeck.DeckCards[0];
                     OneCardManager cardManager = card.GetComponent<OneCardManager>();
                     Hand.CardsInHand.Insert(0, cardManager.UniqueCardID);
                     // Debug.Log(hand.CardsInHand.Count);
@@ -456,10 +460,10 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// 摸指定的牌
+    /// 从牌堆摸指定的牌
     /// </summary>
     /// <param name="cardId"></param>
-    public void DrawACard(int cardId)
+    public void DrawACardFromDeck(int cardId)
     {
         if (GlobalSettings.Instance.PDeck.DeckCards.Count > 0)
         {
@@ -483,6 +487,7 @@ public class Player : MonoBehaviour
         }
 
     }
+
 
     /// <summary>
     /// 给别人武器卡 TODO做成通用的
@@ -638,6 +643,16 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
+    /// 根据cardId从宝物区弃一张牌
+    /// </summary>
+    /// <param name="cardId"></param>
+    public void DisACardFromTreasure(int cardId)
+    {
+        this.TreasureLogic.DisCard(cardId);
+        this.PArea.TreasureVisual.DisCardFromTreasure(cardId);
+    }
+
+    /// <summary>
     /// 根据cardId弃一张手牌
     /// </summary>
     /// <param name="cardId"></param>
@@ -742,4 +757,70 @@ public class Player : MonoBehaviour
         PArea.Portrait.ApplyLookFromAsset();
     }
 
+
+    /// <summary>
+    /// 测试用，给木流牛马发指定数量的牌
+    /// </summary>
+    /// <param name="numberOfCards"></param>
+    public void DrawCardsForTreasure(int numberOfCards)
+    {
+        if (GlobalSettings.Instance.PDeck.DeckCards.Count > 0)
+        {
+            if (TreasureLogic.CardsInTreasure.Count < PArea.TreasureVisual.Slots.Children.Length)
+            {
+                OneCardManager[] cardManagers = new OneCardManager[numberOfCards];
+                for (int i = 0; i < numberOfCards; i++)
+                {
+                    // 1) logic: add card to hand
+                    GameObject card = GlobalSettings.Instance.PDeck.DeckCards[0];
+                    OneCardManager cardManager = card.GetComponent<OneCardManager>();
+                    TreasureLogic.CardsInTreasure.Insert(0, cardManager.UniqueCardID);
+                    Debug.Log(TreasureLogic.CardsInTreasure.Count);
+                    // 2) logic: remove the card from the deck
+                    GlobalSettings.Instance.PDeck.DeckCards.RemoveAt(0);
+                    this.PArea.TreasureVisual.DrawACard(card);
+                }
+            }
+        }
+        else
+        {
+            // there are no cards in the deck, take fatigue damage.
+        }
+    }
+
+    /// <summary>
+    /// 摸指定的牌给木流牛马
+    /// </summary>
+    /// <param name="cardId"></param>
+    public void GiveAssignCardToTreasure(int cardId)
+    {
+        if (TreasureLogic.CardsInTreasure.Count < PArea.TreasureVisual.Slots.Children.Length)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(cardId);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+
+            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + cardManager.CardLocation);
+            switch (cardManager.CardLocation)
+            {
+                case CardLocation.Hand:
+                    cardManager.Owner.Hand.CardsInHand.Remove(cardManager.UniqueCardID);
+                    cardManager.Owner.PArea.HandVisual.RemoveCard(cardManager.gameObject);
+                    break;
+                case CardLocation.UnderCart:
+                    cardManager.Owner.TreasureLogic.CardsInTreasure.Remove(cardManager.UniqueCardID);
+                    cardManager.Owner.PArea.TreasureVisual.RemoveCard(cardManager.gameObject);
+                    break;
+            }
+
+            cardManager.ChangeOwnerAndLocation(this, CardLocation.UnderCart);
+            cardManager.CanBePlayedNow = false;
+
+            TreasureLogic.CardsInTreasure.Insert(0, cardManager.UniqueCardID);
+            GlobalSettings.Instance.PDeck.DeckCards.Remove(card);
+
+            // 2) create a command
+            this.PArea.TreasureVisual.DrawACard(card);
+        }
+
+    }
 }

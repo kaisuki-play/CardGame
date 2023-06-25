@@ -15,9 +15,23 @@ public class PlayCardManager : MonoBehaviour
         playedCard.TargetsPlayerIDs = targets;
 
         // remove this card from hand
-        playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
+        switch (playedCard.CardLocation)
+        {
+            case CardLocation.Hand:
+                {
+                    playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
 
-        playedCard.Owner.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
+                    playedCard.Owner.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
+                }
+                break;
+            case CardLocation.UnderCart:
+                {
+                    playedCard.Owner.TreasureLogic.DisCard(playedCard.UniqueCardID);
+
+                    playedCard.Owner.PArea.TreasureVisual.PlayASpellFromTreasure(playedCard.UniqueCardID);
+                }
+                break;
+        }
     }
 
     public void ActivateEffect(OneCardManager playedCard)

@@ -121,7 +121,7 @@ public class CardSelectVisual : MonoBehaviour
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
 
                         Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
-                        targetPlayer.DrawACard(originCardManager.UniqueCardID);
+                        targetPlayer.DrawACardFromDeck(originCardManager.UniqueCardID);
 
                         if (TargetsManager.Instance.Targets[cardIndex].Count == 1)
                         {

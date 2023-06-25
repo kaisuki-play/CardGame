@@ -11,6 +11,7 @@ public class PlayerArea : MonoBehaviour
     public HandVisual HandVisual;
     public JudgementVisual JudgementVisual;
     public EquipmentVisaul EquipmentVisaul;
+    public TreasureVisual TreasureVisual;
 
     public PlayerPortraitVisual Portrait;
 

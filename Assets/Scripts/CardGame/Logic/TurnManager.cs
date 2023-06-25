@@ -49,6 +49,11 @@ public class TurnManager : MonoBehaviour
     public bool SkipPlayCardPhase = false;
     public bool SkipDisCardPhase = false;
 
+    /// <summary>
+    /// 是否在宝物拖拽阶段
+    /// </summary>
+    public bool IsInTreasureOutIn = false;
+
     // Record the phases in per turn
     private TurnPhase _turnPhase;
     public TurnPhase TurnPhase
@@ -183,6 +188,10 @@ public class TurnManager : MonoBehaviour
                 break;
             case TurnPhase.EndTurn:
                 StatusText.text = "End Turn Phase";
+                if (TurnManager.Instance.whoseTurn.HasTreasure)
+                {
+                    await TreasureManager.OnEndTurn();
+                }
                 OnEndTurn();
                 break;
         }
@@ -200,6 +209,10 @@ public class TurnManager : MonoBehaviour
         set
         {
             _whoseTurn = value;
+
+            TurnManager.Instance.IsInTreasureOutIn = false;
+            // 有宝物显示第二个全局按钮
+            GlobalSettings.Instance.GlobalButton2.gameObject.SetActive(_whoseTurn.HasTreasure);
             // 去掉所有的头像高亮
             HighlightManager.DisableAllTurnGlow();
             // 设置回合人头像高亮
@@ -256,7 +269,14 @@ public class TurnManager : MonoBehaviour
                 Players[j].DrawACard(true);
             }
         }
+
         TurnManager.Instance.whoseTurn = Players[5];
+
+        //for (int j = Players.Length - 1; j >= 0; j--)
+        //{
+        //    Players[j].DrawCardsForTreasure(5);
+        //}
+
     }
 
     void GoldenFinger()

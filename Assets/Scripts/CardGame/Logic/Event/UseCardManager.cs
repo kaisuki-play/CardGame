@@ -85,10 +85,25 @@ public class UseCardManager : MonoBehaviour
                 break;
         }
 
-        // remove this card from hand
-        playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
+        switch (playedCard.CardLocation)
+        {
+            case CardLocation.Hand:
+                {
+                    playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
 
-        playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
+                    playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
+                }
+                break;
+            case CardLocation.UnderCart:
+                {
+                    playedCard.Owner.TreasureLogic.DisCard(playedCard.UniqueCardID);
+
+                    playedCard.Owner.PArea.TreasureVisual.UseASpellFromTreasure(playedCard.UniqueCardID);
+                }
+                break;
+        }
+        // remove this card from hand
+
     }
 
     // 2

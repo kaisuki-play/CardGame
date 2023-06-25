@@ -54,6 +54,9 @@ public class EquipmentVisaul : MonoBehaviour
         {
             card.transform.SetParent(player.PArea.EquipmentVisaul.Slots.transform);
 
+            Vector3 newScale = new Vector3(0.5f, 0.5f, 0.5f); // 设置为 (2, 2, 2) 的比例
+            card.transform.localScale = newScale;
+
             cardManager.CanBePlayedNow = false;
             cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
         });

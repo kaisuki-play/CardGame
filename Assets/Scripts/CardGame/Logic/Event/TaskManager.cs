@@ -19,7 +19,8 @@ public enum TaskType
     SilverMoonTask,
     BaguazhenTask,
     RenwangdunTask,
-    TengjiaTask
+    TengjiaTask,
+    UnderCartTask
 }
 public class TaskManager : MonoBehaviour
 {
