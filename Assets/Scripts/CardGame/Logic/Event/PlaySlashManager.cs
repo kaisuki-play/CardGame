@@ -28,7 +28,8 @@ public class PlaySlashManager : MonoBehaviour
                     TipCardManager.Instance.ActiveTipCard();
                     break;
                 default:
-                    TipCardManager.Instance.SkipTipCard();
+                    //结束当前目标结算
+                    UseCardManager.Instance.FinishSettle();
                     break;
             }
         }

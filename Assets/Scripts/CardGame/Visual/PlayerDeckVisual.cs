@@ -184,9 +184,9 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(ThunderAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(WanjianqifaAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(WanjianqifaAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
 
         //InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A);
@@ -204,11 +204,11 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(FrostBladeAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, FrostBladeAsset.WeaponAttackDistance);
         //InsertNewCardAsset(QilingongAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, QilingongAsset.WeaponAttackDistance);
         //InsertNewCardAsset(DiluAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.AddAHorse);
-        InsertNewCardAsset(SilverMoonAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Weapons, SilverMoonAsset.WeaponAttackDistance);
-        InsertNewCardAsset(BaguazhenAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
-        InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
-        InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
-        InsertNewCardAsset(CartAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Treasure);
+        //InsertNewCardAsset(SilverMoonAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Weapons, SilverMoonAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(BaguazhenAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
+        //InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
+        //InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
+        //InsertNewCardAsset(CartAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Treasure);
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }
 

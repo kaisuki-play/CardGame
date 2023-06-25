@@ -41,7 +41,6 @@ public class SettleManager : MonoBehaviour
             {
                 targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
             }
-            //TODO 待验证 BeforeCalculateDamage 挪到这里
             try
             {
                 await SkillManager.BeforeCalculateDamage(cardManager, targetPlayer);

@@ -24,50 +24,16 @@ public class PlayJinkManager : MonoBehaviour
         }
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
+        //使用了一张牌的hook
         await SkillManager.UseACard(playedCard);
 
-        //TODO 挪到这里 await SkillManager.AfterPlayAJink(cardManager.Owner, playedCard.Owner);
+        //出闪之后的hook
+        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play card owner:" + playedCard.Owner.PArea.Owner);
         await SkillManager.AfterPlayAJink(cardManager, playedCard.Owner);
 
         if (cardManager != null)
         {
-            switch (cardManager.CardAsset.TypeOfCard)
-            {
-                case TypesOfCards.Tips:
-                    {
-                        TipCardManager.Instance.SkipTipCard();
-                    }
-                    break;
-                default:
-                    {
-                        switch (cardManager.CardAsset.SubTypeOfCard)
-                        {
-                            case SubTypeOfCards.Slash:
-                            case SubTypeOfCards.ThunderSlash:
-                            case SubTypeOfCards.FireSlash:
-                                {
-                                    UseCardManager.Instance.BackToWhoseTurn();
-                                }
-                                break;
-                            default:
-                                {
-                                    (bool hasJiedaosharen, OneCardManager jiedaosharenCard) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen);
-                                    if (hasJiedaosharen)
-                                    {
-                                        GlobalSettings.Instance.Table.ClearCardsFromLast();
-                                        TipCardManager.Instance.JiedaoSharenNextTarget();
-                                    }
-                                    else
-                                    {
-                                        UseCardManager.Instance.BackToWhoseTurn();
-                                    }
-                                }
-                                break;
-                        }
-
-                    }
-                    break;
-            }
+            UseCardManager.Instance.FinishSettle();
         }
     }
 }

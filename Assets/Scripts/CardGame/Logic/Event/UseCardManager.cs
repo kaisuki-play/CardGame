@@ -254,13 +254,13 @@ public class UseCardManager : MonoBehaviour
             TargetsManager.Instance.SpecialTarget.RemoveAt(0);
         }
         //移除已经结算完伤害的玩家
-        if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count > 0)
+        if (TargetsManager.Instance.Targets.Count > 0 && TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count > 0)
         {
             TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
+            Debug.Log("还有几个牌" + TargetsManager.Instance.Targets.Count);
+            Debug.Log("还有几个目标" + TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1]);
         }
-        Debug.Log("还有几个牌" + TargetsManager.Instance.Targets.Count);
-        Debug.Log("还有几个目标" + TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1]);
-        if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
+        if (TargetsManager.Instance.Targets.Count == 0 || TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
         {
             //去除所有目标高亮
             HighlightManager.DisableAllTargetsGlow();
