@@ -45,18 +45,19 @@ public class EquipmentManager : MonoBehaviour
         if (hasEquipment)
         {
             //去旧卡
-            await player.PArea.EquipmentVisaul.DisCardFromEquipment(oldEquipmentCard.UniqueCardID);
             player.EquipmentLogic.RemoveCard(oldEquipmentCard.UniqueCardID);
+            await player.PArea.EquipmentVisaul.DisCardFromEquipment(oldEquipmentCard.UniqueCardID);
 
             //加新卡
-            await player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
             player.EquipmentLogic.AddCard(cardManager.UniqueCardID);
+            await player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
+
         }
         else
         {
             //加新卡
-            await player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
             player.EquipmentLogic.AddCard(cardManager.UniqueCardID);
+            await player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
         }
     }
 
@@ -66,6 +67,7 @@ public class EquipmentManager : MonoBehaviour
     /// <param name="player"></param>
     public void ZhugeliannuHook(Player player)
     {
+        Debug.Log("诸葛连弩验证                 " + player.PArea.Owner);
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasEquipment)
         {
@@ -870,16 +872,6 @@ public class EquipmentManager : MonoBehaviour
                 {
                     HighlightManager.DisableAllOpButtons();
                     UseCardManager.Instance.NeedToPlayJinkNew(EventEnum.SilverMoonNeedToPlayJink, targetPlayer);
-                    //TargetsManager.Instance.NeedToPlayJinkTargets.Add(targetPlayer.ID);
-                    //UseCardManager.Instance.NeedToPlayJink(targetPlayer);
-                    //targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-                    //targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
-                    //{
-                    //    Debug.Log("流失体力");
-                    //    await LooseHealthManager.LooseHealth(targetPlayer, 1);
-                    //    TargetsManager.Instance.NeedToPlayJinkTargets.Clear();
-                    //    TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
-                    //});
                 });
             }
         }
@@ -1092,6 +1084,10 @@ public class EquipmentManager : MonoBehaviour
             if (treasureCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Cart)
             {
                 Debug.Log("木流牛马生效");
+                foreach (Player p in GlobalSettings.Instance.PlayerInstances)
+                {
+                    p.HasTreasure = false;
+                }
                 player.HasTreasure = true;
             }
         }

@@ -142,13 +142,31 @@ public class OneCardManager : MonoBehaviour
 
     public async Task ChangeOwnerAndLocation(Player owner, CardLocation cardLocation)
     {
-        if (cardLocation == CardLocation.DisDeck)
+
+        switch (cardLocation)
         {
-            GlobalSettings.Instance.Table.CardsOnTable.Remove(this.gameObject);
-            GlobalSettings.Instance.DisDeck.DisDeckCards.Add(this.gameObject);
+            case CardLocation.DisDeck:
+                {
+                    GlobalSettings.Instance.Table.CardsOnTable.Remove(this.gameObject);
+                    GlobalSettings.Instance.DisDeck.DisDeckCards.Add(this.gameObject);
+                }
+                break;
+            case CardLocation.Table:
+                {
+                    await SkillManager.AfterUsedCardPending(this);
+                }
+                break;
         }
-        //TODO 获得牌 失去牌 两个hook 在这里判断
-        SkillManager.HandleEquipmentMove(owner, this.Owner, cardLocation, this.CardLocation, this);
+        if (this.Owner != null)
+        {
+            await SkillManager.LooseACard(this, owner, this.Owner, cardLocation, this.CardLocation);
+            await SkillManager.GetACard(this, owner, this.Owner, cardLocation, this.CardLocation);
+        }
+        else
+        {
+            await SkillManager.GetACard(this, owner, this.Owner, cardLocation, this.CardLocation);
+        }
+
         if (this.CardLocation == CardLocation.Equipment && cardLocation != CardLocation.Equipment)
         {
             Vector3 newScale = new Vector3(200, 200, 1f); // 设置为 (2, 2, 2) 的比例
