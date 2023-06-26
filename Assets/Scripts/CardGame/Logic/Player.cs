@@ -6,6 +6,7 @@ using static UnityEngine.GraphicsBuffer;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 using System.Collections;
+using System;
 
 public class PersonComparer : IComparer<Player>
 {
@@ -41,6 +42,9 @@ public class Player : MonoBehaviour
     public Judgement JudgementLogic;
     public Equipment EquipmentLogic;
     public Treasure TreasureLogic;
+
+    //public event EventHandler<NeedToPlayJinkEventArgs> NeedToPlayJinkEvent;
+    public event Func<object, NeedToPlayJinkEventArgs, Task> NeedToPlayJinkEvent;
 
     //是否忽视防具
     public bool IgnoreArmor = false;
@@ -880,5 +884,19 @@ public class Player : MonoBehaviour
         // 2) create a command
         this.PArea.TreasureVisual.DrawACard(card);
         await TaskManager.Instance.DontAwait();
+    }
+
+    //事件相关
+    /// <summary>
+    /// 触发闪的事件
+    /// </summary>
+    public async Task InvokeJinkEvent(bool usedAJink)
+    {
+        if (NeedToPlayJinkEvent != null)
+        {
+            var eventArgs = new NeedToPlayJinkEventArgs(usedAJink);
+            await Task.WhenAll(NeedToPlayJinkEvent.Invoke(this, eventArgs));
+            NeedToPlayJinkEvent = null;
+        }
     }
 }

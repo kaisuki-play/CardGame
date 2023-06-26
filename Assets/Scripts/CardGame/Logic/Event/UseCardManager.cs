@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using System.Threading.Tasks;
+using System;
 
 public class UseCardManager : MonoBehaviour
 {
@@ -207,7 +208,8 @@ public class UseCardManager : MonoBehaviour
                                 {
                                     await SkillManager.BeforeNeedPlayAJink();
                                     Debug.Log("需要出闪");
-                                    NeedToPlayJink();
+                                    //NeedToPlayJink();
+                                    NeedToPlayJinkNew(EventEnum.SlashNeedToPlayJink);
                                 }
                             }
                             break;
@@ -304,6 +306,32 @@ public class UseCardManager : MonoBehaviour
             Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
             UseCardManager.Instance.HandleImpeccable(cardManager);
         }
+    }
+
+
+    public async void NeedToPlayJinkNew(EventEnum eventEnum, Player targetPlayer = null)
+    {
+        HighlightManager.DisableAllCards();
+        HighlightManager.DisableAllOpButtons();
+        if (targetPlayer == null)
+        {
+            int targetId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
+            targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
+        }
+
+        //给需要出闪的玩家 注册需要出闪事件，若出了闪则取消，不出闪则触发事件
+        EventManager.RegisterNeedToPlayJinkEvent(targetPlayer, eventEnum);
+
+        HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Jink);
+        targetPlayer.ShowOp1Button = true;
+        targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+        {
+            targetPlayer.ShowOp1Button = false;
+            await targetPlayer.InvokeJinkEvent(false);
+        });
+
+        await SkillManager.NeedPlayAJink(targetPlayer);
     }
 
     /// <summary>
