@@ -144,7 +144,7 @@ public class TurnManager : MonoBehaviour
                 break;
             case TurnPhase.DrawCard:
                 StatusText.text = "DrawCard Phase";
-                whoseTurn.DrawACard();
+                await whoseTurn.DrawACard();
                 TurnManager.Instance.TurnPhase = TurnPhase.EndDrawCard;
                 break;
             case TurnPhase.EndDrawCard:
@@ -268,7 +268,7 @@ public class TurnManager : MonoBehaviour
         s.OnComplete(GlobalSettings.Instance.UseGoldenFinger ? GoldenFinger : DrawCards);
     }
 
-    void DrawCards()
+    async void DrawCards()
     {
         // draw 4 cards for first player and 5 for second player
         int initDraw = 4;
@@ -276,7 +276,7 @@ public class TurnManager : MonoBehaviour
         {
             for (int j = Players.Length - 1; j >= 0; j--)
             {
-                Players[j].DrawACard(true);
+                await Players[j].DrawACard(true);
             }
         }
 

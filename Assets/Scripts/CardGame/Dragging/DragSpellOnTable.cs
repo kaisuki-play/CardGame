@@ -64,15 +64,15 @@ public class DragSpellOnTable : DraggingActions
             {
                 List<int> targets = new List<int>();
                 targets.Add(targetPlayerId);
-                _playerOwner.DragCard(_manager, targets);
+                await _playerOwner.DragCard(_manager, targets);
             }
             else
             {
                 if (DragSuccessful())
                 {
                     //弃掉铁索 摸一张牌
-                    _manager.Owner.DisACardFromHand(_manager.UniqueCardID);
-                    _manager.Owner.DrawACard();
+                    await _manager.Owner.DisACardFromHand(_manager.UniqueCardID);
+                    await _manager.Owner.DrawACard();
                 }
                 else
                 {
@@ -92,7 +92,7 @@ public class DragSpellOnTable : DraggingActions
                 else
                 {
                     List<int> targets = new List<int>();
-                    _playerOwner.DragCard(_manager, targets);
+                    await _playerOwner.DragCard(_manager, targets);
                 }
             }
             else
@@ -149,11 +149,11 @@ public class DragSpellOnTable : DraggingActions
         }
     }
 
-    private void HandleFireAttack(OneCardManager huogongCard, OneCardManager otherCard)
+    private async void HandleFireAttack(OneCardManager huogongCard, OneCardManager otherCard)
     {
         if (huogongCard.ShownCard)
         {
-            otherCard.Owner.DisACardFromHand(otherCard.UniqueCardID);
+            await otherCard.Owner.DisACardFromHand(otherCard.UniqueCardID);
             if (otherCard.CardAsset.Suits == huogongCard.ShownCardSuit)
             {
                 SettleManager.Instance.StartSettle();

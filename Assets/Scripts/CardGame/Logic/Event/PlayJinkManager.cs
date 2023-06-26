@@ -24,9 +24,6 @@ public class PlayJinkManager : MonoBehaviour
         //}
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
-        //使用了一张牌的hook
-        await SkillManager.UseACard(playedCard);
-
         //出闪之后的hook
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play card owner:" + playedCard.Owner.PArea.Owner);
         await SkillManager.AfterPlayAJink(cardManager, playedCard.Owner);

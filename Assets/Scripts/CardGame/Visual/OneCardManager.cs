@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 public enum CardLocation
 {
@@ -139,13 +140,14 @@ public class OneCardManager : MonoBehaviour
         CardGraphicImage.sprite = CardAsset.CardImage;
     }
 
-    public void ChangeOwnerAndLocation(Player owner, CardLocation cardLocation)
+    public async Task ChangeOwnerAndLocation(Player owner, CardLocation cardLocation)
     {
         if (cardLocation == CardLocation.DisDeck)
         {
             GlobalSettings.Instance.Table.CardsOnTable.Remove(this.gameObject);
             GlobalSettings.Instance.DisDeck.DisDeckCards.Add(this.gameObject);
         }
+        //TODO 获得牌 失去牌 两个hook 在这里判断
         SkillManager.HandleEquipmentMove(owner, this.Owner, cardLocation, this.CardLocation, this);
         if (this.CardLocation == CardLocation.Equipment && cardLocation != CardLocation.Equipment)
         {
@@ -154,5 +156,6 @@ public class OneCardManager : MonoBehaviour
         }
         this.Owner = owner;
         this.CardLocation = cardLocation;
+        await TaskManager.Instance.DontAwait();
     }
 }

@@ -17,13 +17,13 @@ public class TreasureManager : MonoBehaviour
                 targetPlayer.ShowOp1Button = true;
                 targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
                 targetPlayer.PArea.Portrait.ChangeOp1ButtonText("木流牛马");
-                targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
                 {
                     targetPlayer.ShowOp1Button = false;
 
                     //给目标装备上自己的装备
                     (bool _, OneCardManager treasureCard) = EquipmentManager.Instance.HasEquipmentWithType(TurnManager.Instance.whoseTurn, TypeOfEquipment.Treasure);
-                    TurnManager.Instance.whoseTurn.PassTreasureToTarget(targetPlayer, treasureCard.UniqueCardID);
+                    await TurnManager.Instance.whoseTurn.PassTreasureToTarget(targetPlayer, treasureCard.UniqueCardID);
 
                     //重置宝物状态
                     //TurnManager.Instance.whoseTurn.HasTreasure = false;

@@ -63,9 +63,6 @@ public class UseCardManager : MonoBehaviour
                 break;
         }
 
-        await SkillManager.StartPlayACard(playedCard);
-        Debug.Log("----------------------------------------use a card phase 1------------------------------------------");
-
         playedCard.TargetsPlayerIDs = targets;
 
         switch (playedCard.CardAsset.SubTypeOfCard)
@@ -86,25 +83,31 @@ public class UseCardManager : MonoBehaviour
                 break;
         }
 
+        //使用的牌到pending状态了
         switch (playedCard.CardLocation)
         {
             case CardLocation.Hand:
                 {
                     playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
 
-                    playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
+                    await playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
                 }
                 break;
             case CardLocation.UnderCart:
                 {
                     playedCard.Owner.TreasureLogic.DisCard(playedCard.UniqueCardID);
 
-                    playedCard.Owner.PArea.TreasureVisual.UseASpellFromTreasure(playedCard.UniqueCardID);
+                    await playedCard.Owner.PArea.TreasureVisual.UseASpellFromTreasure(playedCard.UniqueCardID);
                 }
                 break;
         }
-        // remove this card from hand
 
+        //这张牌变为pending后触发hook
+        await SkillManager.AfterUsedCardPending(playedCard);
+        Debug.Log("----------------------------------------use a card phase 1------------------------------------------");
+
+        //增减目标
+        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
     }
 
     // 2
@@ -117,6 +120,7 @@ public class UseCardManager : MonoBehaviour
     {
         //模拟借刀杀人多个目标的技能。
         //await MultipleTargetsForJiedaosharen(playedCard);
+        //指定目标时：牌指定了默认目标后，有些技能，可以增加或减少目标的个数，甚至修改牌的 使用者等。
         await SkillManager.StartHandleTargets(playedCard);
         // 默认目标
         if (targets.Count != 0)
@@ -129,7 +133,6 @@ public class UseCardManager : MonoBehaviour
             TargetsManager.Instance.SpecialTarget.AddRange(specialIds);
         }
 
-        // TODO 指定目标时：牌指定了默认目标后，有些技能，可以增加或减少目标的个数，甚至修改牌的 使用者等。
         HandleTargetsOrder(playedCard);
     }
 
@@ -164,6 +167,7 @@ public class UseCardManager : MonoBehaviour
     /// <param name="playedCard"></param>
     public void HandleImpeccable(OneCardManager playedCard)
     {
+        //TODO需要打出无懈时 加一个SkillManager的hook
         //// 先进入无懈流程，之后再进入触发锦囊效果阶段
         if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && GlobalSettings.Instance.OneKeyImpeccable == false)
         {
@@ -192,6 +196,10 @@ public class UseCardManager : MonoBehaviour
         // restart timer
         TurnManager.Instance.RestartTimer();
 
+        //结算卡牌前hook
+        await SkillManager.BeforeCardSettle();
+        Debug.Log("----------------------------before card settle----------------------------");
+
         switch (cardAsset.TypeOfCard)
         {
             case TypesOfCards.Base:
@@ -206,9 +214,7 @@ public class UseCardManager : MonoBehaviour
                                 OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
                                 if (cardManager != null)
                                 {
-                                    await SkillManager.BeforeNeedPlayAJink();
                                     Debug.Log("需要出闪");
-                                    //NeedToPlayJink();
                                     NeedToPlayJinkNew(EventEnum.SlashNeedToPlayJink);
                                 }
                             }
@@ -216,7 +222,7 @@ public class UseCardManager : MonoBehaviour
                         case SubTypeOfCards.Peach:
                             {
                                 Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
-                                GlobalSettings.Instance.Table.ClearCards(playedCard.UniqueCardID);
+                                await GlobalSettings.Instance.Table.ClearCards(playedCard.UniqueCardID);
                                 //恢复一点体力
                                 HealthManager.Instance.HealingEffect(1, targetPlayer);
                                 HealthManager.Instance.SettleAfterHealing();
@@ -256,7 +262,7 @@ public class UseCardManager : MonoBehaviour
     /// <summary>
     /// 完成结算
     /// </summary>
-    public void FinishSettle()
+    public async void FinishSettle()
     {
         //移除另外目标的玩家
         if (TargetsManager.Instance.SpecialTarget.Count > 0)
@@ -276,7 +282,7 @@ public class UseCardManager : MonoBehaviour
             HighlightManager.DisableAllTargetsGlow();
             HighlightManager.DisableAllOpButtons();
             //移除卡
-            GlobalSettings.Instance.Table.ClearCardsFromLast();
+            await GlobalSettings.Instance.Table.ClearCardsFromLast();
             if (TargetsManager.Instance.Targets.Count == 0)
             {
                 //高亮当前回合人
@@ -293,19 +299,22 @@ public class UseCardManager : MonoBehaviour
         }
     }
 
-    public void ActiveLastOneCardOnTable()
+    public async void ActiveLastOneCardOnTable()
     {
+        try
+        {
+            await TipCardManager.Instance.JiedaoSharenNextTarget();
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.Message);
+            return;
+        }
+        Debug.Log("不走借刀杀人分支");
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
-        if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Jiedaosharen)
-        {
-            TipCardManager.Instance.JiedaoSharenNextTarget();
-        }
-        else
-        {
-            Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
-            UseCardManager.Instance.HandleImpeccable(cardManager);
-        }
+        Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+        UseCardManager.Instance.HandleImpeccable(cardManager);
     }
 
 
@@ -322,6 +331,10 @@ public class UseCardManager : MonoBehaviour
         //给需要出闪的玩家 注册需要出闪事件，若出了闪则取消，不出闪则触发事件
         EventManager.RegisterNeedToPlayJinkEvent(targetPlayer, eventEnum);
 
+        //需要出一张闪触发的hook
+        await SkillManager.NeedPlayAJink(targetPlayer);
+
+        //高亮目标的闪
         HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Jink);
         targetPlayer.ShowOp1Button = true;
         targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
@@ -330,34 +343,9 @@ public class UseCardManager : MonoBehaviour
             targetPlayer.ShowOp1Button = false;
             await targetPlayer.InvokeJinkEvent(false);
         });
-
-        await SkillManager.NeedPlayAJink(targetPlayer);
     }
 
-    /// <summary>
-    /// 需要出闪
-    /// </summary>
-    public async void NeedToPlayJink(Player targetPlayer = null)
-    {
-        HighlightManager.DisableAllCards();
-        HighlightManager.DisableAllOpButtons();
-        if (targetPlayer == null)
-        {
-            int targetId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
-            targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
-        }
 
-        HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Jink);
-        targetPlayer.ShowOp1Button = true;
-        targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
-        {
-            targetPlayer.ShowOp1Button = false;
-            SettleManager.Instance.StartSettle();
-        });
-
-        await SkillManager.NeedPlayAJink(targetPlayer);
-    }
 
     /// <summary>
     /// 需要出杀
@@ -372,6 +360,10 @@ public class UseCardManager : MonoBehaviour
             targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
         }
 
+        //需要出一张杀触发的hook
+        await SkillManager.NeedToPlaySlash(targetPlayer, needTarget);
+
+        //高亮目标的杀
         HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Slash, needTargetComponent: isJiedaoSharen || needTarget);
         targetPlayer.ShowOp1Button = true;
         targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
@@ -390,15 +382,15 @@ public class UseCardManager : MonoBehaviour
             }
         });
 
-        await SkillManager.NeedToPlaySlash(targetPlayer, needTarget);
+
     }
 
-    public void BackToWhoseTurn()
+    public async void BackToWhoseTurn()
     {
         HighlightManager.DisableAllTargetsGlow();
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
-        GlobalSettings.Instance.Table.ClearCardsFromLast();
+        await GlobalSettings.Instance.Table.ClearCardsFromLast();
         TargetsManager.Instance.SpecialTarget.Clear();
         HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
     }
@@ -436,5 +428,31 @@ public class UseCardManager : MonoBehaviour
             await TaskManager.Instance.BlockTask(TaskType.SpecialTargetsTask);
         }
     }
+
+    /// <summary>
+    /// 需要出闪
+    /// </summary>
+    /// TODO 可能需要被新的替换
+    //public async void NeedToPlayJink(Player targetPlayer = null)
+    //{
+    //    HighlightManager.DisableAllCards();
+    //    HighlightManager.DisableAllOpButtons();
+    //    if (targetPlayer == null)
+    //    {
+    //        int targetId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
+    //        targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
+    //    }
+
+    //    HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Jink);
+    //    targetPlayer.ShowOp1Button = true;
+    //    targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+    //    targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+    //    {
+    //        targetPlayer.ShowOp1Button = false;
+    //        SettleManager.Instance.StartSettle();
+    //    });
+
+    //    await SkillManager.NeedPlayAJink(targetPlayer);
+    //}
 
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -76,22 +77,25 @@ public class TableVisual : MonoBehaviour
     /// 清理指定牌
     /// </summary>
     /// <param name="cardId"></param>
-    public void ClearCards(int cardId)
+    public async Task ClearCards(int cardId)
     {
         int index = CardIndexOnTable(cardId);
-        ClearCardsWithIndex(index);
+        await ClearCardsWithIndex(index);
     }
 
     /// <summary>
     /// 按照索引清理牌
     /// </summary>
     /// <param name="index"></param>
-    public void ClearCardsWithIndex(int index)
+    public async Task ClearCardsWithIndex(int index)
     {
         GameObject card = CardsOnTable[index];
 
+        CardsOnTable.RemoveAt(index);
+
+        Debug.Log(TargetsManager.Instance.Targets.Count + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + index);
         TargetsManager.Instance.Targets.RemoveAt(index);
-        Debug.Log("结算完后的牌" + TargetsManager.Instance.Targets.Count);
+        //Debug.Log("结算完后的牌" + TargetsManager.Instance.Targets.Count);
 
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
         if (cardManager.IsDisguisedCard)
@@ -100,7 +104,7 @@ public class TableVisual : MonoBehaviour
             {
                 GameObject relationCard = IDHolder.GetGameObjectWithID(relationCardId);
                 OneCardManager relationCardManager = relationCard.GetComponent<OneCardManager>();
-                relationCardManager.Owner.DisACardFromHand(relationCardId);
+                await relationCardManager.Owner.DisACardFromHand(relationCardId);
             }
             Destroy(card);
             CardsOnTable.RemoveAt(index);
@@ -108,35 +112,40 @@ public class TableVisual : MonoBehaviour
         }
 
         card.transform.SetParent(null);
-        cardManager.CanBePlayedNow = false;
-        cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
 
+        var tcs = new TaskCompletionSource<bool>();
         Sequence s = DOTween.Sequence();
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
         s.OnComplete(() =>
         {
-            card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+            tcs.SetResult(true);
         });
+        await tcs.Task;
+
+        card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+        cardManager.CanBePlayedNow = false;
+        //到弃牌堆
+        await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
     }
 
     /// <summary>
     /// 清理第一张牌
     /// </summary>
-    public void ClearCardsFromFirst()
+    public async Task ClearCardsFromFirst()
     {
-        ClearCardsWithIndex(0);
+        await ClearCardsWithIndex(0);
     }
 
     /// <summary>
     /// 清理最后一张牌
     /// </summary>
-    public void ClearCardsFromLast()
+    public async Task ClearCardsFromLast()
     {
         if (CardsOnTable.Count == 0)
         {
             return;
         }
-        ClearCardsWithIndex(CardsOnTable.Count - 1);
+        await ClearCardsWithIndex(CardsOnTable.Count - 1);
     }
 
 

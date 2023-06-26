@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 public class CardSelectVisual : MonoBehaviour
 {
@@ -56,10 +57,10 @@ public class CardSelectVisual : MonoBehaviour
         GameObject card = GameObject.Instantiate(GlobalSettings.Instance.CardToSelectPrefab, Vector3.zero, Quaternion.identity) as GameObject;
 
         card.GetComponent<Button>().onClick.RemoveAllListeners();
-        card.GetComponent<Button>().onClick.AddListener(() =>
+        card.GetComponent<Button>().onClick.AddListener(async () =>
         {
             Debug.Log(card.GetComponent<OneCardManager>().UniqueCardID);
-            HandleCard(card);
+            await HandleCard(card);
         });
 
         // apply the look from CardAsset
@@ -80,7 +81,7 @@ public class CardSelectVisual : MonoBehaviour
         id.UniqueID = -1;
     }
 
-    public void HandleCard(GameObject selectCard)
+    public async Task HandleCard(GameObject selectCard)
     {
         int cardId = selectCard.GetComponent<OneCardManager>().UniqueCardID;
 
@@ -94,7 +95,7 @@ public class CardSelectVisual : MonoBehaviour
                     (bool hasShunshouqianyang, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Shunshouqianyang);
                     if (hasShunshouqianyang)
                     {
-                        originCardManager.Owner.GiveCardToTarget(cardManager.Owner, originCardManager);
+                        await originCardManager.Owner.GiveCardToTarget(cardManager.Owner, originCardManager);
                         GlobalSettings.Instance.CardSelectVisual.Dismiss();
                         UseCardManager.Instance.FinishSettle();
                     }
@@ -106,7 +107,7 @@ public class CardSelectVisual : MonoBehaviour
                     (bool hasGuohechaiqiao, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Guohechaiqiao);
                     if (hasGuohechaiqiao)
                     {
-                        originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
+                        await originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
                         GlobalSettings.Instance.CardSelectVisual.Dismiss();
                         UseCardManager.Instance.FinishSettle();
                     }
@@ -121,7 +122,7 @@ public class CardSelectVisual : MonoBehaviour
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
 
                         Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
-                        targetPlayer.DrawACardFromDeck(originCardManager.UniqueCardID);
+                        await targetPlayer.DrawACardFromDeck(originCardManager.UniqueCardID);
 
                         if (TargetsManager.Instance.Targets[cardIndex].Count == 1)
                         {
@@ -140,7 +141,7 @@ public class CardSelectVisual : MonoBehaviour
             //弃牌
             case TargetCardsPanelType.DisHandCard:
                 {
-                    originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
+                    await originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
                     Destroy(selectCard);
                     AlreadyDisCardNumber++;
                     if (AlreadyDisCardNumber == DisCardNumber)

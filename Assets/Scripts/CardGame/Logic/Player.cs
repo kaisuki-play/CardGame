@@ -428,7 +428,7 @@ public class Player : MonoBehaviour
     /// 摸几张牌
     /// </summary>
     /// <param name="numberOfCards"></param>
-    public void DrawSomeCards(int numberOfCards)
+    public async Task DrawSomeCards(int numberOfCards)
     {
         if (GlobalSettings.Instance.PDeck.DeckCards.Count > 0)
         {
@@ -444,7 +444,7 @@ public class Player : MonoBehaviour
                     // Debug.Log(hand.CardsInHand.Count);
                     // 2) logic: remove the card from the deck
                     GlobalSettings.Instance.PDeck.DeckCards.RemoveAt(0);
-                    this.PArea.HandVisual.DrawACard(card);
+                    await this.PArea.HandVisual.DrawACard(card);
                 }
             }
         }
@@ -458,7 +458,7 @@ public class Player : MonoBehaviour
     /// 摸一张牌 TODO去掉重复
     /// </summary>
     /// <param name="fast"></param>
-    public void DrawACard(bool fast = false)
+    public async Task DrawACard(bool fast = false)
     {
         if (GlobalSettings.Instance.PDeck.DeckCards.Count > 0)
         {
@@ -467,13 +467,13 @@ public class Player : MonoBehaviour
                 GameObject card = GlobalSettings.Instance.PDeck.DeckCards[0];
                 OneCardManager cardManager = card.GetComponent<OneCardManager>();
 
-                cardManager.ChangeOwnerAndLocation(this, CardLocation.Hand);
+                //cardManager.ChangeOwnerAndLocation(this, CardLocation.Hand);
 
                 Hand.CardsInHand.Insert(0, cardManager.UniqueCardID);
                 GlobalSettings.Instance.PDeck.DeckCards.RemoveAt(0);
 
                 // 2) create a command
-                this.PArea.HandVisual.DrawACard(card);
+                await this.PArea.HandVisual.DrawACard(card);
             }
         }
         else
@@ -487,7 +487,7 @@ public class Player : MonoBehaviour
     /// 从牌堆摸指定的牌
     /// </summary>
     /// <param name="cardId"></param>
-    public void DrawACardFromDeck(int cardId)
+    public async Task DrawACardFromDeck(int cardId)
     {
         if (GlobalSettings.Instance.PDeck.DeckCards.Count > 0)
         {
@@ -496,13 +496,13 @@ public class Player : MonoBehaviour
                 GameObject card = IDHolder.GetGameObjectWithID(cardId);
                 OneCardManager cardManager = card.GetComponent<OneCardManager>();
 
-                cardManager.ChangeOwnerAndLocation(this, CardLocation.Hand);
+                //cardManager.ChangeOwnerAndLocation(this, CardLocation.Hand);
 
                 Hand.CardsInHand.Insert(0, cardManager.UniqueCardID);
                 GlobalSettings.Instance.PDeck.DeckCards.Remove(card);
 
                 // 2) create a command
-                this.PArea.HandVisual.DrawACard(card);
+                await this.PArea.HandVisual.DrawACard(card);
             }
         }
         else
@@ -517,13 +517,13 @@ public class Player : MonoBehaviour
     /// 给别人武器卡 TODO做成通用的
     /// </summary>
     /// <param name="targetPlayer"></param>
-    public void GiveWeaponToTargetWithCardType(Player targetPlayer)
+    public async Task GiveWeaponToTargetWithCardType(Player targetPlayer)
     {
         Debug.Log("给刀 " + this.PArea.Owner);
         Debug.Log("给刀 " + targetPlayer.PArea.Owner);
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(this, TypeOfEquipment.Weapons);
 
-        GiveCardToTarget(targetPlayer, weaponCard);
+        await GiveCardToTarget(targetPlayer, weaponCard);
     }
 
     /// <summary>
@@ -531,7 +531,7 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="targetPlayer"></param>
     /// <param name="cardManager"></param>
-    public void GiveCardToTarget(Player targetPlayer, OneCardManager cardManager)
+    public async Task GiveCardToTarget(Player targetPlayer, OneCardManager cardManager)
     {
         switch (cardManager.CardLocation)
         {
@@ -549,12 +549,12 @@ public class Player : MonoBehaviour
                 this.PArea.EquipmentVisaul.RemoveCard(cardManager.gameObject);
                 break;
         }
-        cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Hand);
+        //cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Hand);
 
         //新增给目标人的卡
         targetPlayer.Hand.CardsInHand.Insert(0, cardManager.UniqueCardID);
 
-        targetPlayer.PArea.HandVisual.GetACardFromOther(cardManager.gameObject, this);
+        await targetPlayer.PArea.HandVisual.GetACardFromOther(cardManager.gameObject, this);
     }
 
     /// <summary>
@@ -562,7 +562,7 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="targetPlayer"></param>
     /// <param name="cardManager"></param>
-    public async void PassTreasureToTarget(Player targetPlayer, int equipmentCardId)
+    public async Task PassTreasureToTarget(Player targetPlayer, int equipmentCardId)
     {
         GameObject card = IDHolder.GetGameObjectWithID(equipmentCardId);
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
@@ -570,12 +570,12 @@ public class Player : MonoBehaviour
         this.EquipmentLogic.CardsInEquipment.Remove(cardManager.UniqueCardID);
         this.PArea.EquipmentVisaul.RemoveCard(cardManager.gameObject);
 
-        cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Equipment);
+        await cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Equipment);
 
         //新增给目标人的卡
         targetPlayer.EquipmentLogic.CardsInEquipment.Insert(0, cardManager.UniqueCardID);
 
-        targetPlayer.PArea.EquipmentVisaul.EquipWithCard(equipmentCardId, targetPlayer);
+        await targetPlayer.PArea.EquipmentVisaul.EquipWithCard(equipmentCardId, targetPlayer);
 
         while (TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure.Count > 0)
         {
@@ -589,7 +589,7 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="targetPlayer"></param>
     /// <param name="cardManager"></param>
-    public void PassDelayTipToTarget(Player targetPlayer, OneCardManager cardManager)
+    public async Task PassDelayTipToTarget(Player targetPlayer, OneCardManager cardManager)
     {
         GameObject card = cardManager.gameObject;
         //上家的延时锦囊去掉
@@ -606,8 +606,11 @@ public class Player : MonoBehaviour
         s.Append(card.transform.DOLocalMove(targetPlayer.PArea.JudgementVisual.Slots.Children[0].transform.localPosition, 1f));
         s.OnComplete(() =>
         {
-            cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Judgement);
+
         });
+
+        //牌的位置改为判定区
+        await cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Judgement);
     }
 
     /// <summary>
@@ -615,16 +618,16 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targets"></param>
-    public void DragTarget(OneCardManager playedCard, List<int> targets)
+    public async Task DragTarget(OneCardManager playedCard, List<int> targets)
     {
         playedCard.isUsedCard = true;
         if (playedCard.isUsedCard)
         {
-            UseACard(playedCard, targets);
+            await UseACard(playedCard, targets);
         }
         else
         {
-            PlayACard(playedCard, targets);
+            await PlayACard(playedCard, targets);
         }
     }
 
@@ -633,7 +636,7 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targets"></param>
-    public void DragCard(OneCardManager playedCard, List<int> targets)
+    public async Task DragCard(OneCardManager playedCard, List<int> targets)
     {
         if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Impeccable
             || (playedCard.CardAsset.TypeOfCard == TypesOfCards.Equipment)
@@ -648,11 +651,11 @@ public class Player : MonoBehaviour
         }
         if (playedCard.isUsedCard)
         {
-            UseACard(playedCard, targets);
+            await UseACard(playedCard, targets);
         }
         else
         {
-            PlayACard(playedCard, targets);
+            await PlayACard(playedCard, targets);
         }
     }
 
@@ -661,11 +664,11 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targets"></param>
-    public void UseACard(OneCardManager playedCard, List<int> targets)
+    public async Task UseACard(OneCardManager playedCard, List<int> targets)
     {
         if (playedCard.CardAsset.TypeOfCard == TypesOfCards.DelayTips)
         {
-            DelayTipManager.UseADelayTipsCardFromHand(playedCard, targets);
+            await DelayTipManager.UseADelayTipsCardFromHand(playedCard, targets);
         }
         else
         {
@@ -678,7 +681,7 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targets"></param>
-    public void PlayACard(OneCardManager playedCard, List<int> targets)
+    public async Task PlayACard(OneCardManager playedCard, List<int> targets)
     {
         if (TargetsManager.Instance.DefaultTarget.Count != 0)
         {
@@ -688,7 +691,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            PlayCardManager.Instance.PlayAVisualCardFromHand(playedCard, targets);
+            await PlayCardManager.Instance.PlayAVisualCardFromHand(playedCard, targets);
         }
 
     }
@@ -697,48 +700,48 @@ public class Player : MonoBehaviour
     /// 根据cardId从宝物区弃一张牌
     /// </summary>
     /// <param name="cardId"></param>
-    public void DisACardFromTreasure(int cardId)
+    public async Task DisACardFromTreasure(int cardId)
     {
         this.TreasureLogic.DisCard(cardId);
-        this.PArea.TreasureVisual.DisCardFromTreasure(cardId);
+        await this.PArea.TreasureVisual.DisCardFromTreasure(cardId);
     }
 
     /// <summary>
     /// 根据cardId弃一张手牌
     /// </summary>
     /// <param name="cardId"></param>
-    public void DisACardFromHand(int cardId)
+    public async Task DisACardFromHand(int cardId)
     {
         this.Hand.DisCard(cardId);
-        this.PArea.HandVisual.DisCardFromHand(cardId);
+        await this.PArea.HandVisual.DisCardFromHand(cardId);
     }
 
     /// <summary>
     /// 根据cardId弃一张判定区的牌
     /// </summary>
     /// <param name="cardId"></param>
-    public void DisACardFromJudgement(int cardId)
+    public async Task DisACardFromJudgement(int cardId)
     {
         this.JudgementLogic.RemoveCard(cardId);
-        this.PArea.JudgementVisual.DisCardFromJudgement(cardId);
+        await this.PArea.JudgementVisual.DisCardFromJudgement(cardId);
     }
 
     /// <summary>
     /// 所有牌都弃掉
     /// </summary>
-    public void DisAllCards()
+    public async void DisAllCards()
     {
         foreach (int cardId in this.Hand.CardsInHand)
         {
-            this.PArea.HandVisual.DisCardFromHand(cardId);
+            await this.PArea.HandVisual.DisCardFromHand(cardId);
         }
         foreach (int cardId in this.JudgementLogic.CardsInJudgement)
         {
-            this.PArea.JudgementVisual.DisCardFromJudgement(cardId);
+            await this.PArea.JudgementVisual.DisCardFromJudgement(cardId);
         }
         foreach (int cardId in this.EquipmentLogic.CardsInEquipment)
         {
-            this.PArea.EquipmentVisaul.DisCardFromEquipment(cardId);
+            await this.PArea.EquipmentVisaul.DisCardFromEquipment(cardId);
         }
         this.Hand.CardsInHand.Clear();
         this.EquipmentLogic.CardsInEquipment.Clear();
@@ -770,32 +773,35 @@ public class Player : MonoBehaviour
     /// <returns></returns>
     private async Task<OneCardManager> WaitForSequenceCoroutine(OneCardManager card)
     {
-        TaskCompletionSource<OneCardManager> tcs = new TaskCompletionSource<OneCardManager>();
-
+        var tcs = new TaskCompletionSource<bool>();
         Sequence s = DOTween.Sequence();
-        Sequence s1 = DOTween.Sequence();
         s.Append(card.transform.DOMove(TurnManager.Instance.whoseTurn.PArea.HandVisual.PlayPreviewSpot.position, 1f));
         s.Insert(0f, card.transform.DORotate(Vector3.zero, 1f));
         s.AppendInterval(1f);
         s.OnComplete(() =>
         {
-            card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-
-            Sequence s1 = DOTween.Sequence();
-            s1.AppendInterval(0.1f);
-            s1.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-
-            s1.OnComplete(() =>
-            {
-                card.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
-                Debug.Log("s1 完成");
-                tcs.SetResult(card);
-            });
+            tcs.SetResult(true);
         });
 
-        OneCardManager returnValue = await tcs.Task;
+        await tcs.Task;
 
-        return returnValue;
+        card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+        var tcs1 = new TaskCompletionSource<bool>();
+        Sequence s1 = DOTween.Sequence();
+        s1.AppendInterval(0.1f);
+        s1.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+
+        s1.OnComplete(() =>
+        {
+            tcs1.SetResult(true);
+        });
+
+        //到弃牌堆了
+        await card.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+        Debug.Log("s1 完成");
+
+        return card;
 
     }
 
@@ -875,7 +881,7 @@ public class Player : MonoBehaviour
                 break;
         }
 
-        cardManager.ChangeOwnerAndLocation(this, CardLocation.UnderCart);
+        await cardManager.ChangeOwnerAndLocation(this, CardLocation.UnderCart);
         cardManager.CanBePlayedNow = false;
 
         TreasureLogic.CardsInTreasure.Insert(0, cardManager.UniqueCardID);

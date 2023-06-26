@@ -16,6 +16,7 @@ public class PlayImpeccableManager : MonoBehaviour
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
 
+        //TODO 修改为打出无懈时 加SKillManager一个hook AfterPlayAImpeccable
         //使用了一张牌的hook
         await SkillManager.UseACard(playedCard);
 

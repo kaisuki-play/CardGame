@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 public class DragSpellOnTarget : DraggingActions
 {
@@ -173,7 +174,7 @@ public class DragSpellOnTarget : DraggingActions
     }
 
 
-    public override void OnEndDrag()
+    public override async void OnEndDrag()
     {
         HandVisual PlayerHand = _playerOwner.PArea.HandVisual;
         _target = null;
@@ -208,7 +209,7 @@ public class DragSpellOnTarget : DraggingActions
                 case TargetingOptions.AllCharacters:
                     if (ValidateHandCards(targetID))
                     {
-                        UseSpellCard(targetValid, targetID);
+                        await UseSpellCard(targetValid, targetID);
                     }
                     break;
                 case TargetingOptions.EnemyCharacters:
@@ -218,12 +219,12 @@ public class DragSpellOnTarget : DraggingActions
                         {
                             if (TargetsManager.Instance.SpecialTarget[0] == targetID && _manager.Owner.CanAttack(targetID))
                             {
-                                UseSpellCard(targetValid, targetID);
+                                await UseSpellCard(targetValid, targetID);
                             }
                         }
                         else
                         {
-                            UseSpellCard(targetValid, targetID);
+                            await UseSpellCard(targetValid, targetID);
                         }
                     }
                     break;
@@ -231,13 +232,13 @@ public class DragSpellOnTarget : DraggingActions
                     // had to check that target is not a card
                     if (targetID != _playerOwner.ID)
                     {
-                        UseSpellCard(targetValid, targetID);
+                        await UseSpellCard(targetValid, targetID);
                     }
                     break;
                 case TargetingOptions.EnemyNoDistanceLimit:
                     if (targetID != _playerOwner.ID && ValidateDelayTipCards(targetID))
                     {
-                        UseSpellCard(targetValid, targetID);
+                        await UseSpellCard(targetValid, targetID);
                     }
                     break;
                 default:
@@ -263,12 +264,12 @@ public class DragSpellOnTarget : DraggingActions
         _triangleSR.enabled = false;
     }
 
-    public void UseSpellCard(bool targetValid, int targetID)
+    public async Task UseSpellCard(bool targetValid, int targetID)
     {
         List<int> targets = new List<int>();
         targets.Add(targetID);
 
-        _playerOwner.DragTarget(_manager, targets);
+        await _playerOwner.DragTarget(_manager, targets);
     }
 
     /// <summary>

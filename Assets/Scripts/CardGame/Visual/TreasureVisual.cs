@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -99,7 +100,7 @@ public class TreasureVisual : MonoBehaviour
     // ADDING OR REMOVING CARDS FROM HAND
 
     // add a new card GameObject to hand
-    public void AddCard(GameObject card)
+    public async void AddCard(GameObject card)
     {
         // we allways insert a new card as 0th element in CardsInHand List 
         _cardsInTreasure.Insert(0, card);
@@ -108,7 +109,7 @@ public class TreasureVisual : MonoBehaviour
         card.transform.SetParent(Slots.transform);
 
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
-        cardManager.ChangeOwnerAndLocation(GlobalSettings.Instance.Players[this.Owner], CardLocation.UnderCart);
+        await cardManager.ChangeOwnerAndLocation(GlobalSettings.Instance.Players[this.Owner], CardLocation.UnderCart);
 
 
         // re-calculate the position of the hand
@@ -214,7 +215,7 @@ public class TreasureVisual : MonoBehaviour
 
 
     // 2 Overloaded method to show a spell played from hand
-    public void PlayASpellFromTreasure(int CardID)
+    public async Task PlayASpellFromTreasure(int CardID)
     {
         GameObject CardVisual = IDHolder.GetGameObjectWithID(CardID);
         OneCardManager playedCard = CardVisual.GetComponent<OneCardManager>();
@@ -225,7 +226,7 @@ public class TreasureVisual : MonoBehaviour
             {
                 GameObject relationCard = IDHolder.GetGameObjectWithID(relationCardId);
                 OneCardManager relationCardManager = relationCard.GetComponent<OneCardManager>();
-                relationCardManager.Owner.DisACardFromTreasure(relationCardId);
+                await relationCardManager.Owner.DisACardFromTreasure(relationCardId);
             }
             PlayCardManager.Instance.ActivateEffect(playedCard);
             Destroy(CardVisual);
@@ -241,38 +242,48 @@ public class TreasureVisual : MonoBehaviour
         Player player = GlobalSettings.Instance.Players[Owner];
         int index = GlobalSettings.Instance.Table.CardsOnTable.Count;
 
+        var tcs = new TaskCompletionSource<bool>();
+
         Sequence s = DOTween.Sequence();
         s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
         s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
         s.AppendInterval(1f);
         s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.Table.Slots.Children[index].transform.position, 1f));
-
         s.OnComplete(() =>
         {
-            CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
-            GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
-
-            OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
-            cardManager.CanBePlayedNow = false;
-            cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
-
-            CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-
-            Sequence s1 = DOTween.Sequence();
-            s1.AppendInterval(0.1f);
-            s1.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-
-            s1.OnComplete(() =>
-            {
-                cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
-                PlayCardManager.Instance.ActivateEffect(playedCard);
-            });
+            tcs.SetResult(true);
 
         });
+        await tcs.Task;
+
+        CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
+        GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
+
+        OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+        cardManager.CanBePlayedNow = false;
+        //先到pending状态
+        await cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
+
+        CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+        var tcs1 = new TaskCompletionSource<bool>();
+        Sequence s1 = DOTween.Sequence();
+        s1.AppendInterval(0.1f);
+        s1.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+        s1.OnComplete(() =>
+        {
+            tcs1.SetResult(true);
+        });
+        await tcs1.Task;
+
+        //改变位置为弃牌堆
+        await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
+        //卡牌生效
+        PlayCardManager.Instance.ActivateEffect(playedCard);
     }
 
 
-    public void UseASpellFromTreasure(int CardID)
+    public async Task UseASpellFromTreasure(int CardID)
     {
         GameObject CardVisual = IDHolder.GetGameObjectWithID(CardID);
         OneCardManager playedCard = CardVisual.GetComponent<OneCardManager>();
@@ -294,6 +305,7 @@ public class TreasureVisual : MonoBehaviour
                     //逻辑加卡
                     player.JudgementLogic.AddCard(playedCard.UniqueCardID);
 
+                    var tcs = new TaskCompletionSource<bool>();
                     Sequence s = DOTween.Sequence();
                     s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
                     s.Insert(0f, CardVisual.transform.DORotate(new Vector3(0, 0, -90), 1f));
@@ -301,11 +313,15 @@ public class TreasureVisual : MonoBehaviour
                     s.Append(CardVisual.transform.DOLocalMove(player.PArea.JudgementVisual.Slots.Children[0].transform.localPosition, 1f));
                     s.OnComplete(() =>
                     {
-                        CardVisual.transform.SetParent(player.PArea.JudgementVisual.Slots.transform);
-
-                        playedCard.CanBePlayedNow = false;
-                        playedCard.ChangeOwnerAndLocation(player, CardLocation.Judgement);
+                        tcs.SetResult(true);
                     });
+                    await tcs.Task;
+                    CardVisual.transform.SetParent(player.PArea.JudgementVisual.Slots.transform);
+
+                    playedCard.CanBePlayedNow = false;
+                    //改到判定区
+                    await playedCard.ChangeOwnerAndLocation(player, CardLocation.Judgement);
+
                 }
                 break;
             case TypesOfCards.Equipment:
@@ -319,7 +335,7 @@ public class TreasureVisual : MonoBehaviour
 
                     Player player = GlobalSettings.Instance.Players[Owner];
 
-                    EquipmentManager.Instance.AddOrReplaceEquipment(player, CardVisual.GetComponent<OneCardManager>());
+                    await EquipmentManager.Instance.AddOrReplaceEquipment(player, CardVisual.GetComponent<OneCardManager>());
                 }
                 break;
             case TypesOfCards.Base:
@@ -332,25 +348,25 @@ public class TreasureVisual : MonoBehaviour
                     Player player = GlobalSettings.Instance.Players[Owner];
                     int index = GlobalSettings.Instance.Table.CardsOnTable.Count;
 
+                    var tcs = new TaskCompletionSource<bool>();
                     Sequence s = DOTween.Sequence();
                     s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
                     s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
                     s.AppendInterval(1f);
                     s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.Table.Slots.Children[index].transform.position, 1f));
-
                     s.OnComplete(() =>
                     {
-                        CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
-                        GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
-
-                        OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
-                        cardManager.CanBePlayedNow = false;
-                        cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
-
-
-                        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
-
+                        tcs.SetResult(true);
                     });
+                    await tcs.Task;
+
+                    CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
+                    GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
+
+                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+                    cardManager.CanBePlayedNow = false;
+                    //到pending状态
+                    await cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
                 }
                 break;
         }
@@ -361,7 +377,7 @@ public class TreasureVisual : MonoBehaviour
     /// 移除卡牌到弃牌堆
     /// </summary>
     /// <param name="CardID"></param>
-    public void DisCardFromTreasure(int CardID)
+    public async Task DisCardFromTreasure(int CardID)
     {
         GameObject card = IDHolder.GetGameObjectWithID(CardID);
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
@@ -369,17 +385,18 @@ public class TreasureVisual : MonoBehaviour
 
         card.transform.SetParent(null);
 
-        cardManager.CanBePlayedNow = false;
-        cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
-
+        var tcs = new TaskCompletionSource<bool>();
         Sequence s = DOTween.Sequence();
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
         s.OnComplete(() =>
         {
-            //Command.CommandExecutionComplete();
-            //Destroy(card);
-            card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+            tcs.SetResult(true);
 
         });
+        await tcs.Task;
+        card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+        cardManager.CanBePlayedNow = false;
+        await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
     }
 }

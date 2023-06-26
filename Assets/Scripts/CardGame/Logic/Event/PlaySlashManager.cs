@@ -16,7 +16,7 @@ public class PlaySlashManager : MonoBehaviour
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with attribute:" + cardAsset.SpellAttribute);
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
-
+        //TODO 修改为打出杀时 加SKillManager一个hook AfterPlayASlash
         await SkillManager.UseACard(playedCard);
 
         if (cardManager != null)

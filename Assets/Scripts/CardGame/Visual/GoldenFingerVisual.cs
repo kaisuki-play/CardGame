@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 public class GoldenFingerVisual : MonoBehaviour
 {
@@ -45,10 +46,10 @@ public class GoldenFingerVisual : MonoBehaviour
         GameObject card = GameObject.Instantiate(GlobalSettings.Instance.CardToSelectPrefab, Vector3.zero, Quaternion.identity) as GameObject;
 
         card.GetComponent<Button>().onClick.RemoveAllListeners();
-        card.GetComponent<Button>().onClick.AddListener(() =>
+        card.GetComponent<Button>().onClick.AddListener(async () =>
         {
             Debug.Log(card.GetComponent<OneCardManager>().UniqueCardID);
-            HandleCard(card);
+            await HandleCard(card);
         });
 
         // apply the look from CardAsset
@@ -69,7 +70,7 @@ public class GoldenFingerVisual : MonoBehaviour
         id.UniqueID = -1;
     }
 
-    private void HandleCard(GameObject selectCard)
+    private async Task HandleCard(GameObject selectCard)
     {
         int cardId = selectCard.GetComponent<OneCardManager>().UniqueCardID;
 
@@ -80,7 +81,7 @@ public class GoldenFingerVisual : MonoBehaviour
         OneCardManager originCardManager = originCard.GetComponent<OneCardManager>();
 
         Player targetPlayer = this.curDrawCardPlayer;
-        targetPlayer.DrawACardFromDeck(originCardManager.UniqueCardID);
+        await targetPlayer.DrawACardFromDeck(originCardManager.UniqueCardID);
 
         _playerDrawCardsCount++;
 

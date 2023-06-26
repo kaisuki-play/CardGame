@@ -49,6 +49,12 @@ public class TaskManager : MonoBehaviour
         await Task.Run(() => { Debug.Log("不需要阻塞"); });
     }
 
+    public async Task ReturnException(string message)
+    {
+        Exception exception = new Exception(message);
+        await Task.FromException(exception);
+    }
+
     public async Task BlockTask(TaskType taskType)
     {
         AddATask(taskType);

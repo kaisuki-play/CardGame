@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using DG.Tweening;
+using System.Threading.Tasks;
+using System;
 
 public class TipCardManager : MonoBehaviour
 {
@@ -49,7 +51,6 @@ public class TipCardManager : MonoBehaviour
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
                         Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
-                        await SkillManager.BeforeAOEForTarget(cardManager, curTargetPlayer);
                         UseCardManager.Instance.NeedToPlaySlash();
                     }
                     break;
@@ -58,8 +59,7 @@ public class TipCardManager : MonoBehaviour
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
                         Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
-                        await SkillManager.BeforeAOEForTarget(cardManager, curTargetPlayer);
-                        UseCardManager.Instance.NeedToPlayJink();
+                        UseCardManager.Instance.NeedToPlayJinkNew(EventEnum.SlashNeedToPlayJink);
                     }
                     break;
                 //决斗
@@ -164,7 +164,7 @@ public class TipCardManager : MonoBehaviour
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
                         Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
-                        curTargetPlayer.DrawSomeCards(2);
+                        await curTargetPlayer.DrawSomeCards(2);
                         UseCardManager.Instance.FinishSettle();
                     }
                     break;
@@ -173,6 +173,7 @@ public class TipCardManager : MonoBehaviour
                     break;
             }
         }
+        await TaskManager.Instance.DontAwait();
     }
 
     public void FixOpButton1Listener(Player targetPlayer)
@@ -188,36 +189,53 @@ public class TipCardManager : MonoBehaviour
     /// <summary>
     /// 借刀杀人多个目标的时候
     /// </summary>
-    public void JiedaoSharenNextTarget()
+    public async Task JiedaoSharenNextTarget()
     {
-        OneCardManager jiedaosharenCard = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen).Item2;
-        if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
+        (bool hasJiedaosharen, OneCardManager jiedaosharenCard) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen);
+        if (hasJiedaosharen)
         {
-            TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)].RemoveAt(0);
-            if (TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)].Count > 0)
+            if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
             {
-                UseCardManager.Instance.HandleImpeccable(jiedaosharenCard);
+                //结算完毕了借刀杀人的当前目标，需要移除
+                TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)].RemoveAt(0);
+                if (TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)].Count > 0)
+                {
+                    UseCardManager.Instance.HandleImpeccable(jiedaosharenCard);
+                }
+                else
+                {
+                    UseCardManager.Instance.BackToWhoseTurn();
+                }
             }
             else
             {
                 UseCardManager.Instance.BackToWhoseTurn();
             }
+            await TaskManager.Instance.ReturnException("走借刀杀人分支");
         }
         else
         {
-            UseCardManager.Instance.BackToWhoseTurn();
+            await TaskManager.Instance.DontAwait();
         }
+
 
     }
 
-    public void GiveJiedaoSharenWeapon()
+    public async void GiveJiedaoSharenWeapon()
     {
         (bool hasJiedaosharen, OneCardManager jiedaosharenCard) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen);
         int targetId = TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)][0];
         Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
-        targetPlayer.GiveWeaponToTargetWithCardType(jiedaosharenCard.Owner);
+        await targetPlayer.GiveWeaponToTargetWithCardType(jiedaosharenCard.Owner);
         //下一个目标
-        JiedaoSharenNextTarget();
+        try
+        {
+            await JiedaoSharenNextTarget();
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.Message);
+        }
     }
 
     /// <summary>

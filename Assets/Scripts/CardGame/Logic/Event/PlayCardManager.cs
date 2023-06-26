@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class PlayCardManager : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class PlayCardManager : MonoBehaviour
         Instance = this;
     }
 
-    public void PlayAVisualCardFromHand(OneCardManager playedCard, List<int> targets)
+    public async Task PlayAVisualCardFromHand(OneCardManager playedCard, List<int> targets)
     {
         playedCard.TargetsPlayerIDs = targets;
 
@@ -21,14 +22,14 @@ public class PlayCardManager : MonoBehaviour
                 {
                     playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
 
-                    playedCard.Owner.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
+                    await playedCard.Owner.PArea.HandVisual.PlayASpellFromHand(playedCard.UniqueCardID);
                 }
                 break;
             case CardLocation.UnderCart:
                 {
                     playedCard.Owner.TreasureLogic.DisCard(playedCard.UniqueCardID);
 
-                    playedCard.Owner.PArea.TreasureVisual.PlayASpellFromTreasure(playedCard.UniqueCardID);
+                    await playedCard.Owner.PArea.TreasureVisual.PlayASpellFromTreasure(playedCard.UniqueCardID);
                 }
                 break;
         }
@@ -44,6 +45,7 @@ public class PlayCardManager : MonoBehaviour
                 PlaySlashManager.Instance.ActiveEffect(playedCard);
                 break;
             case SubTypeOfCards.Jink:
+                //TODO 闪pending后触发银月枪
                 PlayJinkManager.Instance.ActiveEffect(playedCard);
                 break;
             case SubTypeOfCards.Impeccable:

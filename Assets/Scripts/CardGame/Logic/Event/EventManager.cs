@@ -64,11 +64,11 @@ public class EventManager : MonoBehaviour
         Debug.Log("触发事件 玩家:" + player.PArea.Owner);
         if (usedAJink)
         {
-
+            TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
         }
         else
         {
-
+            await LooseHealthManager.LooseHealth(player, 1);
         }
         await TaskManager.Instance.DontAwait();
     }

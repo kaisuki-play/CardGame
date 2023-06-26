@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using static UnityEngine.UI.GridLayoutGroup;
@@ -39,24 +40,32 @@ public class JudgementVisual : MonoBehaviour
     /// 移除卡牌到弃牌堆
     /// </summary>
     /// <param name="CardID"></param>
-    public void DisCardFromJudgement(int CardID)
+    public async Task DisCardFromJudgement(int CardID)
     {
+
         GameObject card = IDHolder.GetGameObjectWithID(CardID);
         RemoveCard(card);
 
         card.transform.SetParent(null);
+
+        var tcs = new TaskCompletionSource<bool>();
 
         Sequence s = DOTween.Sequence();
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
         s.Insert(0f, card.transform.DORotate(new Vector3(0, 0, 0), 1f));
         s.OnComplete(() =>
         {
-            card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-
-            OneCardManager cardManager = card.GetComponent<OneCardManager>();
-            cardManager.CanBePlayedNow = false;
-            cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+            tcs.SetResult(true);
         });
+        await tcs.Task;
+
+        card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+        cardManager.CanBePlayedNow = false;
+
+        //牌到弃牌堆
+        await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
     }
 
 

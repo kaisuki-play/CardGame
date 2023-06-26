@@ -38,24 +38,24 @@ public class EquipmentManager : MonoBehaviour
     /// </summary>
     /// <param name="player"></param>
     /// <param name="cardManager"></param>
-    public void AddOrReplaceEquipment(Player player, OneCardManager cardManager)
+    public async Task AddOrReplaceEquipment(Player player, OneCardManager cardManager)
     {
         (bool hasEquipment, OneCardManager oldEquipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, cardManager.CardAsset.TypeOfEquipment);
         //有同类型的装备，就需要替换
         if (hasEquipment)
         {
             //去旧卡
-            player.PArea.EquipmentVisaul.DisCardFromEquipment(oldEquipmentCard.UniqueCardID);
+            await player.PArea.EquipmentVisaul.DisCardFromEquipment(oldEquipmentCard.UniqueCardID);
             player.EquipmentLogic.RemoveCard(oldEquipmentCard.UniqueCardID);
 
             //加新卡
-            player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
+            await player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
             player.EquipmentLogic.AddCard(cardManager.UniqueCardID);
         }
         else
         {
             //加新卡
-            player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
+            await player.PArea.EquipmentVisaul.EquipWithCard(cardManager.UniqueCardID, player);
             player.EquipmentLogic.AddCard(cardManager.UniqueCardID);
         }
     }
@@ -187,10 +187,10 @@ public class EquipmentManager : MonoBehaviour
         targetPlayer.ShowOp2Button = true;
         targetPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
         targetPlayer.PArea.Portrait.ChangeOp2ButtonText("对方摸一张牌");
-        targetPlayer.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+        targetPlayer.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
         {
             HighlightManager.DisableAllOpButtons();
-            player.DrawSomeCards(1);
+            await player.DrawSomeCards(1);
             TaskManager.Instance.UnBlockTask(TaskType.CixiongShuangguTask);
         });
     }
@@ -590,7 +590,7 @@ public class EquipmentManager : MonoBehaviour
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                 player.PArea.Portrait.ChangeOp2ButtonText("发动朱雀羽扇");
-                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                 {
                     HighlightManager.DisableAllOpButtons();
                     playedCard.CardAsset.SpellAttribute = SpellAttribute.FireSlash;
@@ -647,7 +647,7 @@ public class EquipmentManager : MonoBehaviour
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                 player.PArea.Portrait.ChangeOp2ButtonText("发动寒冰剑");
-                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                 {
                     HighlightManager.DisableAllOpButtons();
                     SelectCardForFrostBlade(targetPlayer);
@@ -735,7 +735,7 @@ public class EquipmentManager : MonoBehaviour
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                 player.PArea.Portrait.ChangeOp2ButtonText("发动麒麟弓");
-                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                 {
                     HighlightManager.DisableAllOpButtons();
                     SelectCardForQilingong(targetPlayer);
@@ -827,7 +827,7 @@ public class EquipmentManager : MonoBehaviour
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                 player.PArea.Portrait.ChangeOp2ButtonText("发动银月枪");
-                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                 {
                     HighlightManager.DisableAllOpButtons();
                     SelectOtherToPlayJink(player);
@@ -869,16 +869,17 @@ public class EquipmentManager : MonoBehaviour
                 targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
                 {
                     HighlightManager.DisableAllOpButtons();
-                    TargetsManager.Instance.NeedToPlayJinkTargets.Add(targetPlayer.ID);
-                    UseCardManager.Instance.NeedToPlayJink(targetPlayer);
-                    targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-                    targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
-                    {
-                        Debug.Log("流失体力");
-                        await LooseHealthManager.LooseHealth(targetPlayer, 1);
-                        TargetsManager.Instance.NeedToPlayJinkTargets.Clear();
-                        TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
-                    });
+                    UseCardManager.Instance.NeedToPlayJinkNew(EventEnum.SilverMoonNeedToPlayJink, targetPlayer);
+                    //TargetsManager.Instance.NeedToPlayJinkTargets.Add(targetPlayer.ID);
+                    //UseCardManager.Instance.NeedToPlayJink(targetPlayer);
+                    //targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                    //targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+                    //{
+                    //    Debug.Log("流失体力");
+                    //    await LooseHealthManager.LooseHealth(targetPlayer, 1);
+                    //    TargetsManager.Instance.NeedToPlayJinkTargets.Clear();
+                    //    TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
+                    //});
                 });
             }
         }
@@ -905,6 +906,7 @@ public class EquipmentManager : MonoBehaviour
                 {
                     Debug.Log("不解除");
 
+                    TaskManager.Instance.AddATask(TaskType.BaguazhenTask);
                     //HighlightManager.DisableAllOpButtons();
                     targetPlayer.ShowOp2Button = true;
                     targetPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
@@ -920,16 +922,27 @@ public class EquipmentManager : MonoBehaviour
                         if (flopedCard.CardAsset.Suits == CardSuits.Spades || flopedCard.CardAsset.Suits == CardSuits.Clubs)
                         {
                             targetPlayer.ShowOp2Button = false;
-                            UseCardManager.Instance.NeedToPlayJink(targetPlayer);
+                            //UseCardManager.Instance.NeedToPlayJink(targetPlayer);
+                            TaskManager.Instance.UnBlockTask(TaskType.BaguazhenTask);
                         }
                         else
                         {
                             //TODO出闪的动画
                             UseCardManager.Instance.FinishSettle();
+                            TaskManager.Instance.ExceptionBlockTask(TaskType.BaguazhenTask, "八卦阵帮着出了闪");
                         }
                     });
 
-                    await TaskManager.Instance.DontAwait();
+                    targetPlayer.ShowOp3Button = true;
+                    targetPlayer.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                    targetPlayer.PArea.Portrait.ChangeOp3Button2Text("不发动");
+                    targetPlayer.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        TaskManager.Instance.UnBlockTask(TaskType.BaguazhenTask);
+                    });
+
+                    await TaskManager.Instance.TaskBlockDic[TaskType.BaguazhenTask].Task;
                 }
                 else
                 {
@@ -979,14 +992,15 @@ public class EquipmentManager : MonoBehaviour
         {
             if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Renwangdun)
             {
-                TaskManager.Instance.AddATask(TaskType.RenwangdunTask);
+                //TaskManager.Instance.AddATask(TaskType.RenwangdunTask);
 
                 //直接进入结算
                 UseCardManager.Instance.FinishSettle();
 
-                TaskManager.Instance.ExceptionBlockTask(TaskType.RenwangdunTask);
+                //TaskManager.Instance.ExceptionBlockTask(TaskType.RenwangdunTask);
 
-                await TaskManager.Instance.TaskBlockDic[TaskType.RenwangdunTask].Task;
+                //await TaskManager.Instance.TaskBlockDic[TaskType.RenwangdunTask].Task;
+                await TaskManager.Instance.ReturnException("黑杀无效");
             }
             else
             {
@@ -1018,10 +1032,12 @@ public class EquipmentManager : MonoBehaviour
                 //直接进入结算
                 UseCardManager.Instance.FinishSettle();
 
-                Debug.Log("到这里了");
-                // 创建一个已经完成且包含异常的Task对象
-                Exception exception = new Exception("直接跳到结算");
-                await Task.FromException(exception);
+
+                await TaskManager.Instance.ReturnException("直接跳到结算");
+                //Debug.Log("到这里了");
+                //// 创建一个已经完成且包含异常的Task对象
+                //Exception exception = new Exception("直接跳到结算");
+                //await Task.FromException(exception);
             }
         }
         else
@@ -1082,7 +1098,7 @@ public class EquipmentManager : MonoBehaviour
     }
 
     /// 失去木流牛马hook
-    public void CartDisHook(Player player, OneCardManager equipmentCard)
+    public async void CartDisHook(Player player, OneCardManager equipmentCard)
     {
         if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Cart)
         {
@@ -1091,7 +1107,7 @@ public class EquipmentManager : MonoBehaviour
             while (TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure.Count > 0)
             {
                 int cardId = TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure[0];
-                player.DisACardFromTreasure(cardId);
+                await player.DisACardFromTreasure(cardId);
             }
         }
     }

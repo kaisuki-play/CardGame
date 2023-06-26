@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using System.Threading.Tasks;
 
 public class ImpeccableManager : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class ImpeccableManager : MonoBehaviour
         Instance = this;
     }
 
-    public void ClickCancelInquireImpeccable()
+    public async Task ClickCancelInquireImpeccable()
     {
         Player inquirePlayer = GlobalSettings.Instance.FindPlayerByID(InquireTargetId);
         //如果摁了不出无懈的当前玩家的下一个顺位玩家是当前回合人，则进入对当前目标的结算
@@ -27,11 +28,11 @@ public class ImpeccableManager : MonoBehaviour
             {
                 if (TipWillWork == true)
                 {
-                    DelayTipManager.HandleDelayTip(TurnManager.Instance.whoseTurn);
+                    await DelayTipManager.HandleDelayTip(TurnManager.Instance.whoseTurn);
                 }
                 else
                 {
-                    DelayTipManager.DisDelayTip(TurnManager.Instance.whoseTurn);
+                    await DelayTipManager.DisDelayTip(TurnManager.Instance.whoseTurn);
                 }
             }
             else
@@ -50,7 +51,7 @@ public class ImpeccableManager : MonoBehaviour
                         //去掉所有目标高亮
                         HighlightManager.DisableAllTargetsGlow();
                         //移除pending卡牌
-                        GlobalSettings.Instance.Table.ClearCardsFromLast();
+                        await GlobalSettings.Instance.Table.ClearCardsFromLast();
                         //回到当前回合人
                         UseCardManager.Instance.BackToWhoseTurn();
                     }
@@ -124,10 +125,10 @@ public class ImpeccableManager : MonoBehaviour
         HighlightManager.EnableCardWithCardType(InquirePlayer, SubTypeOfCards.Impeccable);
         InquirePlayer.ShowOp1Button = true;
         InquirePlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-        InquirePlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+        InquirePlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
         {
             InquirePlayer.ShowOp1Button = false;
-            ImpeccableManager.Instance.ClickCancelInquireImpeccable();
+            await ImpeccableManager.Instance.ClickCancelInquireImpeccable();
         });
     }
 

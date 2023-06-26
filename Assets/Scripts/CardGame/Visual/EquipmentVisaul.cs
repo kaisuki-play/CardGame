@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class EquipmentVisaul : MonoBehaviour
 {
@@ -38,8 +39,10 @@ public class EquipmentVisaul : MonoBehaviour
     /// 装备上装备
     /// </summary>
     /// <param name="cardId"></param>
-    public void EquipWithCard(int cardId, Player player)
+    public async Task EquipWithCard(int cardId, Player player)
     {
+        var tcs = new TaskCompletionSource<bool>();
+
         GameObject card = IDHolder.GetGameObjectWithID(cardId);
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
 
@@ -52,22 +55,30 @@ public class EquipmentVisaul : MonoBehaviour
         s.Append(card.transform.DOLocalMove(player.PArea.EquipmentVisaul.Slots.Children[0].transform.localPosition, 1f));
         s.OnComplete(() =>
         {
-            card.transform.SetParent(player.PArea.EquipmentVisaul.Slots.transform);
-
-            Vector3 newScale = new Vector3(0.5f, 0.5f, 0.5f); // 设置为 (2, 2, 2) 的比例
-            card.transform.localScale = newScale;
-
-            cardManager.CanBePlayedNow = false;
-            cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
+            tcs.SetResult(true);
         });
+
+        await tcs.Task;
+
+        card.transform.SetParent(player.PArea.EquipmentVisaul.Slots.transform);
+
+        Vector3 newScale = new Vector3(0.5f, 0.5f, 0.5f); // 设置为 (2, 2, 2) 的比例
+        card.transform.localScale = newScale;
+
+        cardManager.CanBePlayedNow = false;
+
+        //到了装备区
+        await cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
     }
 
     /// <summary>
     /// 移除卡牌到弃牌堆
     /// </summary>
     /// <param name="CardID"></param>
-    public void DisCardFromEquipment(int CardID)
+    public async Task DisCardFromEquipment(int CardID)
     {
+        var tcs = new TaskCompletionSource<bool>();
+
         GameObject card = IDHolder.GetGameObjectWithID(CardID);
         RemoveCard(card);
 
@@ -77,12 +88,16 @@ public class EquipmentVisaul : MonoBehaviour
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
         s.OnComplete(() =>
         {
-            card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-
-            OneCardManager cardManager = card.GetComponent<OneCardManager>();
-            cardManager.CanBePlayedNow = false;
-            cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+            tcs.SetResult(true);
         });
+        await tcs.Task;
+        card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+        cardManager.CanBePlayedNow = false;
+
+        //到弃牌区
+        await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
     }
 
     // gives player a new card from a given position

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using System;
+using System.Threading.Tasks;
 
 public class HandVisual : MonoBehaviour
 {
@@ -40,7 +41,7 @@ public class HandVisual : MonoBehaviour
     // ADDING OR REMOVING CARDS FROM HAND
 
     // add a new card GameObject to hand
-    public void AddCard(GameObject card)
+    public async Task AddCard(GameObject card)
     {
         // we allways insert a new card as 0th element in CardsInHand List 
         _cardsInHand.Insert(0, card);
@@ -49,7 +50,7 @@ public class HandVisual : MonoBehaviour
         card.transform.SetParent(Slots.transform);
 
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
-        cardManager.ChangeOwnerAndLocation(GlobalSettings.Instance.Players[this.Owner], CardLocation.Hand);
+        await cardManager.ChangeOwnerAndLocation(GlobalSettings.Instance.Players[this.Owner], CardLocation.Hand);
 
 
         // re-calculate the position of the hand
@@ -121,21 +122,21 @@ public class HandVisual : MonoBehaviour
         }
     }
 
-    public void DrawACard(GameObject card)
+    public async Task DrawACard(GameObject card)
     {
-        AddACardToHand(card);
+        await AddACardToHand(card);
     }
 
-    public void GetACardFromOther(GameObject card, Player otherPlayer)
+    public async Task GetACardFromOther(GameObject card, Player otherPlayer)
     {
         otherPlayer.PArea.HandVisual.PlaceCardsOnNewSlots();
         otherPlayer.PArea.HandVisual.UpdatePlacementOfSlots();
-        AddACardToHand(card);
+        await AddACardToHand(card);
     }
 
-    public void AddACardToHand(GameObject card)
+    public async Task AddACardToHand(GameObject card)
     {
-        AddCard(card);
+        await AddCard(card);
 
         // Bring card to front while it travels from draw spot to hand
         WhereIsTheCardOrCreature w = card.GetComponent<WhereIsTheCardOrCreature>();
@@ -158,30 +159,34 @@ public class HandVisual : MonoBehaviour
     /// 移除卡牌到弃牌堆
     /// </summary>
     /// <param name="CardID"></param>
-    public void DisCardFromHand(int CardID)
+    public async Task DisCardFromHand(int CardID)
     {
+        var tcs = new TaskCompletionSource<bool>();
+
         GameObject card = IDHolder.GetGameObjectWithID(CardID);
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
         RemoveCard(card);
 
         card.transform.SetParent(null);
 
-        cardManager.CanBePlayedNow = false;
-        cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
 
         Sequence s = DOTween.Sequence();
         s.Append(card.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
         s.OnComplete(() =>
         {
-            //Command.CommandExecutionComplete();
-            //Destroy(card);
-            card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-
+            tcs.SetResult(true);
         });
+        await tcs.Task;
+
+        cardManager.CanBePlayedNow = false;
+        card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+        //位置改为弃牌堆
+        await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
     }
 
     // 2 Overloaded method to show a spell played from hand
-    public void PlayASpellFromHand(int CardID)
+    public async Task PlayASpellFromHand(int CardID)
     {
         GameObject CardVisual = IDHolder.GetGameObjectWithID(CardID);
         OneCardManager playedCard = CardVisual.GetComponent<OneCardManager>();
@@ -192,7 +197,7 @@ public class HandVisual : MonoBehaviour
             {
                 GameObject relationCard = IDHolder.GetGameObjectWithID(relationCardId);
                 OneCardManager relationCardManager = relationCard.GetComponent<OneCardManager>();
-                relationCardManager.Owner.DisACardFromHand(relationCardId);
+                await relationCardManager.Owner.DisACardFromHand(relationCardId);
             }
             PlayCardManager.Instance.ActivateEffect(playedCard);
             Destroy(CardVisual);
@@ -208,6 +213,8 @@ public class HandVisual : MonoBehaviour
         Player player = GlobalSettings.Instance.Players[Owner];
         int index = GlobalSettings.Instance.Table.CardsOnTable.Count;
 
+        var tcs = new TaskCompletionSource<bool>();
+
         Sequence s = DOTween.Sequence();
         s.Append(CardVisual.transform.DOMove(PlayPreviewSpot.position, 1f));
         s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
@@ -216,30 +223,43 @@ public class HandVisual : MonoBehaviour
 
         s.OnComplete(() =>
         {
-            CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
-            GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
-
-            OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
-            cardManager.CanBePlayedNow = false;
-            cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
-
-            CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
-
-            Sequence s1 = DOTween.Sequence();
-            s1.AppendInterval(0.1f);
-            s1.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
-
-            s1.OnComplete(() =>
-            {
-                cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
-                PlayCardManager.Instance.ActivateEffect(playedCard);
-            });
-
+            tcs.SetResult(true);
         });
+
+        await tcs.Task;
+
+        CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
+        GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
+
+        OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+        cardManager.CanBePlayedNow = false;
+
+        //先变到pending
+        await cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
+
+        //TODO 打出一张牌，到pending后,
+
+        CardVisual.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
+
+        var tcs1 = new TaskCompletionSource<bool>();
+
+        Sequence s1 = DOTween.Sequence();
+        s1.AppendInterval(0.1f);
+        s1.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.DisDeck.MainCanvas.transform.position, 1f));
+        s1.OnComplete(() =>
+        {
+            tcs1.SetResult(true);
+        });
+
+        await tcs1.Task;
+
+        //再变到弃牌堆
+        await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
+        PlayCardManager.Instance.ActivateEffect(playedCard);
     }
 
 
-    public void UseASpellFromHand(int CardID)
+    public async Task UseASpellFromHand(int CardID)
     {
         GameObject CardVisual = IDHolder.GetGameObjectWithID(CardID);
         OneCardManager playedCard = CardVisual.GetComponent<OneCardManager>();
@@ -249,6 +269,7 @@ public class HandVisual : MonoBehaviour
         {
             case TypesOfCards.DelayTips:
                 {
+                    var tcs = new TaskCompletionSource<bool>();
 
                     RemoveCard(CardVisual);
 
@@ -268,11 +289,15 @@ public class HandVisual : MonoBehaviour
                     s.Append(CardVisual.transform.DOLocalMove(player.PArea.JudgementVisual.Slots.Children[0].transform.localPosition, 1f));
                     s.OnComplete(() =>
                     {
-                        CardVisual.transform.SetParent(player.PArea.JudgementVisual.Slots.transform);
-
-                        playedCard.CanBePlayedNow = false;
-                        playedCard.ChangeOwnerAndLocation(player, CardLocation.Judgement);
+                        tcs.SetResult(true);
                     });
+                    await tcs.Task;
+
+                    CardVisual.transform.SetParent(player.PArea.JudgementVisual.Slots.transform);
+
+                    playedCard.CanBePlayedNow = false;
+
+                    await playedCard.ChangeOwnerAndLocation(player, CardLocation.Judgement);
                 }
                 break;
             case TypesOfCards.Equipment:
@@ -286,12 +311,14 @@ public class HandVisual : MonoBehaviour
 
                     Player player = GlobalSettings.Instance.Players[Owner];
 
-                    EquipmentManager.Instance.AddOrReplaceEquipment(player, CardVisual.GetComponent<OneCardManager>());
+                    await EquipmentManager.Instance.AddOrReplaceEquipment(player, CardVisual.GetComponent<OneCardManager>());
                 }
                 break;
             case TypesOfCards.Base:
             case TypesOfCards.Tips:
                 {
+                    var tcs = new TaskCompletionSource<bool>();
+
                     RemoveCard(CardVisual);
 
                     CardVisual.transform.SetParent(null);
@@ -304,20 +331,20 @@ public class HandVisual : MonoBehaviour
                     s.Insert(0f, CardVisual.transform.DORotate(Vector3.zero, 1f));
                     s.AppendInterval(1f);
                     s.Append(CardVisual.transform.DOMove(GlobalSettings.Instance.Table.Slots.Children[index].transform.position, 1f));
-
                     s.OnComplete(() =>
                     {
-                        CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
-                        GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
-
-                        OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
-                        cardManager.CanBePlayedNow = false;
-                        cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
-
-
-                        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
-
+                        tcs.SetResult(true);
                     });
+
+                    await tcs.Task;
+
+                    CardVisual.transform.SetParent(GlobalSettings.Instance.Table.Slots.transform);
+                    GlobalSettings.Instance.Table.CardsOnTable.Add(CardVisual);
+
+                    OneCardManager cardManager = CardVisual.GetComponent<OneCardManager>();
+                    cardManager.CanBePlayedNow = false;
+                    //改为pending状态
+                    await cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
                 }
                 break;
         }

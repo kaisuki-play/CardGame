@@ -10,7 +10,7 @@ public class DelayTipManager : MonoBehaviour
     /// </summary>
     /// <param name="playedCard"></param>
     /// <param name="targets"></param>
-    public static void UseADelayTipsCardFromHand(OneCardManager playedCard, List<int> targets)
+    public static async Task UseADelayTipsCardFromHand(OneCardManager playedCard, List<int> targets)
     {
         switch (playedCard.CardAsset.SubTypeOfCard)
         {
@@ -24,7 +24,7 @@ public class DelayTipManager : MonoBehaviour
         // remove this card from hand
         playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
 
-        playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
+        await playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
     }
 
     //是否有延时锦囊
@@ -48,12 +48,12 @@ public class DelayTipManager : MonoBehaviour
         return false;
     }
 
-    public static void DisDelayTip(Player targetPlayer)
+    public static async Task DisDelayTip(Player targetPlayer)
     {
         int lastJudgementCard = targetPlayer.JudgementLogic.CardsInJudgement[targetPlayer.JudgementLogic.CardsInJudgement.Count - 1];
         GameObject judgementCard = IDHolder.GetGameObjectWithID(lastJudgementCard);
         OneCardManager judgementCardManager = judgementCard.GetComponent<OneCardManager>();
-        targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
+        await targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
         if (HasDelayTips(targetPlayer))
         {
             ImpeccableManager.Instance.StartInquireNextTarget();
@@ -65,7 +65,7 @@ public class DelayTipManager : MonoBehaviour
     }
 
     //处理延时锦囊
-    public static async void HandleDelayTip(Player targetPlayer)
+    public static async Task HandleDelayTip(Player targetPlayer)
     {
         int lastJudgementCard = targetPlayer.JudgementLogic.CardsInJudgement[targetPlayer.JudgementLogic.CardsInJudgement.Count - 1];
         GameObject judgementCard = IDHolder.GetGameObjectWithID(lastJudgementCard);
@@ -83,7 +83,7 @@ public class DelayTipManager : MonoBehaviour
                 {
                     TurnManager.Instance.SkipPlayCardPhase = true;
                 }
-                targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
+                await targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
                 break;
             case SubTypeOfCards.Binliangcunduan:
                 Debug.Log("兵粮寸断");
@@ -91,20 +91,20 @@ public class DelayTipManager : MonoBehaviour
                 {
                     TurnManager.Instance.SkipDrawCardPhase = true;
                 }
-                targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
+                await targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
                 break;
             case SubTypeOfCards.Thunder:
                 Debug.Log("闪电");
                 if (flopedCard.CardAsset.Suits == CardSuits.Spades && flopedCard.CardAsset.CardRank != CardRank.Rank_A && flopedCard.CardAsset.CardRank != CardRank.Rank_10 && flopedCard.CardAsset.CardRank != CardRank.Rank_J && flopedCard.CardAsset.CardRank != CardRank.Rank_Q && flopedCard.CardAsset.CardRank != CardRank.Rank_K)
                 {
                     TaskManager.Instance.DelayTipTask = new TaskCompletionSource<bool>();
-                    targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
+                    await targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
                     SettleManager.Instance.StartSettle(judgementCardManager, SpellAttribute.ThunderSlash, TurnManager.Instance.whoseTurn, 3);
                     await TaskManager.Instance.DelayTipTask.Task;
                 }
                 else
                 {
-                    TurnManager.Instance.whoseTurn.PassDelayTipToTarget(TurnManager.Instance.whoseTurn.OtherThunderPlayer, judgementCardManager);
+                    await TurnManager.Instance.whoseTurn.PassDelayTipToTarget(TurnManager.Instance.whoseTurn.OtherThunderPlayer, judgementCardManager);
                 }
 
                 break;

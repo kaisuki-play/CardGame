@@ -114,7 +114,7 @@ public class SkillManager : MonoBehaviour
     /// <param name="targetPlayer"></param>
     /// <param name="playedCard"></param>
     /// <returns></returns>
-    public static async Task BeforeNeedPlayAJink(OneCardManager playedCard = null, Player targetPlayer = null)
+    public static async Task BeforeCardSettle(OneCardManager playedCard = null, Player targetPlayer = null)
     {
         if (playedCard == null)
         {
@@ -122,6 +122,11 @@ public class SkillManager : MonoBehaviour
         }
         if (targetPlayer == null)
         {
+            if (TargetsManager.Instance.Targets.Count == 0 || TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
+            {
+                await TaskManager.Instance.DontAwait();
+                return;
+            }
             targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
         }
         (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
@@ -198,6 +203,9 @@ public class SkillManager : MonoBehaviour
                 case SubTypeOfCards.Qinglongyanyuedao:
                     await EquipmentManager.Instance.QinglongyanyueHook(playedCard, targetPlayer);
                     break;
+                case SubTypeOfCards.SilverMoon:
+                    await EquipmentManager.Instance.ActiveSilverMoon(playedCard);
+                    break;
                 default:
                     UseCardManager.Instance.FinishSettle();
                     await TaskManager.Instance.DontAwait();
@@ -240,7 +248,7 @@ public class SkillManager : MonoBehaviour
     /// </summary>
     /// <param name="playedCard"></param>
     /// <returns></returns>
-    public static async Task StartPlayACard(OneCardManager playedCard)
+    public static async Task AfterUsedCardPending(OneCardManager playedCard)
     {
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
@@ -399,28 +407,28 @@ public class SkillManager : MonoBehaviour
     /// <param name="playedCard"></param>
     /// <param name="targetPlayer"></param>
     /// <returns></returns>
-    public static async Task BeforeAOEForTarget(OneCardManager playedCard, Player targetPlayer)
-    {
-        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~询问是否有防具");
-        (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
-        if (hasArmor)
-        {
-            switch (armorCard.CardAsset.SubTypeOfCard)
-            {
-                case SubTypeOfCards.Tengjia:
-                    Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~询问是否有防具:藤甲");
-                    await EquipmentManager.Instance.ActiveTengjia(playedCard, targetPlayer);
-                    break;
-                default:
-                    await TaskManager.Instance.DontAwait();
-                    break;
-            }
-        }
-        else
-        {
-            await TaskManager.Instance.DontAwait();
-        }
-    }
+    //public static async Task BeforeAOEForTarget(OneCardManager playedCard, Player targetPlayer)
+    //{
+    //    Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~询问是否有防具");
+    //    (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
+    //    if (hasArmor)
+    //    {
+    //        switch (armorCard.CardAsset.SubTypeOfCard)
+    //        {
+    //            case SubTypeOfCards.Tengjia:
+    //                Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~询问是否有防具:藤甲");
+    //                await EquipmentManager.Instance.ActiveTengjia(playedCard, targetPlayer);
+    //                break;
+    //            default:
+    //                await TaskManager.Instance.DontAwait();
+    //                break;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        await TaskManager.Instance.DontAwait();
+    //    }
+    //}
 
     /// <summary>
     /// 计算伤害的时候
