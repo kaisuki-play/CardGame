@@ -126,7 +126,7 @@ public class SkillManager : MonoBehaviour
             switch (weaponCard.CardAsset.SubTypeOfCard)
             {
                 case SubTypeOfCards.CixiongDoubleSwards:
-                    await EquipmentManager.Instance.CixiongHook(playedCard.Owner, playedCard, GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]));
+                    await EquipmentManager.Instance.CixiongHook(playedCard.Owner, playedCard, GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID][0]));
                     break;
                 case SubTypeOfCards.Qinghongjian:
                     await EquipmentManager.Instance.QinggangjianHook(playedCard.Owner);
@@ -154,12 +154,12 @@ public class SkillManager : MonoBehaviour
         }
         if (targetPlayer == null)
         {
-            if (TargetsManager.Instance.Targets.Count == 0 || TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
+            if (TargetsManager.Instance.TargetsDic.Count == 0 || TargetsManager.Instance.TargetsDic[playedCard.UniqueCardID].Count == 0)
             {
                 await TaskManager.Instance.DontAwait();
                 return;
             }
-            targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+            targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[playedCard.UniqueCardID][0]);
         }
         (bool hasArmor, OneCardManager armorCard) = EquipmentManager.Instance.HasEquipmentWithType(targetPlayer, TypeOfEquipment.Armor);
         if (hasArmor)

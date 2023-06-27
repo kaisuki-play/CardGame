@@ -10,7 +10,8 @@ public class TargetsManager : MonoBehaviour
 {
     public static TargetsManager Instance;
     // 正常目标
-    public List<List<int>> Targets = new List<List<int>>();
+    //public List<List<int>> Targets = new List<List<int>>();
+    public Dictionary<int, List<int>> TargetsDic = new Dictionary<int, List<int>>();
     // 借刀目标
     public List<int> SpecialTarget = new List<int>();
     // 已经有的目标
@@ -23,24 +24,28 @@ public class TargetsManager : MonoBehaviour
         Instance = this;
     }
 
-    public void SetTargets(List<int> targets)
+    public void SetTargets(int cardId, List<int> targets)
     {
-        if (Targets.Count < GlobalSettings.Instance.Table.CardsOnTable.Count)
-        {
-            Targets.Add(targets);
-        }
-        else
-        {
-            Targets[GlobalSettings.Instance.Table.CardsOnTable.Count - 1] = targets;
-        }
-        Debug.Log("目标数组" + Targets.Count);
+        TargetsDic[cardId] = targets;
+        //if (Targets.Count < GlobalSettings.Instance.Table.CardsOnTable.Count)
+        //{
+        //    Targets.Add(targets);
+        //}
+        //else
+        //{
+        //    Targets[GlobalSettings.Instance.Table.CardsOnTable.Count - 1] = targets;
+        //}
+        //Debug.Log("目标数组" + Targets.Count);
+        Debug.Log("目标数组" + TargetsDic.Count);
     }
 
     public void Order(OneCardManager oneCardManager)
     {
-        int targetIndex = GlobalSettings.Instance.Table.CardsOnTable.Count - 1;
+        //int targetIndex = GlobalSettings.Instance.Table.CardsOnTable.Count - 1;
 
-        List<Player> originalPlayerList = Targets[targetIndex].Select(n => GlobalSettings.Instance.FindPlayerByID(n)).ToList();
+
+        //List<Player> originalPlayerList = Targets[targetIndex].Select(n => GlobalSettings.Instance.FindPlayerByID(n)).ToList();
+        List<Player> originalPlayerList = TargetsDic[oneCardManager.UniqueCardID].Select(n => GlobalSettings.Instance.FindPlayerByID(n)).ToList();
         originalPlayerList.Sort((x, y) => y.PArea.Owner.CompareTo(x.PArea.Owner));
 
         List<int> reverseOrderList = originalPlayerList.Select(n => n.ID).ToList();
@@ -57,7 +62,7 @@ public class TargetsManager : MonoBehaviour
         {
             Debug.Log("排序后的位置: " + GlobalSettings.Instance.FindPlayerByID(id).PArea.Owner);
         }
-        this.SetTargets(targets);
+        this.SetTargets(oneCardManager.UniqueCardID, targets);
     }
 
     public List<int> GenerateNewArray(List<int> originalList, int startIndex)

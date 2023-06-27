@@ -119,12 +119,12 @@ public class CardSelectVisual : MonoBehaviour
                     (bool hasWugufengdeng, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Wugufengdeng);
                     if (hasWugufengdeng)
                     {
-                        int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
+                        //int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
 
-                        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
                         await targetPlayer.DrawACardFromDeck(originCardManager.UniqueCardID);
 
-                        if (TargetsManager.Instance.Targets[cardIndex].Count == 1)
+                        if (TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count == 1)
                         {
                             GlobalSettings.Instance.CardSelectVisual.Dismiss();
                             UseCardManager.Instance.FinishSettle();

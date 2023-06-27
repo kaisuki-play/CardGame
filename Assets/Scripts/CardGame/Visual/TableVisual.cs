@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DG.Tweening;
@@ -91,13 +92,17 @@ public class TableVisual : MonoBehaviour
     {
         GameObject card = CardsOnTable[index];
 
-        CardsOnTable.RemoveAt(index);
+        //CardsOnTable.RemoveAt(index);
 
-        Debug.Log(TargetsManager.Instance.Targets.Count + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + index);
-        TargetsManager.Instance.Targets.RemoveAt(index);
         //Debug.Log("结算完后的牌" + TargetsManager.Instance.Targets.Count);
 
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
+
+        TargetsManager.Instance.TargetsDic.Remove(cardManager.UniqueCardID);
+
+        Debug.Log("CardsOnTable count : " + CardsOnTable.Count);
+        Debug.Log(TargetsManager.Instance.TargetsDic.Count + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + index);
+
         if (cardManager.IsDisguisedCard)
         {
             foreach (int relationCardId in cardManager.RelationRealCardIds)
@@ -128,25 +133,48 @@ public class TableVisual : MonoBehaviour
         await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
     }
 
-    /// <summary>
-    /// 清理第一张牌
-    /// </summary>
-    public async Task ClearCardsFromFirst()
+    public async Task ClearAllCardsWithNoTargets()
     {
-        await ClearCardsWithIndex(0);
+        int i = 0;
+        while (i < TargetsManager.Instance.TargetsDic.Keys.Count)
+        {
+            int cardId = TargetsManager.Instance.TargetsDic.Keys.ElementAt(i);
+            if (TargetsManager.Instance.TargetsDic[cardId] == null || TargetsManager.Instance.TargetsDic[cardId].Count == 0)
+            {
+                await ClearCards(cardId);
+            }
+            i++;
+        }
     }
 
+    ///// <summary>
+    ///// 清理第一张牌
+    ///// </summary>
+    //public async Task ClearCardsFromFirst()
+    //{
+    //    await ClearCardsWithIndex(0);
+    //}
+
+    ///// <summary>
+    ///// 清理最后一张牌
+    ///// </summary>
+    //public async Task ClearCardsFromLast()
+    //{
+    //    if (CardsOnTable.Count == 0)
+    //    {
+    //        return;
+    //    }
+    //    await ClearCardsWithIndex(CardsOnTable.Count - 1);
+    //}
+
     /// <summary>
-    /// 清理最后一张牌
+    /// 获取最后一张牌
     /// </summary>
-    public async Task ClearCardsFromLast()
-    {
-        if (CardsOnTable.Count == 0)
-        {
-            return;
-        }
-        await ClearCardsWithIndex(CardsOnTable.Count - 1);
-    }
+    /// <returns></returns>
+    //public OneCardManager LastTableCard()
+    //{
+    //    return CardsOnTable[CardsOnTable.Count - 1].GetComponent<OneCardManager>();
+    //}
 
 
     // method to create a new creature and add it to the table

@@ -125,7 +125,7 @@ public class UseCardManager : MonoBehaviour
         // 默认目标
         if (targets.Count != 0)
         {
-            TargetsManager.Instance.SetTargets(targets);
+            TargetsManager.Instance.SetTargets(playedCard.UniqueCardID, targets);
         }
         // 指定了借刀目标
         if (specialIds.Count != 0)
@@ -189,9 +189,9 @@ public class UseCardManager : MonoBehaviour
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with attribute:" + cardAsset.SpellAttribute);
-        if (TargetsManager.Instance.Targets.Count > 0)
+        if (TargetsManager.Instance.TargetsDic.Count > 0)
         {
-            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with targets:" + TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count);
+            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with targets:" + TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID].Count);
         }
         // restart timer
         TurnManager.Instance.RestartTimer();
@@ -221,7 +221,8 @@ public class UseCardManager : MonoBehaviour
                             break;
                         case SubTypeOfCards.Peach:
                             {
-                                Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+                                OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+                                Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
                                 await GlobalSettings.Instance.Table.ClearCards(playedCard.UniqueCardID);
                                 //恢复一点体力
                                 HealthManager.Instance.HealingEffect(1, targetPlayer);
@@ -232,7 +233,8 @@ public class UseCardManager : MonoBehaviour
                         case SubTypeOfCards.Analeptic:
                             {
                                 CounterManager.Instance.UsedAnalepticThisTurn = true;
-                                Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+                                OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+                                Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
                                 if (DyingManager.Instance.IsInDyingInquiry)
                                 {
                                     //恢复一点体力
@@ -270,20 +272,27 @@ public class UseCardManager : MonoBehaviour
             TargetsManager.Instance.SpecialTarget.RemoveAt(0);
         }
         //移除已经结算完伤害的玩家
-        if (TargetsManager.Instance.Targets.Count > 0 && TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count > 0)
+        if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
         {
-            TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
-            Debug.Log("还有几个牌" + TargetsManager.Instance.Targets.Count);
-            Debug.Log("还有几个目标" + TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1]);
+            OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+            TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].RemoveAt(0);
+            Debug.Log("还有几个牌" + TargetsManager.Instance.TargetsDic.Count);
+            Debug.Log("还有几个目标" + TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count);
         }
-        if (TargetsManager.Instance.Targets.Count == 0 || TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count == 0)
+        //if (TargetsManager.Instance.TargetsDic.Count > 0 && TargetsManager.Instance.TargetsDic[TargetsManager.Instance.Targets.Count - 1].Count > 0)
+        //{
+        //    TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
+        //    Debug.Log("还有几个牌" + TargetsManager.Instance.Targets.Count);
+        //    Debug.Log("还有几个目标" + TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1]);
+        //}
+        if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
         {
             //去除所有目标高亮
             HighlightManager.DisableAllTargetsGlow();
             HighlightManager.DisableAllOpButtons();
             //移除卡
-            await GlobalSettings.Instance.Table.ClearCardsFromLast();
-            if (TargetsManager.Instance.Targets.Count == 0)
+            await GlobalSettings.Instance.Table.ClearAllCardsWithNoTargets();
+            if (GlobalSettings.Instance.Table.CardsOnTable.Count == 0)
             {
                 //高亮当前回合人
                 HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
@@ -313,7 +322,7 @@ public class UseCardManager : MonoBehaviour
         Debug.Log("不走借刀杀人分支");
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
-        Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+        Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
         UseCardManager.Instance.HandleImpeccable(cardManager);
     }
 
@@ -324,7 +333,8 @@ public class UseCardManager : MonoBehaviour
         HighlightManager.DisableAllOpButtons();
         if (targetPlayer == null)
         {
-            int targetId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
+            OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+            int targetId = TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0];
             targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
         }
 
@@ -356,7 +366,8 @@ public class UseCardManager : MonoBehaviour
         HighlightManager.DisableAllOpButtons();
         if (targetPlayer == null)
         {
-            int targetId = TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0];
+            OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+            int targetId = TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0];
             targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
         }
 
@@ -369,7 +380,7 @@ public class UseCardManager : MonoBehaviour
         targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
         targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
         {
-            Debug.Log("dont play slash~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + TargetsManager.Instance.Targets[0].Count);
+            Debug.Log("dont play slash~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             targetPlayer.ShowOp1Button = false;
             //借刀杀人需要处理
             if (isJiedaoSharen)
@@ -388,7 +399,7 @@ public class UseCardManager : MonoBehaviour
         HighlightManager.DisableAllTargetsGlow();
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
-        await GlobalSettings.Instance.Table.ClearCardsFromLast();
+        await GlobalSettings.Instance.Table.ClearAllCardsWithNoTargets();
         TargetsManager.Instance.SpecialTarget.Clear();
         HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
     }

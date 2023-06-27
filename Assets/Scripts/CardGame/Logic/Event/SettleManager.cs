@@ -40,7 +40,7 @@ public class SettleManager : MonoBehaviour
         {
             if (targetPlayer == null)
             {
-                targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+                targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
             }
             try
             {
@@ -135,7 +135,7 @@ public class SettleManager : MonoBehaviour
 
             if (curTargetPlayer == null)
             {
-                curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
+                curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
             }
 
             //计算最终伤害

@@ -23,8 +23,17 @@ public class TipCardManager : MonoBehaviour
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
         if (cardManager != null)
         {
-            TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
-            if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count != 0)
+            //TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
+            //if (TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].Count != 0)
+            //{
+            //    UseCardManager.Instance.HandleImpeccable(cardManager);
+            //}
+            //else
+            //{
+            //    UseCardManager.Instance.BackToWhoseTurn();
+            //}
+            TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].RemoveAt(0);
+            if (TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count != 0)
             {
                 UseCardManager.Instance.HandleImpeccable(cardManager);
             }
@@ -42,6 +51,7 @@ public class TipCardManager : MonoBehaviour
     {
         HighlightManager.DisableAllCards();
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
         if (cardManager != null)
         {
             switch (cardManager.CardAsset.SubTypeOfCard)
@@ -50,7 +60,7 @@ public class TipCardManager : MonoBehaviour
                 case SubTypeOfCards.Nanmanruqin:
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
                         UseCardManager.Instance.NeedToPlaySlash();
                     }
                     break;
@@ -58,19 +68,18 @@ public class TipCardManager : MonoBehaviour
                 case SubTypeOfCards.Wanjianqifa:
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
                         UseCardManager.Instance.NeedToPlayJinkNew(EventEnum.SlashNeedToPlayJink);
                     }
                     break;
                 //决斗
                 case SubTypeOfCards.Juedou:
                     {
-                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0]);
-
                         if (this.PlayCardOwner != null)
                         {
                             //Debug.Log("进来决斗了");
-                            if (this.PlayCardOwner.ID == TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0])
+                            //if (this.PlayCardOwner.ID == TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1][0])
+                            if (this.PlayCardOwner.ID == TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0])
                             {
                                 //Debug.Log("出牌是目标，高亮决斗出牌人");
                                 UseCardManager.Instance.NeedToPlaySlash(cardManager.Owner);
@@ -97,11 +106,11 @@ public class TipCardManager : MonoBehaviour
                     break;
                 //顺手牵羊
                 case SubTypeOfCards.Shunshouqianyang:
-                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.Shunshouqianyang);
+                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]), TargetCardsPanelType.Shunshouqianyang);
                     break;
                 //过河拆桥
                 case SubTypeOfCards.Guohechaiqiao:
-                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[0][0]), TargetCardsPanelType.GuoheChaiqiao);
+                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]), TargetCardsPanelType.GuoheChaiqiao);
                     break;
                 //五谷丰登
                 case SubTypeOfCards.Wugufengdeng:
@@ -121,7 +130,7 @@ public class TipCardManager : MonoBehaviour
                 case SubTypeOfCards.Taoyuanjieyi:
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
                         if (curTargetPlayer.Health < curTargetPlayer.PArea.Portrait.TotalHealth)
                         {
                             HealthManager.Instance.HealingEffect(1, curTargetPlayer);
@@ -146,7 +155,7 @@ public class TipCardManager : MonoBehaviour
                         else
                         {
                             int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                            Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                            //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
                             HighlightManager.ShowACards(curTargetPlayer);
                         }
                     }
@@ -155,7 +164,7 @@ public class TipCardManager : MonoBehaviour
                 case SubTypeOfCards.Tiesuolianhuan:
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
                         curTargetPlayer.IsInIronChain = !curTargetPlayer.IsInIronChain;
                         UseCardManager.Instance.FinishSettle();
                     }
@@ -163,7 +172,7 @@ public class TipCardManager : MonoBehaviour
                 case SubTypeOfCards.Wuzhongshengyou:
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                        Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
+                        //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
                         await curTargetPlayer.DrawSomeCards(2);
                         UseCardManager.Instance.FinishSettle();
                     }
@@ -197,8 +206,8 @@ public class TipCardManager : MonoBehaviour
             if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
             {
                 //结算完毕了借刀杀人的当前目标，需要移除
-                TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)].RemoveAt(0);
-                if (TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)].Count > 0)
+                TargetsManager.Instance.TargetsDic[jiedaosharenCard.UniqueCardID].RemoveAt(0);
+                if (TargetsManager.Instance.TargetsDic[jiedaosharenCard.UniqueCardID].Count > 0)
                 {
                     UseCardManager.Instance.HandleImpeccable(jiedaosharenCard);
                 }
@@ -224,7 +233,8 @@ public class TipCardManager : MonoBehaviour
     public async void GiveJiedaoSharenWeapon()
     {
         (bool hasJiedaosharen, OneCardManager jiedaosharenCard) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen);
-        int targetId = TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)][0];
+        //int targetId = TargetsManager.Instance.Targets[GlobalSettings.Instance.Table.CardIndexOnTable(jiedaosharenCard.UniqueCardID)][0];
+        int targetId = TargetsManager.Instance.TargetsDic[jiedaosharenCard.UniqueCardID][0];
         Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
         await targetPlayer.GiveWeaponToTargetWithCardType(jiedaosharenCard.Owner);
         //下一个目标
