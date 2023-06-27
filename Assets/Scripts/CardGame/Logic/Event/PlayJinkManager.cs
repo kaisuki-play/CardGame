@@ -16,23 +16,14 @@ public class PlayJinkManager : MonoBehaviour
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with attribute:" + cardAsset.SpellAttribute);
-        //if (TargetsManager.Instance.NeedToPlayJinkTargets.Count > 0)
-        //{
-        //    Debug.Log("无事发生");
-        //    TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
-        //    return;
-        //}
+
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
         //出闪之后的hook
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play card owner:" + playedCard.Owner.PArea.Owner);
-        await SkillManager.AfterPlayAJink(cardManager, playedCard.Owner);
-
+        Debug.Log("***********************************去结算需要出闪的事件***************************************************");
+        await SkillManager.AfterPlayAJinkBeforeSettle(cardManager, playedCard.Owner);
         await Task.WhenAll(playedCard.Owner.InvokeJinkEvent(true));
-
-        //if (cardManager != null)
-        //{
-        //    UseCardManager.Instance.FinishSettle();
-        //}
+        await SkillManager.AfterPlayAJink(cardManager, playedCard.Owner);
     }
 }

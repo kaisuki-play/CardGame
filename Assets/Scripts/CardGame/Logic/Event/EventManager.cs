@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 //事件类型
 public enum EventEnum
 {
-    SlashNeedToPlayJink,
-    SilverMoonNeedToPlayJink,
-    NeedToPlaySlash,
-    JiedaoSharenNeedToPlaySlash
+    SlashNeedToPlayJink,//需要应对杀的闪
+    SilverMoonNeedToPlayJink,//需要应对银月枪的闪
+    NeedToPlaySlash,//需要出杀
+    JiedaoSharenNeedToPlaySlash,//借刀杀人的杀
+    JuedouNeedToPlaySlash,//决斗杀
+    QinglongyanyuedaoNeedToPlaySlash,//青龙偃月刀追杀
 }
 
 //事件自定义传参
@@ -27,7 +29,11 @@ public class BoolTypeEventArgs : EventArgs
 //事件管理器
 public class EventManager : MonoBehaviour
 {
-    //给指定的玩家注册事件管理器
+    /// <summary>
+    /// 需要出闪的事件注册
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="eventEnum"></param>
     public static void RegisterNeedToPlayJinkEvent(Player player, EventEnum eventEnum)
     {
         switch (eventEnum)
@@ -91,6 +97,12 @@ public class EventManager : MonoBehaviour
             case EventEnum.JiedaoSharenNeedToPlaySlash:
                 player.NeedToPlaySlashEvent += HandleJiedaosharenNeedToPlaySlashEvent;
                 break;
+            case EventEnum.JuedouNeedToPlaySlash:
+                player.NeedToPlaySlashEvent += HandleJuedouNeedToPlaySlashEvent;
+                break;
+            case EventEnum.QinglongyanyuedaoNeedToPlaySlash:
+                player.NeedToPlaySlashEvent += HandleQinglongyanyuedaoNeedToPlaySlashEvent;
+                break;
         }
     }
 
@@ -124,6 +136,43 @@ public class EventManager : MonoBehaviour
         else
         {
             TipCardManager.Instance.GiveJiedaoSharenWeapon();
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    //决斗出杀
+    public static async Task HandleJuedouNeedToPlaySlashEvent(object sender, BoolTypeEventArgs e)
+    {
+        bool usedAJink = e.UsedAJink;
+        Player player = (Player)sender;
+        Debug.Log("决斗 触发事件 玩家:" + player.PArea.Owner);
+        if (usedAJink)
+        {
+            TipCardManager.Instance.PlayCardOwner = player;
+            TipCardManager.Instance.ActiveTipCard();
+        }
+        else
+        {
+            SettleManager.Instance.StartSettle(null, SpellAttribute.None, player);
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    //决斗出杀
+    public static async Task HandleQinglongyanyuedaoNeedToPlaySlashEvent(object sender, BoolTypeEventArgs e)
+    {
+        bool usedAJink = e.UsedAJink;
+        Player player = (Player)sender;
+        Debug.Log("决斗 触发事件 玩家:" + player.PArea.Owner);
+        if (usedAJink)
+        {
+            TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
+        }
+        else
+        {
+            HighlightManager.DisableAllOpButtons();
+            UseCardManager.Instance.BackToWhoseTurn();
+            TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
         }
         await TaskManager.Instance.DontAwait();
     }

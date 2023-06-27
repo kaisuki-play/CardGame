@@ -61,7 +61,7 @@ public class TipCardManager : MonoBehaviour
                     {
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
                         //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
-                        UseCardManager.Instance.NeedToPlaySlash();
+                        UseCardManager.Instance.NeedToPlaySlash(EventEnum.NeedToPlaySlash);
                     }
                     break;
                 //万箭齐发
@@ -82,27 +82,27 @@ public class TipCardManager : MonoBehaviour
                             if (this.PlayCardOwner.ID == TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0])
                             {
                                 //Debug.Log("出牌是目标，高亮决斗出牌人");
-                                UseCardManager.Instance.NeedToPlaySlash(cardManager.Owner);
-                                FixOpButton1Listener(cardManager.Owner);
+                                UseCardManager.Instance.NeedToPlaySlash(EventEnum.JuedouNeedToPlaySlash, cardManager.Owner);
+                                //FixOpButton1Listener(cardManager.Owner);
                             }
                             else
                             {
                                 //Debug.Log("出牌是决斗出牌人，高亮目标");
-                                UseCardManager.Instance.NeedToPlaySlash();
-                                FixOpButton1Listener(curTargetPlayer);
+                                UseCardManager.Instance.NeedToPlaySlash(EventEnum.JuedouNeedToPlaySlash);
+                                //FixOpButton1Listener(curTargetPlayer);
                             }
                         }
                         else
                         {
                             //Debug.Log("出牌是决斗出牌人，高亮目标");
-                            UseCardManager.Instance.NeedToPlaySlash();
-                            FixOpButton1Listener(curTargetPlayer);
+                            UseCardManager.Instance.NeedToPlaySlash(EventEnum.JuedouNeedToPlaySlash);
+                            //FixOpButton1Listener(curTargetPlayer);
                         }
                     }
                     break;
                 //借刀杀人
                 case SubTypeOfCards.Jiedaosharen:
-                    UseCardManager.Instance.NeedToPlaySlash(null, true);
+                    UseCardManager.Instance.NeedToPlaySlash(EventEnum.JiedaoSharenNeedToPlaySlash, null, true);
                     break;
                 //顺手牵羊
                 case SubTypeOfCards.Shunshouqianyang:
@@ -185,14 +185,30 @@ public class TipCardManager : MonoBehaviour
         await TaskManager.Instance.DontAwait();
     }
 
-    public void FixOpButton1Listener(Player targetPlayer)
+    //public void FixOpButton1Listener(Player targetPlayer)
+    //{
+    //    targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+    //    targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+    //    {
+    //        targetPlayer.ShowOp1Button = false;
+    //        SettleManager.Instance.StartSettle(null, SpellAttribute.None, targetPlayer);
+    //    });
+    //}
+
+    //出杀后借刀杀人取消当前目标
+    public async Task RemoveJiedaoSharenTarget(OneCardManager cardManager)
     {
-        targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+        (bool hasJiedaosharen, OneCardManager jiedaosharenCard) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen);
+        if (hasJiedaosharen)
         {
-            targetPlayer.ShowOp1Button = false;
-            SettleManager.Instance.StartSettle(null, SpellAttribute.None, targetPlayer);
-        });
+            if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
+            {
+
+                //结算完毕了借刀杀人的当前目标，需要移除
+                TargetsManager.Instance.TargetsDic[jiedaosharenCard.UniqueCardID].RemoveAt(0);
+                await GlobalSettings.Instance.Table.ClearAllCardsWithNoTargets();
+            }
+        }
     }
 
     /// <summary>
@@ -213,11 +229,14 @@ public class TipCardManager : MonoBehaviour
                 }
                 else
                 {
+                    Debug.Log("回到玩家回合");
                     UseCardManager.Instance.BackToWhoseTurn();
                 }
             }
             else
             {
+                //UseCardManager.Instance.BackToWhoseTurn();
+                Debug.Log("回到玩家回合");
                 UseCardManager.Instance.BackToWhoseTurn();
             }
             await TaskManager.Instance.ReturnException("走借刀杀人分支");

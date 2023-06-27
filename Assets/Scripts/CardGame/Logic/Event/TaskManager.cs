@@ -21,7 +21,9 @@ public enum TaskType
     RenwangdunTask,
     TengjiaTask,
     UnderCartTask,
-    QinglongyanyueTask
+    QinglongyanyueTask,
+    ThunderHarmerTask,
+    VictorySwordTask
 }
 public class TaskManager : MonoBehaviour
 {
@@ -36,6 +38,11 @@ public class TaskManager : MonoBehaviour
 
     public void AddATask(TaskType taskType)
     {
+        if (TaskManager.Instance.TaskBlockDic.ContainsKey(taskType))
+        {
+            Debug.Log("*************************之前有" + taskType);
+            TaskManager.Instance.TaskBlockDic[taskType].SetResult(true);
+        }
         TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
         TaskManager.Instance.TaskBlockDic[taskType] = tcs;
     }

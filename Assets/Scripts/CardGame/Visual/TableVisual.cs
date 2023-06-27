@@ -92,10 +92,6 @@ public class TableVisual : MonoBehaviour
     {
         GameObject card = CardsOnTable[index];
 
-        //CardsOnTable.RemoveAt(index);
-
-        //Debug.Log("结算完后的牌" + TargetsManager.Instance.Targets.Count);
-
         OneCardManager cardManager = card.GetComponent<OneCardManager>();
 
         TargetsManager.Instance.TargetsDic.Remove(cardManager.UniqueCardID);
@@ -133,6 +129,10 @@ public class TableVisual : MonoBehaviour
         await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
     }
 
+    /// <summary>
+    /// 清理所有没有目标的卡牌
+    /// </summary>
+    /// <returns></returns>
     public async Task ClearAllCardsWithNoTargets()
     {
         int i = 0;

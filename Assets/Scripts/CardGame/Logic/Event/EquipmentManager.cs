@@ -427,19 +427,22 @@ public class EquipmentManager : MonoBehaviour
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                 player.PArea.Portrait.ChangeOp2ButtonText("发动追杀");
-                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
                 {
                     HighlightManager.DisableAllOpButtons();
                     TargetsManager.Instance.DefaultTarget.Add(targetPlayer.ID);
                     //UseCardManager.Instance.BackToWhoseTurn();
-                    UseCardManager.Instance.NeedToPlaySlash(player);
-                    player.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-                    player.PArea.Portrait.OpButton1.onClick.AddListener(() =>
-                    {
-                        HighlightManager.DisableAllOpButtons();
-                        UseCardManager.Instance.BackToWhoseTurn();
-                        TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
-                    });
+                    //TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID].RemoveAt(0);
+                    //await GlobalSettings.Instance.Table.ClearAllCardsWithNoTargets();
+
+                    UseCardManager.Instance.NeedToPlaySlash(EventEnum.QinglongyanyuedaoNeedToPlaySlash, player);
+                    //player.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                    //player.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                    //{
+                    //    HighlightManager.DisableAllOpButtons();
+                    //    UseCardManager.Instance.BackToWhoseTurn();
+                    //    TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
+                    //});
                 });
 
                 player.ShowOp3Button = true;
@@ -1115,6 +1118,223 @@ public class EquipmentManager : MonoBehaviour
                 int cardId = TurnManager.Instance.whoseTurn.TreasureLogic.CardsInTreasure[0];
                 await player.DisACardFromTreasure(cardId);
             }
+        }
+    }
+
+    public async Task ActiveThunderHarmer(OneCardManager playedCard, Player targetPlayer)
+    {
+        Player player = playedCard.Owner;
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        if (hasEquipment)
+        {
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderHarmer)
+            {
+                Debug.Log("不解除");
+                TaskManager.Instance.AddATask(TaskType.ThunderHarmerTask);
+
+                HighlightManager.DisableAllOpButtons();
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("发动雷神之锤");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    SelectOneForThunderHarmer(player);
+                });
+
+                List<int> canAttackTargets = player.TargetsCanAttackForDistance(1);
+                if (canAttackTargets.Count == 0)
+                {
+                    player.PArea.Portrait.OpButton2.enabled = false;
+                }
+
+                player.ShowOp3Button = true;
+                player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp3Button2Text("不发动");
+                player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    TaskManager.Instance.UnBlockTask(TaskType.ThunderHarmerTask);
+                });
+
+                await TaskManager.Instance.TaskBlockDic[TaskType.ThunderHarmerTask].Task;
+            }
+            else
+            {
+                Debug.Log("解除");
+                player.ShowOp2Button = false;
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            player.ShowOp2Button = false;
+        }
+    }
+
+    public void SelectOneForThunderHarmer(Player player)
+    {
+        List<int> canAttackTargets = player.TargetsCanAttackForDistance(1);
+        foreach (int targetPlayerID in canAttackTargets)
+        {
+            if (targetPlayerID != player.ID)
+            {
+                Player tPlayer = GlobalSettings.Instance.FindPlayerByID(targetPlayerID);
+                tPlayer.ShowOp1Button = true;
+                tPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                tPlayer.PArea.Portrait.ChangeOp1ButtonText("选择溅射对象");
+                tPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                {
+                    SelectCardForThunderHarmer(player, tPlayer);
+                });
+            }
+        }
+    }
+
+    public void SelectCardForThunderHarmer(Player player, Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 1;
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
+        {
+            GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
+            List<int> relationCardIds = new List<int>();
+            OneCardManager thunderDamageCardManager = GlobalSettings.Instance.PDeck.DisguisedCardAssetWithType(player, SubTypeOfCards.ThunderSlash, relationCardIds, false);
+            SettleManager.Instance.StartSettle(thunderDamageCardManager, thunderDamageCardManager.CardAsset.SpellAttribute, targetPlayer);
+            TaskManager.Instance.UnBlockTask(TaskType.ThunderHarmerTask);
+        };
+
+        for (int i = player.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(player.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        for (int i = player.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(player.EquipmentLogic.CardsInEquipment[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+    }
+
+    /// <summary>
+    /// 胜利之剑
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public async Task VictorySwordHook(Player player, OneCardManager playedCard, Player targetPlayer)
+    {
+        TaskManager.Instance.AddATask(TaskType.CixiongShuangguTask);
+
+        Debug.Log("-------------------------------");
+        (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
+        Debug.Log("-------------------------------" + hasEquipment);
+        if (hasEquipment && (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
+            || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash
+            || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash))
+        {
+            //TODO 双武将 男男 男女判断
+            if (player.CharAsset.CharSex == targetPlayer.CharAsset.CharSex)
+            {
+                await TaskManager.Instance.DontAwait();
+                return;
+            }
+            if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.VictorySword)
+            {
+                Debug.Log("不解除");
+                HighlightManager.DisableAllCards();
+                HighlightManager.DisableAllOpButtons();
+                player.ShowOp1Button = true;
+                player.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp1ButtonText("发动胜利之剑");
+                player.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    HandleVictorySword(player, targetPlayer);
+                });
+
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("不发动");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    TaskManager.Instance.UnBlockTask(TaskType.VictorySwordTask);
+                });
+
+                try
+                {
+                    await TaskManager.Instance.TaskBlockDic[TaskType.VictorySwordTask].Task;
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log("task exception :" + ex);
+                }
+            }
+            else
+            {
+                Debug.Log("解除");
+                await TaskManager.Instance.DontAwait();
+            }
+        }
+        else
+        {
+            Debug.Log("解除");
+            await TaskManager.Instance.DontAwait();
+        }
+    }
+
+    /// 目标选择弃一张牌，或者让对方摸一张牌
+    public void HandleVictorySword(Player player, Player targetPlayer)
+    {
+        HighlightManager.DisableAllCards();
+        HighlightManager.DisableAllOpButtons();
+        targetPlayer.ShowOp1Button = true;
+        targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+        targetPlayer.PArea.Portrait.ChangeOp1ButtonText("弃一张牌");
+        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            DisCardForVictorySword(targetPlayer);
+        });
+
+        //若没有牌则不能选择弃一张牌
+        if (targetPlayer.Hand.CardsInHand.Count == 0)
+        {
+            targetPlayer.PArea.Portrait.OpButton1.enabled = false;
+        }
+
+        targetPlayer.ShowOp2Button = true;
+        targetPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+        targetPlayer.PArea.Portrait.ChangeOp2ButtonText("对方摸一张牌");
+        targetPlayer.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            await player.DrawSomeCards(1);
+            TaskManager.Instance.UnBlockTask(TaskType.VictorySwordTask);
+        });
+    }
+
+    /// 弃一张牌
+    public void DisCardForVictorySword(Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
+        {
+            GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
+            TaskManager.Instance.UnBlockTask(TaskType.VictorySwordTask);
+        };
+
+        for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
         }
     }
 

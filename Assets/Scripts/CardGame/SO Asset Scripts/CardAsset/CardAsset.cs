@@ -46,7 +46,9 @@ public enum SubTypeOfCards
     Dawan,//大宛
     Hualiu,//骅骝
     SilverMoon,//银月枪
-    Cart,//木流牛马
+    Cart,//木流牛马,
+    ThunderHarmer,//雷神之锤
+    VictorySword,//胜利之剑
 }
 
 public enum TypeOfEquipment

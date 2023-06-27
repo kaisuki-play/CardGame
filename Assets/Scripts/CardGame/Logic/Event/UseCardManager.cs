@@ -102,10 +102,6 @@ public class UseCardManager : MonoBehaviour
                 break;
         }
 
-        //这张牌变为pending后触发hook
-        //await SkillManager.AfterUsedCardPending(playedCard);
-        Debug.Log("----------------------------------------use a card phase 1------------------------------------------");
-
         //走第二步,增减目标
         HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
     }
@@ -212,6 +208,8 @@ public class UseCardManager : MonoBehaviour
                         case SubTypeOfCards.ThunderSlash:
                             {
                                 OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+
+                                await TipCardManager.Instance.RemoveJiedaoSharenTarget(cardManager);
                                 if (cardManager != null)
                                 {
                                     Debug.Log("需要出闪");
@@ -275,16 +273,18 @@ public class UseCardManager : MonoBehaviour
         if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
         {
             OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
-            TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].RemoveAt(0);
-            Debug.Log("还有几个牌" + TargetsManager.Instance.TargetsDic.Count);
-            Debug.Log("还有几个目标" + TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count);
+            if (TargetsManager.Instance.TargetsDic.ContainsKey(cardManager.UniqueCardID))
+            {
+                Debug.Log("还有几个牌" + TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count + " 什么牌" + cardManager.CardAsset.Suits + cardManager.CardAsset.CardRank);
+                TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].RemoveAt(0);
+                Debug.Log("还有几个牌" + TargetsManager.Instance.TargetsDic.Count);
+                Debug.Log("还有几个目标" + TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count);
+            }
+            else
+            {
+                await GlobalSettings.Instance.Table.ClearCards(cardManager.UniqueCardID);
+            }
         }
-        //if (TargetsManager.Instance.TargetsDic.Count > 0 && TargetsManager.Instance.TargetsDic[TargetsManager.Instance.Targets.Count - 1].Count > 0)
-        //{
-        //    TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1].RemoveAt(0);
-        //    Debug.Log("还有几个牌" + TargetsManager.Instance.Targets.Count);
-        //    Debug.Log("还有几个目标" + TargetsManager.Instance.Targets[TargetsManager.Instance.Targets.Count - 1]);
-        //}
         if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
         {
             //去除所有目标高亮
@@ -310,20 +310,14 @@ public class UseCardManager : MonoBehaviour
 
     public async void ActiveLastOneCardOnTable()
     {
-        try
+        if (GlobalSettings.Instance.Table.CardsOnTable.Count != 0)
         {
-            await TipCardManager.Instance.JiedaoSharenNextTarget();
-        }
-        catch (Exception ex)
-        {
-            Debug.Log(ex.Message);
-            return;
-        }
-        Debug.Log("不走借刀杀人分支");
-        OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
+            OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
-        Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
-        UseCardManager.Instance.HandleImpeccable(cardManager);
+            Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
+            UseCardManager.Instance.HandleImpeccable(cardManager);
+        }
+        await TaskManager.Instance.DontAwait();
     }
 
 
@@ -360,7 +354,7 @@ public class UseCardManager : MonoBehaviour
     /// <summary>
     /// 需要出杀
     /// </summary>
-    public async void NeedToPlaySlash(Player targetPlayer = null, bool isJiedaoSharen = false, bool needTarget = false)
+    public async void NeedToPlaySlash(EventEnum eventEnum, Player targetPlayer = null, bool needTarget = false)
     {
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
@@ -371,26 +365,21 @@ public class UseCardManager : MonoBehaviour
             targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetId);
         }
 
+        //给需要出杀的玩家 注册需要出杀事件，若出了闪则取消，不出杀则触发事件
+        EventManager.RegisterNeedToPlaySlashEvent(targetPlayer, eventEnum);
+
         //需要出一张杀触发的hook
         await SkillManager.NeedToPlaySlash(targetPlayer, needTarget);
 
         //高亮目标的杀
-        HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Slash, needTargetComponent: isJiedaoSharen || needTarget);
+        HighlightManager.EnableCardWithCardType(targetPlayer, SubTypeOfCards.Slash, needTargetComponent: needTarget);
         targetPlayer.ShowOp1Button = true;
         targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
         {
             Debug.Log("dont play slash~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             targetPlayer.ShowOp1Button = false;
-            //借刀杀人需要处理
-            if (isJiedaoSharen)
-            {
-                TipCardManager.Instance.GiveJiedaoSharenWeapon();
-            }
-            else
-            {
-                SettleManager.Instance.StartSettle();
-            }
+            await targetPlayer.InvokeSlashEvent(false);
         });
     }
 
@@ -398,9 +387,9 @@ public class UseCardManager : MonoBehaviour
     {
         HighlightManager.DisableAllTargetsGlow();
         HighlightManager.DisableAllCards();
-        HighlightManager.DisableAllOpButtons();
         await GlobalSettings.Instance.Table.ClearAllCardsWithNoTargets();
         TargetsManager.Instance.SpecialTarget.Clear();
+        HighlightManager.DisableAllOpButtons();
         HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
     }
 

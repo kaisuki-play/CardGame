@@ -189,6 +189,72 @@ public class Player : MonoBehaviour
             distanceCanTouch = cardManager.CardAsset.WeaponAttackDistance;
         }
 
+        //int currentIndex = 0;
+        //int targetIndex = 0;
+        //for (int i = 0; i < GlobalSettings.Instance.PlayerInstances.Length; i++)
+        //{
+        //    if (GlobalSettings.Instance.PlayerInstances[i].ID == this.ID)
+        //    {
+        //        currentIndex = i;
+        //    }
+        //    if (GlobalSettings.Instance.PlayerInstances[i].ID == targetID)
+        //    {
+        //        targetIndex = i;
+        //    }
+        //}
+
+        //int distance = 0;
+        //int distanceReverse = 0;
+        //if (targetIndex > currentIndex)
+        //{
+        //    distance = currentIndex + (GlobalSettings.Instance.PlayerInstances.Length - targetIndex);
+        //}
+        //else
+        //{
+        //    distance = currentIndex - targetIndex;
+        //}
+
+        //if (targetIndex > currentIndex)
+        //{
+        //    distanceReverse = targetIndex - currentIndex;
+        //}
+        //else
+        //{
+        //    distanceReverse = targetIndex + (GlobalSettings.Instance.PlayerInstances.Length - currentIndex);
+        //}
+
+        //int dis = CalculateDistance(targetPlayer, distance);
+        //int disR = CalculateDistance(targetPlayer, distanceReverse);
+        (int dis, int disR) = DistanceInfo(targetPlayer);
+
+        Debug.Log("dis: " + dis + " disR: " + disR + " distanceCanTouch: " + distanceCanTouch);
+
+        if (dis <= distanceCanTouch || disR <= distanceCanTouch)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public List<int> TargetsCanAttackForDistance(int distance)
+    {
+        List<int> targets = new List<int>();
+        foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+        {
+            (int dis, int disR) = DistanceInfo(player);
+            if (dis <= distance || disR <= distance)
+            {
+                targets.Add(player.ID);
+            }
+        }
+        return targets;
+    }
+
+    public (int dis, int disR) DistanceInfo(Player targetPlayer)
+    {
         int currentIndex = 0;
         int targetIndex = 0;
         for (int i = 0; i < GlobalSettings.Instance.PlayerInstances.Length; i++)
@@ -197,7 +263,7 @@ public class Player : MonoBehaviour
             {
                 currentIndex = i;
             }
-            if (GlobalSettings.Instance.PlayerInstances[i].ID == targetID)
+            if (GlobalSettings.Instance.PlayerInstances[i].ID == targetPlayer.ID)
             {
                 targetIndex = i;
             }
@@ -225,17 +291,7 @@ public class Player : MonoBehaviour
 
         int dis = CalculateDistance(targetPlayer, distance);
         int disR = CalculateDistance(targetPlayer, distanceReverse);
-
-        Debug.Log("dis: " + dis + " disR: " + disR + " distanceCanTouch: " + distanceCanTouch);
-
-        if (dis <= distanceCanTouch || disR <= distanceCanTouch)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (dis, disR);
     }
 
     /// <summary>

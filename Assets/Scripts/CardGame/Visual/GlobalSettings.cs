@@ -157,4 +157,20 @@ public class GlobalSettings : MonoBehaviour
             return null;
         }
     }
+
+    /// <summary>
+    /// 场上无操作按钮
+    /// </summary>
+    /// <returns></returns>
+    public bool AllOpButtonIsHidden()
+    {
+        foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+        {
+            if (player.ShowOp1Button || player.ShowOp2Button || player.ShowOp3Button)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 }

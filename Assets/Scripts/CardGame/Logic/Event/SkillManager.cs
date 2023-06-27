@@ -128,6 +128,9 @@ public class SkillManager : MonoBehaviour
                 case SubTypeOfCards.CixiongDoubleSwards:
                     await EquipmentManager.Instance.CixiongHook(playedCard.Owner, playedCard, GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID][0]));
                     break;
+                case SubTypeOfCards.VictorySword:
+                    await EquipmentManager.Instance.VictorySwordHook(playedCard.Owner, playedCard, GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID][0]));
+                    break;
                 case SubTypeOfCards.Qinghongjian:
                     await EquipmentManager.Instance.QinggangjianHook(playedCard.Owner);
                     break;
@@ -234,6 +237,29 @@ public class SkillManager : MonoBehaviour
                     break;
                 case SubTypeOfCards.Qinglongyanyuedao:
                     await EquipmentManager.Instance.QinglongyanyueHook(playedCard, targetPlayer);
+                    break;
+                default:
+                    UseCardManager.Instance.FinishSettle();
+                    await TaskManager.Instance.DontAwait();
+                    break;
+            }
+        }
+        else
+        {
+            await TaskManager.Instance.DontAwait();
+        }
+
+    }
+
+    public static async Task AfterPlayAJinkBeforeSettle(OneCardManager playedCard, Player targetPlayer)
+    {
+        (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
+        if (hasWeapon)
+        {
+            switch (weaponCard.CardAsset.SubTypeOfCard)
+            {
+                case SubTypeOfCards.Guanshifu:
+                    await EquipmentManager.Instance.GuanshifuHook(playedCard, targetPlayer);
                     break;
                 default:
                     UseCardManager.Instance.FinishSettle();
@@ -532,6 +558,10 @@ public class SkillManager : MonoBehaviour
                             await EquipmentManager.Instance.ActiveQilingong(playedCard, targetPlayer);
                         }
                     }
+                    break;
+                case SubTypeOfCards.ThunderHarmer:
+                    Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 雷神之锤触发");
+                    await EquipmentManager.Instance.ActiveThunderHarmer(playedCard, targetPlayer);
                     break;
             }
         }

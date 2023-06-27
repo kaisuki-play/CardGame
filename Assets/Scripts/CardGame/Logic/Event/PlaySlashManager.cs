@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class PlaySlashManager : MonoBehaviour
 {
@@ -17,20 +18,20 @@ public class PlaySlashManager : MonoBehaviour
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with attribute:" + cardAsset.SpellAttribute);
         OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
-        if (cardManager != null)
-        {
-            switch (cardManager.CardAsset.SubTypeOfCard)
-            {
-                case SubTypeOfCards.Juedou:
-                    TipCardManager.Instance.PlayCardOwner = playedCard.Owner;
-                    TipCardManager.Instance.ActiveTipCard();
-                    break;
-                default:
-                    //结束当前目标结算
-                    UseCardManager.Instance.FinishSettle();
-                    break;
-            }
-        }
-        await TaskManager.Instance.DontAwait();
+        //if (cardManager != null)
+        //{
+        //    switch (cardManager.CardAsset.SubTypeOfCard)
+        //    {
+        //        case SubTypeOfCards.Juedou:
+        //            TipCardManager.Instance.PlayCardOwner = playedCard.Owner;
+        //            TipCardManager.Instance.ActiveTipCard();
+        //            break;
+        //        default:
+        //            //结束当前目标结算
+        //            UseCardManager.Instance.FinishSettle();
+        //            break;
+        //    }
+        //}
+        await Task.WhenAll(playedCard.Owner.InvokeSlashEvent(true));
     }
 }
