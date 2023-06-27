@@ -103,11 +103,11 @@ public class UseCardManager : MonoBehaviour
         }
 
         //这张牌变为pending后触发hook
-        await SkillManager.AfterUsedCardPending(playedCard);
+        //await SkillManager.AfterUsedCardPending(playedCard);
         Debug.Log("----------------------------------------use a card phase 1------------------------------------------");
 
-        //增减目标
-        UseCardManager.Instance.HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
+        //走第二步,增减目标
+        HandleTargets(playedCard, playedCard.TargetsPlayerIDs, playedCard.SpecialTargetPlayerIDs);
     }
 
     // 2
@@ -381,8 +381,6 @@ public class UseCardManager : MonoBehaviour
                 SettleManager.Instance.StartSettle();
             }
         });
-
-
     }
 
     public async void BackToWhoseTurn()

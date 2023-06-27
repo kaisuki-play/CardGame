@@ -17,53 +17,32 @@ public class SkillManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 获得牌
+    /// 牌的位置发生变动
     /// </summary>
     /// <param name="cardManager"></param>
     /// <param name="oldPlayer"></param>
     /// <returns></returns>
-    public static async Task GetACard(OneCardManager cardManager, Player newOwner, Player oldOwner, CardLocation newLocation, CardLocation oldLocation)
+    public static async Task CardLocationChanged(OneCardManager cardManager, Player newOwner, Player oldOwner, CardLocation newLocation, CardLocation oldLocation)
     {
         if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Equipment)
         {
-            if ((oldLocation != CardLocation.Equipment && newLocation == CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
-            {
-                await SkillManager.GetEquipment(cardManager);
-            }
-        }
-        switch (cardManager.CardAsset.SubTypeOfCard)
-        {
-            case SubTypeOfCards.Cart:
-                {
-                    EquipmentManager.Instance.CartHook(cardManager.Owner);
-                }
-                break;
+            await SkillManager.HandleEquipmentMove(cardManager, newOwner, oldOwner, newLocation, oldLocation);
         }
     }
 
-    /// <summary>
-    /// 失去牌
-    /// </summary>
-    /// <param name="cardManager"></param>
-    /// <param name="oldPlayer"></param>
-    /// <returns></returns>
-    public static async Task LooseACard(OneCardManager cardManager, Player newOwner, Player oldOwner, CardLocation newLocation, CardLocation oldLocation)
+    public static async Task HandleEquipmentMove(OneCardManager cardManager, Player newOwner, Player oldOwner, CardLocation newLocation, CardLocation oldLocation)
     {
-        if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Equipment)
+        //情况1，牌从不是装备区的牌到装备区
+        //情况2，互换装备，卡牌的Owner不再是原来的主人 TODO之后进pending就不需要了
+        if ((oldLocation != CardLocation.Equipment && newLocation == CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
         {
-            if ((oldLocation == CardLocation.Equipment && newLocation != CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
-            {
-                await SkillManager.LooseEquipment(cardManager, oldOwner);
-            }
+            await SkillManager.GetEquipment(cardManager);
         }
-        switch (cardManager.CardAsset.SubTypeOfCard)
+        else if ((oldLocation == CardLocation.Equipment && newLocation != CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
         {
-            case SubTypeOfCards.Cart:
-                {
-                    EquipmentManager.Instance.CartDisHook(oldOwner, cardManager);
-                }
-                break;
+            await SkillManager.LooseEquipment(cardManager, oldOwner);
         }
+        await TaskManager.Instance.DontAwait();
     }
 
     /// <summary>
@@ -89,6 +68,11 @@ public class SkillManager : MonoBehaviour
                 break;
             case SubTypeOfCards.Qinghongjian:
                 cardManager.Owner.IgnoreArmor = true;
+                break;
+            case SubTypeOfCards.Cart:
+                {
+                    EquipmentManager.Instance.CartHook(cardManager.Owner);
+                }
                 break;
         }
         await TaskManager.Instance.DontAwait();
@@ -119,74 +103,15 @@ public class SkillManager : MonoBehaviour
             case SubTypeOfCards.Qinghongjian:
                 cardManager.Owner.IgnoreArmor = false;
                 break;
+            case SubTypeOfCards.Cart:
+                {
+                    EquipmentManager.Instance.CartDisHook(oldPlayer, cardManager);
+                }
+                break;
         }
         await TaskManager.Instance.DontAwait();
     }
-    ///// <summary>
-    ///// 装备移动
-    ///// </summary>
-    ///// <param name="newOwner"></param>
-    ///// <param name="oldOwner"></param>
-    ///// <param name="newLocation"></param>
-    ///// <param name="oldLocation"></param>
-    ///// <param name="cardManager"></param>
-    //public static void HandleEquipmentMove(Player newOwner, Player oldOwner, CardLocation newLocation, CardLocation oldLocation, OneCardManager cardManager)
-    //{
-    //    Debug.Log("new: " + newLocation + " old: " + oldLocation);
-    //    if (TurnManager.Instance.whoseTurn == null)
-    //    {
-    //        return;
-    //    }
-    //    switch (cardManager.CardAsset.SubTypeOfCard)
-    //    {
-    //        case SubTypeOfCards.Zhugeliannu:
-    //            {
-    //                //情况1，牌从不是装备区的牌到装备区
-    //                //情况2，互换装备，卡牌的Owner不再是原来的主人 TODO之后进pending就不需要了
-    //                if ((oldLocation != CardLocation.Equipment && newLocation == CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
-    //                {
-    //                    EquipmentManager.Instance.ZhugeliannuHook(newOwner);
-    //                }
-    //                else
-    //                {
-    //                    //情况1，失去装备区的装备,卡牌的位置不再是装备区
-    //                    //情况2，互换装备，卡牌的Owner不再是原来的主人 TODO之后进pending就不需要了
-    //                    if ((oldLocation == CardLocation.Equipment && newLocation != CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
-    //                    {
-    //                        EquipmentManager.Instance.ZhugeliannuDisHook(oldOwner, cardManager);
-    //                    }
-    //                }
-    //            }
-    //            break;
-    //        case SubTypeOfCards.Zhangbashemao:
-    //            {
-    //                EquipmentManager.Instance.ZhangbashemaoHook(newOwner, true);
-    //            }
-    //            break;
-    //        case SubTypeOfCards.Qinghongjian:
-    //            if ((oldLocation == CardLocation.Equipment && newLocation != CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
-    //            {
-    //                oldOwner.IgnoreArmor = false;
-    //            }
-    //            break;
-    //        case SubTypeOfCards.Cart:
-    //            {
-    //                if ((oldLocation != CardLocation.Equipment && newLocation == CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
-    //                {
-    //                    if (oldOwner != null)
-    //                    {
-    //                        oldOwner.HasTreasure = false;
-    //                    }
-    //                    EquipmentManager.Instance.CartHook(newOwner);
-    //                }
-    //                else if ((oldLocation == CardLocation.Equipment && newLocation != CardLocation.Equipment) || (oldOwner != null && oldOwner != newOwner && (oldLocation == CardLocation.Equipment && newLocation == CardLocation.Equipment)))
-    //                {
-    //                    EquipmentManager.Instance.CartDisHook(oldOwner, cardManager);
-    //                }
-    //            }
-    //            break;
-    //    }
-    //}
+
 
     /// <summary>
     /// 1-7 第四步

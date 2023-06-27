@@ -147,29 +147,28 @@ public class OneCardManager : MonoBehaviour
         {
             case CardLocation.DisDeck:
                 {
+                    //到弃牌堆之后 清理pending数组，新增弃牌堆数组
                     GlobalSettings.Instance.Table.CardsOnTable.Remove(this.gameObject);
                     GlobalSettings.Instance.DisDeck.DisDeckCards.Add(this.gameObject);
                 }
                 break;
             case CardLocation.Table:
                 {
+                    //卡牌到pending后触发
                     await SkillManager.AfterUsedCardPending(this);
                 }
                 break;
         }
-        if (this.Owner != null)
-        {
-            await SkillManager.LooseACard(this, owner, this.Owner, cardLocation, this.CardLocation);
-            await SkillManager.GetACard(this, owner, this.Owner, cardLocation, this.CardLocation);
-        }
-        else
-        {
-            await SkillManager.GetACard(this, owner, this.Owner, cardLocation, this.CardLocation);
-        }
+
+        await SkillManager.CardLocationChanged(this, owner, this.Owner, cardLocation, this.CardLocation);
 
         if (this.CardLocation == CardLocation.Equipment && cardLocation != CardLocation.Equipment)
         {
-            Vector3 newScale = new Vector3(200, 200, 1f); // 设置为 (2, 2, 2) 的比例
+            Vector3 newScale = new Vector3(1, 1, 1f);
+            if (cardLocation == CardLocation.DisDeck)
+            {
+                newScale = new Vector3(200, 200, 1f);
+            }
             this.gameObject.transform.localScale = newScale;
         }
         this.Owner = owner;

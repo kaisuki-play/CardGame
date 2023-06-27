@@ -74,7 +74,10 @@ public class CounterManager : MonoBehaviour
             || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash
             || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash)
         {
-            CounterManager.Instance.SlashCount++;
+            if (playedCard.Owner.ID == TurnManager.Instance.whoseTurn.ID)
+            {
+                CounterManager.Instance.SlashCount++;
+            }
         }
     }
 

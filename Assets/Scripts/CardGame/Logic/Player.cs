@@ -44,7 +44,8 @@ public class Player : MonoBehaviour
     public Treasure TreasureLogic;
 
     //public event EventHandler<NeedToPlayJinkEventArgs> NeedToPlayJinkEvent;
-    public event Func<object, NeedToPlayJinkEventArgs, Task> NeedToPlayJinkEvent;
+    public event Func<object, BoolTypeEventArgs, Task> NeedToPlayJinkEvent;
+    public event Func<object, BoolTypeEventArgs, Task> NeedToPlaySlashEvent;
 
     //是否忽视防具
     public bool IgnoreArmor = false;
@@ -894,15 +895,29 @@ public class Player : MonoBehaviour
 
     //事件相关
     /// <summary>
-    /// 触发闪的事件
+    /// 触发需要打出闪的事件
     /// </summary>
-    public async Task InvokeJinkEvent(bool usedAJink)
+    public async Task InvokeJinkEvent(bool UsedA)
     {
         if (NeedToPlayJinkEvent != null)
         {
-            var eventArgs = new NeedToPlayJinkEventArgs(usedAJink);
+            var eventArgs = new BoolTypeEventArgs(UsedA);
             await Task.WhenAll(NeedToPlayJinkEvent.Invoke(this, eventArgs));
             NeedToPlayJinkEvent = null;
+        }
+    }
+
+    //事件相关
+    /// <summary>
+    /// 触发需要打出杀的事件
+    /// </summary>
+    public async Task InvokeSlashEvent(bool UsedA)
+    {
+        if (NeedToPlaySlashEvent != null)
+        {
+            var eventArgs = new BoolTypeEventArgs(UsedA);
+            await Task.WhenAll(NeedToPlaySlashEvent.Invoke(this, eventArgs));
+            NeedToPlaySlashEvent = null;
         }
     }
 }

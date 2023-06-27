@@ -74,7 +74,10 @@ public class EquipmentManager : MonoBehaviour
             if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Zhugeliannu)
             {
                 Debug.Log("诸葛连弩生效");
-                CounterManager.Instance.SlashLimit += 10;
+                if (player.ID == TurnManager.Instance.whoseTurn.ID)
+                {
+                    CounterManager.Instance.SlashLimit += 10;
+                }
             }
             if (player.ID == TurnManager.Instance.whoseTurn.ID)
             {
@@ -89,7 +92,10 @@ public class EquipmentManager : MonoBehaviour
         if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Zhugeliannu)
         {
             Debug.Log("诸葛连弩失效");
-            CounterManager.Instance.SlashLimit -= 10;
+            if (player.ID == TurnManager.Instance.whoseTurn.ID)
+            {
+                CounterManager.Instance.SlashLimit -= 10;
+            }
         }
         if (player.ID == TurnManager.Instance.whoseTurn.ID)
         {
