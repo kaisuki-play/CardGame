@@ -20,7 +20,8 @@ public enum TaskType
     BaguazhenTask,
     RenwangdunTask,
     TengjiaTask,
-    UnderCartTask
+    UnderCartTask,
+    QinglongyanyueTask
 }
 public class TaskManager : MonoBehaviour
 {

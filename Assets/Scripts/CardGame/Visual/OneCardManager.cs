@@ -156,6 +156,7 @@ public class OneCardManager : MonoBehaviour
                 {
                     //卡牌到pending后触发
                     await SkillManager.AfterUsedCardPending(this);
+                    Debug.Log("----------------------------pending checkpoint完成 继续往下走-----------------------------");
                 }
                 break;
         }

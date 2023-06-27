@@ -184,8 +184,8 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(ThunderAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(WanjianqifaAsset, CardSuits.Spades, CardRank.Rank_A);
+        InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A);
+        //InsertNewCardAsset(WanjianqifaAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, 4);
 
@@ -193,7 +193,7 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(GuohechaiqiaoAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(LbssAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(BlcdAsset, CardSuits.Spades, CardRank.Rank_A);
-        InsertNewCardAsset(ZhugeliannuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, ZhugeliannuAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(ZhugeliannuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, ZhugeliannuAsset.WeaponAttackDistance);
         //InsertNewCardAsset(CixiongAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, CixiongAsset.WeaponAttackDistance);
         //InsertNewCardAsset(GuanshifuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, GuanshifuAsset.WeaponAttackDistance);
         //InsertNewCardAsset(QinggangjianAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, QinggangjianAsset.WeaponAttackDistance);
@@ -204,7 +204,7 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(FrostBladeAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, FrostBladeAsset.WeaponAttackDistance);
         //InsertNewCardAsset(QilingongAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, QilingongAsset.WeaponAttackDistance);
         //InsertNewCardAsset(DiluAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.AddAHorse);
-        //InsertNewCardAsset(SilverMoonAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Weapons, SilverMoonAsset.WeaponAttackDistance);
+        InsertNewCardAsset(SilverMoonAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Weapons, SilverMoonAsset.WeaponAttackDistance);
         //InsertNewCardAsset(BaguazhenAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
         //InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
         //InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);

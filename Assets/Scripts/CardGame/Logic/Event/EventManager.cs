@@ -63,7 +63,7 @@ public class EventManager : MonoBehaviour
     {
         bool usedAJink = e.UsedAJink;
         Player player = (Player)sender;
-        Debug.Log("触发事件 玩家:" + player.PArea.Owner);
+        Debug.Log("触发事件 玩家:" + player.PArea.Owner + usedAJink);
         if (usedAJink)
         {
             TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
@@ -71,6 +71,7 @@ public class EventManager : MonoBehaviour
         else
         {
             await LooseHealthManager.LooseHealth(player, 1);
+            TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
         }
         await TaskManager.Instance.DontAwait();
     }

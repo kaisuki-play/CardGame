@@ -421,6 +421,7 @@ public class EquipmentManager : MonoBehaviour
         {
             if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Qinglongyanyuedao)
             {
+                TaskManager.Instance.AddATask(TaskType.QinglongyanyueTask);
                 Debug.Log("不解除");
                 HighlightManager.DisableAllOpButtons();
                 player.ShowOp2Button = true;
@@ -430,13 +431,14 @@ public class EquipmentManager : MonoBehaviour
                 {
                     HighlightManager.DisableAllOpButtons();
                     TargetsManager.Instance.DefaultTarget.Add(targetPlayer.ID);
-                    UseCardManager.Instance.BackToWhoseTurn();
+                    //UseCardManager.Instance.BackToWhoseTurn();
                     UseCardManager.Instance.NeedToPlaySlash(player);
                     player.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
                     player.PArea.Portrait.OpButton1.onClick.AddListener(() =>
                     {
                         HighlightManager.DisableAllOpButtons();
                         UseCardManager.Instance.BackToWhoseTurn();
+                        TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
                     });
                 });
 
@@ -447,7 +449,9 @@ public class EquipmentManager : MonoBehaviour
                 {
                     HighlightManager.DisableAllOpButtons();
                     UseCardManager.Instance.BackToWhoseTurn();
+                    TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
                 });
+                await TaskManager.Instance.TaskBlockDic[TaskType.QinglongyanyueTask].Task;
             }
             else
             {
