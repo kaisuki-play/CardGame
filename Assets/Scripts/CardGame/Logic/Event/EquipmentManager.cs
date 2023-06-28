@@ -110,8 +110,14 @@ public class EquipmentManager : MonoBehaviour
     /// <param name="playedCard"></param>
     /// <param name="targetPlayer"></param>
     /// <returns></returns>
-    public async Task CixiongHook(Player player, OneCardManager playedCard, Player targetPlayer)
+    public async Task CixiongHook(Player player, OneCardManager playedCard)
     {
+        if (GlobalSettings.Instance.Table.CardsOnTable.Count == 0)
+        {
+            await TaskManager.Instance.DontAwait();
+            return;
+        }
+        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID][0]);
         TaskManager.Instance.AddATask(TaskType.CixiongShuangguTask);
 
         Debug.Log("-------------------------------");
@@ -1226,9 +1232,16 @@ public class EquipmentManager : MonoBehaviour
     /// <param name="playedCard"></param>
     /// <param name="targetPlayer"></param>
     /// <returns></returns>
-    public async Task VictorySwordHook(Player player, OneCardManager playedCard, Player targetPlayer)
+    public async Task VictorySwordHook(Player player, OneCardManager playedCard)
     {
-        TaskManager.Instance.AddATask(TaskType.CixiongShuangguTask);
+        if (GlobalSettings.Instance.Table.CardsOnTable.Count == 0)
+        {
+            await TaskManager.Instance.DontAwait();
+            return;
+        }
+        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID][0]);
+
+        TaskManager.Instance.AddATask(TaskType.VictorySwordTask);
 
         Debug.Log("-------------------------------");
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
@@ -1289,34 +1302,35 @@ public class EquipmentManager : MonoBehaviour
     }
 
     /// 目标选择弃一张牌，或者让对方摸一张牌
-    public void HandleVictorySword(Player player, Player targetPlayer)
+    public async void HandleVictorySword(Player player, Player targetPlayer)
     {
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
-        targetPlayer.ShowOp1Button = true;
-        targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-        targetPlayer.PArea.Portrait.ChangeOp1ButtonText("弃一张牌");
-        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+
+        //翻卡牌
+        //红色武器持有者摸一张牌
+        //黑色被杀目标要弃一张
+        OneCardManager flopedCard = await TurnManager.Instance.whoseTurn.FlopCard();
+        Debug.Log("翻出卡牌的花色:" + flopedCard.CardAsset.Suits);
+        if (flopedCard.CardAsset.Suits == CardSuits.Spades || flopedCard.CardAsset.Suits == CardSuits.Clubs)
         {
             HighlightManager.DisableAllOpButtons();
-            DisCardForVictorySword(targetPlayer);
-        });
-
-        //若没有牌则不能选择弃一张牌
-        if (targetPlayer.Hand.CardsInHand.Count == 0)
-        {
-            targetPlayer.PArea.Portrait.OpButton1.enabled = false;
+            //若没有牌则不能选择弃一张牌
+            if (targetPlayer.Hand.CardsInHand.Count == 0)
+            {
+                TaskManager.Instance.UnBlockTask(TaskType.VictorySwordTask);
+            }
+            else
+            {
+                DisCardForVictorySword(targetPlayer);
+            }
         }
-
-        targetPlayer.ShowOp2Button = true;
-        targetPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
-        targetPlayer.PArea.Portrait.ChangeOp2ButtonText("对方摸一张牌");
-        targetPlayer.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        else
         {
             HighlightManager.DisableAllOpButtons();
             await player.DrawSomeCards(1);
             TaskManager.Instance.UnBlockTask(TaskType.VictorySwordTask);
-        });
+        }
     }
 
     /// 弃一张牌

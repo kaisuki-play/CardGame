@@ -126,10 +126,10 @@ public class SkillManager : MonoBehaviour
             switch (weaponCard.CardAsset.SubTypeOfCard)
             {
                 case SubTypeOfCards.CixiongDoubleSwards:
-                    await EquipmentManager.Instance.CixiongHook(playedCard.Owner, playedCard, GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID][0]));
+                    await EquipmentManager.Instance.CixiongHook(playedCard.Owner, playedCard);
                     break;
                 case SubTypeOfCards.VictorySword:
-                    await EquipmentManager.Instance.VictorySwordHook(playedCard.Owner, playedCard, GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID][0]));
+                    await EquipmentManager.Instance.VictorySwordHook(playedCard.Owner, playedCard);
                     break;
                 case SubTypeOfCards.Qinghongjian:
                     await EquipmentManager.Instance.QinggangjianHook(playedCard.Owner);
