@@ -436,7 +436,7 @@ public class EquipmentManager : MonoBehaviour
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                 player.PArea.Portrait.ChangeOp2ButtonText("发动追杀");
-                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                 {
                     Debug.Log("之前是否有阻塞~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskManager.Instance.TaskBlockDic.ContainsKey(TaskType.QinglongyanyueTask));
                     if (TaskManager.Instance.TaskBlockDic.ContainsKey(TaskType.QinglongyanyueTask))
@@ -1125,6 +1125,12 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 雷神之锤
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
     public async Task ActiveThunderHarmer(OneCardManager playedCard, Player targetPlayer)
     {
         Player player = playedCard.Owner;

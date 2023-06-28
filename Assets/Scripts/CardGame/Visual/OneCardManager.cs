@@ -123,7 +123,7 @@ public class OneCardManager : MonoBehaviour
             case CardRank.Rank_K:
                 return "K";
             default:
-                return "A";
+                return "None";
         }
     }
 

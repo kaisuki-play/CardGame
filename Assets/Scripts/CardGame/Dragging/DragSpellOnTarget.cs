@@ -29,7 +29,8 @@ public class DragSpellOnTarget : DraggingActions
             //return true;
 
             // TODO : include full field check
-            return _manager.CanBePlayedNow;
+            //return _manager.CanBePlayedNow;
+            return true;
         }
     }
 
@@ -176,6 +177,13 @@ public class DragSpellOnTarget : DraggingActions
 
     public override async void OnEndDrag()
     {
+        if (!_manager.CanBePlayedNow)
+        {
+            ResetTriangleTargetComponent();
+            await CheckCart();
+            return;
+        }
+
         HandVisual PlayerHand = _playerOwner.PArea.HandVisual;
         _target = null;
         RaycastHit[] hits;
@@ -245,23 +253,22 @@ public class DragSpellOnTarget : DraggingActions
                     Debug.LogWarning("Reached default case in DragSpellOnTarget! Suspicious behaviour!!");
                     break;
             }
-        }
+            if (!targetValid)
+            {
+                // not a valid target, return
+                _whereIsThisCard.SetHandSortingOrder();
 
-        if (!targetValid)
+                // Move this card back to its slot position
+                PlayerHand.PlaceCardsOnNewSlots();
+            }
+        }
+        else
         {
-            // not a valid target, return
-            _whereIsThisCard.SetHandSortingOrder();
-
-            // Move this card back to its slot position
-            PlayerHand.PlaceCardsOnNewSlots();
+            ResetTriangleTargetComponent();
+            await CheckCart();
         }
 
-        // return target and arrow to original position
-        // this position is special for spell cards to show the arrow on top
-        transform.localPosition = new Vector3(0f, 0f, -1f);
-        _sr.enabled = false;
-        _lr.enabled = false;
-        _triangleSR.enabled = false;
+        ResetTriangleTargetComponent();
     }
 
     public async Task UseSpellCard(bool targetValid, int targetID)
@@ -316,6 +323,42 @@ public class DragSpellOnTarget : DraggingActions
         else
         {
             return true;
+        }
+    }
+
+    public void ResetTriangleTargetComponent()
+    {
+        // return target and arrow to original position
+        // this position is special for spell cards to show the arrow on top
+        transform.localPosition = new Vector3(0f, 0f, -1f);
+        _sr.enabled = false;
+        _lr.enabled = false;
+        _triangleSR.enabled = false;
+    }
+
+    public async Task CheckCart()
+    {
+        if (TurnManager.Instance.whoseTurn == null)
+        {
+            return;
+        }
+        if (TurnManager.Instance.whoseTurn.PArea.TreasureVisual.CursorOverTreasure)
+        {
+            if (_manager.Owner.HasTreasure && CounterManager.Instance.UnderCartCount < CounterManager.Instance.UnderCartLimit)
+            {
+                Debug.Log("木流牛马的专柜");
+                CounterManager.Instance.UnderCartCount++;
+                //把指定的牌给木流牛马
+                await _manager.Owner.GiveAssignCardToTreasure(_manager.UniqueCardID);
+            }
+            else
+            {
+                Debug.Log("你没有木流牛马");
+            }
+        }
+        else
+        {
+            Debug.Log("木流牛马的专柜以外的其他地方");
         }
     }
 

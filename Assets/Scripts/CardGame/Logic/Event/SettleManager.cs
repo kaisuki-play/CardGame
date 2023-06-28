@@ -179,6 +179,16 @@ public class SettleManager : MonoBehaviour
     public void HandleIronChain(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
     {
         //TODO 铁索连环结算
+        if (targetPlayer.IsInIronChain && spellAttribute != SpellAttribute.None)
+        {
+            targetPlayer.IsInIronChain = false;
+            if (targetPlayer.IsThereAnyOneIsInIronChain())
+            {
+                SettleManager.Instance.StartSettle(cardManager, spellAttribute, targetPlayer.OtherIronChainPlayer, originalDamage, true);
+                return;
+            }
+        }
+        Debug.Log("没铁索了，继续往下结算");
         //TODO 自己回合死亡，回合需要传到下一个玩家手里
         if (cardManager.CardAsset.TypeOfCard == TypesOfCards.DelayTips)
         {

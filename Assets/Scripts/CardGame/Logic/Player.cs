@@ -60,15 +60,6 @@ public class Player : MonoBehaviour
         set
         {
             _hasTreasure = value;
-            if (this.ID == TurnManager.Instance.whoseTurn.ID)
-            {
-                GlobalSettings.Instance.GlobalButton2.gameObject.SetActive(value);
-                GlobalSettings.Instance.GlobalButton2.GetComponentInChildren<Text>().text = TurnManager.Instance.IsInTreasureOutIn ? "Stop Opreate for Cart" : "Insert Some Cards to Cart";
-            }
-            else
-            {
-                GlobalSettings.Instance.GlobalButton2.gameObject.SetActive(false);
-            }
         }
     }
 
@@ -156,6 +147,35 @@ public class Player : MonoBehaviour
             if (DelayTipManager.HasDelayTips(this.OtherPlayer, SubTypeOfCards.Thunder))
             {
                 return this.OtherPlayer.OtherThunderPlayer;
+            }
+            else
+            {
+                return this.OtherPlayer;
+            }
+        }
+    }
+
+    //有人有铁索么
+    public bool IsThereAnyOneIsInIronChain()
+    {
+        foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+        {
+            if (player.IsInIronChain)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //下一个铁索对象
+    public Player OtherIronChainPlayer
+    {
+        get
+        {
+            if (this.OtherPlayer.IsInIronChain == false)
+            {
+                return this.OtherPlayer.OtherIronChainPlayer;
             }
             else
             {
@@ -729,16 +749,22 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
+            await RemoveNeedToPlaySlash(playedCard);
+            UseCardManager.Instance.UseAVisualCardFromHand(playedCard, targets);
+        }
+    }
+
+    // 移除需要出杀的
+    public async Task RemoveNeedToPlaySlash(OneCardManager playedCard)
+    {
+        if (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
                 || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash
                 || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash)
+        {
+            if (playedCard.Owner.NeedToPlaySlashEvent != null)
             {
-                if (playedCard.Owner.NeedToPlaySlashEvent != null)
-                {
-                    await Task.WhenAll(playedCard.Owner.InvokeSlashEvent(true));
-                }
+                await Task.WhenAll(playedCard.Owner.InvokeSlashEvent(true));
             }
-            UseCardManager.Instance.UseAVisualCardFromHand(playedCard, targets);
         }
     }
 

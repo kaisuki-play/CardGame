@@ -56,7 +56,6 @@ public class GlobalSettings : MonoBehaviour
     public Sprite[] CardSuits;
     [Header("SelectCardVisual")]
     public Button GlobalButton;
-    public Button GlobalButton2;
     [Header("BaseCardAsset")]
     public CardAsset SlashAsset;
     public CardAsset FireSlashAsset;
@@ -85,21 +84,6 @@ public class GlobalSettings : MonoBehaviour
             TurnManager.Instance.EndPhase();
         });
 
-        GlobalButton2.onClick.RemoveAllListeners();
-        GlobalButton2.onClick.AddListener(() =>
-        {
-            TurnManager.Instance.IsInTreasureOutIn = !TurnManager.Instance.IsInTreasureOutIn;
-            GlobalButton2.GetComponentInChildren<Text>().text = TurnManager.Instance.IsInTreasureOutIn ? "Stop Opreate for Cart" : "Insert Some Cards to Cart";
-
-            if (TurnManager.Instance.IsInTreasureOutIn)
-            {
-                HighlightManager.ShowACards(TurnManager.Instance.whoseTurn);
-            }
-            else
-            {
-                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
-            }
-        });
     }
 
     // remove players who is dead from PlayerInstances

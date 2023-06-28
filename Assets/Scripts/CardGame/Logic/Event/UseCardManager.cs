@@ -100,6 +100,13 @@ public class UseCardManager : MonoBehaviour
                     await playedCard.Owner.PArea.TreasureVisual.UseASpellFromTreasure(playedCard.UniqueCardID);
                 }
                 break;
+            default:
+                {
+                    playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
+
+                    await playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
+                }
+                break;
         }
 
         //走第二步,增减目标
@@ -185,10 +192,10 @@ public class UseCardManager : MonoBehaviour
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with attribute:" + cardAsset.SpellAttribute);
-        if (TargetsManager.Instance.TargetsDic.Count > 0)
-        {
-            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with targets:" + TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID].Count);
-        }
+        //if (TargetsManager.Instance.TargetsDic.Count > 0)
+        //{
+        //    Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card with targets:" + TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID].Count);
+        //}
         // restart timer
         TurnManager.Instance.RestartTimer();
 
@@ -208,8 +215,6 @@ public class UseCardManager : MonoBehaviour
                         case SubTypeOfCards.ThunderSlash:
                             {
                                 OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
-
-                                //await TipCardManager.Instance.RemoveJiedaoSharenTarget(cardManager);
                                 if (cardManager != null)
                                 {
                                     Debug.Log("需要出闪");

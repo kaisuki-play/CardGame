@@ -51,24 +51,6 @@ public class TurnManager : MonoBehaviour
 
     public bool IsInactiveStatus = true;
 
-    /// <summary>
-    /// 是否在宝物拖拽阶段
-    /// </summary>
-    private bool _isInTreasureOutIn = false;
-    public bool IsInTreasureOutIn
-    {
-        get
-        {
-            return _isInTreasureOutIn;
-        }
-        set
-        {
-            _isInTreasureOutIn = value;
-            GlobalSettings.Instance.GlobalButton2.GetComponentInChildren<Text>().text = TurnManager.Instance.IsInTreasureOutIn ? "Stop Opreate for Cart" : "Insert Some Cards to Cart";
-
-        }
-    }
-
     // Record the phases in per turn
     private TurnPhase _turnPhase;
     public TurnPhase TurnPhase
@@ -221,10 +203,6 @@ public class TurnManager : MonoBehaviour
         {
             _whoseTurn = value;
             TurnManager.Instance.whoseTurn.HasTreasure = EquipmentManager.Instance.HasEquipmentWithType(TurnManager.Instance.whoseTurn, TypeOfEquipment.Treasure).Item1;
-
-            TurnManager.Instance.IsInTreasureOutIn = false;
-            // 有宝物显示第二个全局按钮
-            GlobalSettings.Instance.GlobalButton2.gameObject.SetActive(_whoseTurn.HasTreasure);
             // 去掉所有的头像高亮
             HighlightManager.DisableAllTurnGlow();
             // 设置回合人头像高亮

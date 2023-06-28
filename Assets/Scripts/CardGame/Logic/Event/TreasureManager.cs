@@ -19,19 +19,12 @@ public class TreasureManager : MonoBehaviour
                 targetPlayer.PArea.Portrait.ChangeOp1ButtonText("木流牛马");
                 targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
                 {
-                    targetPlayer.ShowOp1Button = false;
+                    HighlightManager.DisableAllOpButtons();
 
                     //给目标装备上自己的装备
                     (bool _, OneCardManager treasureCard) = EquipmentManager.Instance.HasEquipmentWithType(TurnManager.Instance.whoseTurn, TypeOfEquipment.Treasure);
                     await TurnManager.Instance.whoseTurn.PassTreasureToTarget(targetPlayer, treasureCard.UniqueCardID);
 
-                    //重置宝物状态
-                    //TurnManager.Instance.whoseTurn.HasTreasure = false;
-                    //targetPlayer.HasTreasure = true;
-
-                    TurnManager.Instance.IsInTreasureOutIn = false;
-
-                    HighlightManager.DisableAllOpButtons();
                     HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
 
                     TaskManager.Instance.UnBlockTask(TaskType.UnderCartTask);
@@ -46,7 +39,6 @@ public class TreasureManager : MonoBehaviour
         {
             HighlightManager.DisableAllOpButtons();
             HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
-            TurnManager.Instance.IsInTreasureOutIn = false;
             TaskManager.Instance.UnBlockTask(TaskType.UnderCartTask);
         });
 

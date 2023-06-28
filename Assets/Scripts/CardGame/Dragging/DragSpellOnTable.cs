@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
+using System.Threading.Tasks;
 
 public class DragSpellOnTable : DraggingActions
 {
@@ -16,7 +17,8 @@ public class DragSpellOnTable : DraggingActions
     {
         get
         {
-            return _manager.CanBePlayedNow;
+            return true;
+            //return _manager.CanBePlayedNow;
         }
     }
 
@@ -43,18 +45,9 @@ public class DragSpellOnTable : DraggingActions
 
     public override async void OnEndDrag()
     {
-        if (TurnManager.Instance.IsInTreasureOutIn)
+        if (!_manager.CanBePlayedNow)
         {
-            if (DragSuccessful() && CounterManager.Instance.UnderCartCount < CounterManager.Instance.UnderCartLimit)
-            {
-                CounterManager.Instance.UnderCartCount++;
-                //把指定的牌给木流牛马
-                await _manager.Owner.GiveAssignCardToTreasure(_manager.UniqueCardID);
-            }
-            else
-            {
-                OnCancelDrag();
-            }
+            OnCancelDrag();
             return;
         }
         if (_manager.CardAsset.SubTypeOfCard == SubTypeOfCards.Tiesuolianhuan)
@@ -100,9 +93,33 @@ public class DragSpellOnTable : DraggingActions
                 OnCancelDrag();
             }
         }
+        //if (_manager.CanBePlayedNow)
+        //{
+        //    if (TurnManager.Instance.IsInTreasureOutIn)
+        //    {
+        //        if (DragSuccessful() && CounterManager.Instance.UnderCartCount < CounterManager.Instance.UnderCartLimit)
+        //        {
+        //            CounterManager.Instance.UnderCartCount++;
+        //            //把指定的牌给木流牛马
+        //            await _manager.Owner.GiveAssignCardToTreasure(_manager.UniqueCardID);
+        //        }
+        //        else
+        //        {
+        //            OnCancelDrag();
+        //        }
+        //        return;
+        //    }
+
+        //}
+        //else
+        //{ // 木流牛马的拖拽
+
+
+        //}
+
     }
 
-    public override void OnCancelDrag()
+    public override async void OnCancelDrag()
     {
         // Set old sorting order 
         _whereIsCard.Slot = _savedHandSlot;
@@ -110,15 +127,37 @@ public class DragSpellOnTable : DraggingActions
         HandVisual playerHand = _playerOwner.PArea.HandVisual;
         Vector3 oldCardPos = playerHand.Slots.Children[_savedHandSlot].transform.localPosition;
         transform.DOLocalMove(oldCardPos, 1f);
+        await CheckCart();
+    }
+
+    public async Task CheckCart()
+    {
+        if (TurnManager.Instance.whoseTurn == null)
+        {
+            return;
+        }
+        if (TurnManager.Instance.whoseTurn.PArea.TreasureVisual.CursorOverTreasure)
+        {
+            if (_manager.Owner.HasTreasure && CounterManager.Instance.UnderCartCount < CounterManager.Instance.UnderCartLimit)
+            {
+                Debug.Log("木流牛马的专柜");
+                CounterManager.Instance.UnderCartCount++;
+                //把指定的牌给木流牛马
+                await _manager.Owner.GiveAssignCardToTreasure(_manager.UniqueCardID);
+            }
+            else
+            {
+                Debug.Log("你没有木流牛马");
+            }
+        }
+        else
+        {
+            Debug.Log("木流牛马的专柜以外的其他地方");
+        }
     }
 
     protected override bool DragSuccessful()
     {
-        //木流牛马
-        if (TurnManager.Instance.IsInTreasureOutIn)
-        {
-            return TurnManager.Instance.whoseTurn.PArea.TreasureVisual.CursorOverTreasure;
-        }
         return TableVisual.CursorOverSomeTable;
     }
 

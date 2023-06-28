@@ -107,8 +107,9 @@ public class TableVisual : MonoBehaviour
                 OneCardManager relationCardManager = relationCard.GetComponent<OneCardManager>();
                 await relationCardManager.Owner.DisACardFromHand(relationCardId);
             }
+            CardsOnTable.Remove(card);
             Destroy(card);
-            CardsOnTable.RemoveAt(index);
+
             return;
         }
 
