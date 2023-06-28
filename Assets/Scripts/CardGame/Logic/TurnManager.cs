@@ -49,6 +49,8 @@ public class TurnManager : MonoBehaviour
     public bool SkipPlayCardPhase = false;
     public bool SkipDisCardPhase = false;
 
+    public bool IsInactiveStatus = true;
+
     /// <summary>
     /// 是否在宝物拖拽阶段
     /// </summary>

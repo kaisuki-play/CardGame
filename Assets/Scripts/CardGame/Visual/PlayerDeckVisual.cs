@@ -203,7 +203,7 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(GuohechaiqiaoAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(LbssAsset, CardSuits.Spades, CardRank.Rank_A);
         //InsertNewCardAsset(BlcdAsset, CardSuits.Spades, CardRank.Rank_A);
-        //InsertNewCardAsset(ZhugeliannuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, ZhugeliannuAsset.WeaponAttackDistance);
+        InsertNewCardAsset(ZhugeliannuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, ZhugeliannuAsset.WeaponAttackDistance);
         //InsertNewCardAsset(CixiongAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, CixiongAsset.WeaponAttackDistance);
         //InsertNewCardAsset(GuanshifuAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, GuanshifuAsset.WeaponAttackDistance);
         //InsertNewCardAsset(QinggangjianAsset, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, QinggangjianAsset.WeaponAttackDistance);
@@ -220,7 +220,7 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Armor);
         //InsertNewCardAsset(CartAsset, CardSuits.Diamonds, CardRank.Rank_Q, TypeOfEquipment.Treasure);
         //InsertNewCardAsset(ThunderHarmer, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, ThunderHarmer.WeaponAttackDistance);
-        InsertNewCardAsset(VictorySword, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, VictorySword.WeaponAttackDistance);
+        //InsertNewCardAsset(VictorySword, CardSuits.Spades, CardRank.Rank_A, TypeOfEquipment.Weapons, VictorySword.WeaponAttackDistance);
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }
 

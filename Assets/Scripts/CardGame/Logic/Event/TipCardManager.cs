@@ -222,7 +222,14 @@ public class TipCardManager : MonoBehaviour
             if (GlobalSettings.Instance.Table.CardsOnTable.Count > 0)
             {
                 //结算完毕了借刀杀人的当前目标，需要移除
-                TargetsManager.Instance.TargetsDic[jiedaosharenCard.UniqueCardID].RemoveAt(0);
+                Debug.Log("借刀杀人还有没有目标" + TargetsManager.Instance.TargetsDic.ContainsKey(jiedaosharenCard.UniqueCardID));
+                if (TargetsManager.Instance.TargetsDic.ContainsKey(jiedaosharenCard.UniqueCardID))
+                {
+                    if (TargetsManager.Instance.TargetsDic[jiedaosharenCard.UniqueCardID].Count > 0)
+                    {
+                        TargetsManager.Instance.TargetsDic[jiedaosharenCard.UniqueCardID].RemoveAt(0);
+                    }
+                }
                 if (TargetsManager.Instance.TargetsDic[jiedaosharenCard.UniqueCardID].Count > 0)
                 {
                     UseCardManager.Instance.HandleImpeccable(jiedaosharenCard);

@@ -21,9 +21,11 @@ public class PlayJinkManager : MonoBehaviour
 
         //出闪之后的hook
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play card owner:" + playedCard.Owner.PArea.Owner);
-        Debug.Log("***********************************去结算需要出闪的事件***************************************************");
-        await SkillManager.AfterPlayAJinkBeforeSettle(cardManager, playedCard.Owner);
-        await Task.WhenAll(playedCard.Owner.InvokeJinkEvent(true));
+
+        //await SkillManager.AfterPlayAJinkBeforeSettle(cardManager, playedCard.Owner);
         await SkillManager.AfterPlayAJink(cardManager, playedCard.Owner);
+        Debug.Log("***********************************去结算需要出闪的事件***************************************************");
+        await Task.WhenAll(playedCard.Owner.InvokeJinkEvent(true));
+
     }
 }

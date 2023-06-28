@@ -59,6 +59,8 @@ public class EventManager : MonoBehaviour
         }
         else
         {
+            //TODO 临时变量之后需要做掉
+            TurnManager.Instance.IsInactiveStatus = true;
             SettleManager.Instance.StartSettle();
         }
         await TaskManager.Instance.DontAwait();

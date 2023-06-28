@@ -427,6 +427,9 @@ public class EquipmentManager : MonoBehaviour
         {
             if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Qinglongyanyuedao)
             {
+                //TODO 是否是闲置状态 进入技能就默认为false TODO 临时变量之后需要做掉
+                TurnManager.Instance.IsInactiveStatus = false;
+
                 TaskManager.Instance.AddATask(TaskType.QinglongyanyueTask);
                 Debug.Log("不解除");
                 HighlightManager.DisableAllOpButtons();
@@ -435,20 +438,14 @@ public class EquipmentManager : MonoBehaviour
                 player.PArea.Portrait.ChangeOp2ButtonText("发动追杀");
                 player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
                 {
+                    Debug.Log("之前是否有阻塞~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskManager.Instance.TaskBlockDic.ContainsKey(TaskType.QinglongyanyueTask));
+                    if (TaskManager.Instance.TaskBlockDic.ContainsKey(TaskType.QinglongyanyueTask))
+                    {
+                        TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
+                    }
                     HighlightManager.DisableAllOpButtons();
                     TargetsManager.Instance.DefaultTarget.Add(targetPlayer.ID);
-                    //UseCardManager.Instance.BackToWhoseTurn();
-                    //TargetsManager.Instance.TargetsDic[GlobalSettings.Instance.LastOneCardOnTable().UniqueCardID].RemoveAt(0);
-                    //await GlobalSettings.Instance.Table.ClearAllCardsWithNoTargets();
-
                     UseCardManager.Instance.NeedToPlaySlash(EventEnum.QinglongyanyuedaoNeedToPlaySlash, player);
-                    //player.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-                    //player.PArea.Portrait.OpButton1.onClick.AddListener(() =>
-                    //{
-                    //    HighlightManager.DisableAllOpButtons();
-                    //    UseCardManager.Instance.BackToWhoseTurn();
-                    //    TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
-                    //});
                 });
 
                 player.ShowOp3Button = true;
@@ -457,7 +454,8 @@ public class EquipmentManager : MonoBehaviour
                 player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
                 {
                     HighlightManager.DisableAllOpButtons();
-                    UseCardManager.Instance.BackToWhoseTurn();
+                    //TODO 临时变量之后需要做掉
+                    TurnManager.Instance.IsInactiveStatus = true;
                     TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
                 });
                 await TaskManager.Instance.TaskBlockDic[TaskType.QinglongyanyueTask].Task;

@@ -729,6 +729,15 @@ public class Player : MonoBehaviour
         }
         else
         {
+            if (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Slash
+                || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.FireSlash
+                || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.ThunderSlash)
+            {
+                if (playedCard.Owner.NeedToPlaySlashEvent != null)
+                {
+                    await Task.WhenAll(playedCard.Owner.InvokeSlashEvent(true));
+                }
+            }
             UseCardManager.Instance.UseAVisualCardFromHand(playedCard, targets);
         }
     }

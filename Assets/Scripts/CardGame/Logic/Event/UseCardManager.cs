@@ -209,7 +209,7 @@ public class UseCardManager : MonoBehaviour
                             {
                                 OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
 
-                                await TipCardManager.Instance.RemoveJiedaoSharenTarget(cardManager);
+                                //await TipCardManager.Instance.RemoveJiedaoSharenTarget(cardManager);
                                 if (cardManager != null)
                                 {
                                     Debug.Log("需要出闪");
@@ -275,10 +275,7 @@ public class UseCardManager : MonoBehaviour
             OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
             if (TargetsManager.Instance.TargetsDic.ContainsKey(cardManager.UniqueCardID))
             {
-                Debug.Log("还有几个牌" + TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count + " 什么牌" + cardManager.CardAsset.Suits + cardManager.CardAsset.CardRank);
                 TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].RemoveAt(0);
-                Debug.Log("还有几个牌" + TargetsManager.Instance.TargetsDic.Count);
-                Debug.Log("还有几个目标" + TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count);
             }
             else
             {
@@ -295,7 +292,10 @@ public class UseCardManager : MonoBehaviour
             if (GlobalSettings.Instance.Table.CardsOnTable.Count == 0)
             {
                 //高亮当前回合人
-                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+                if (TurnManager.Instance.IsInactiveStatus)
+                {
+                    HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+                }
             }
             else
             {
@@ -310,6 +310,7 @@ public class UseCardManager : MonoBehaviour
 
     public async void ActiveLastOneCardOnTable()
     {
+        //await TipCardManager.Instance.JiedaoSharenNextTarget();
         if (GlobalSettings.Instance.Table.CardsOnTable.Count != 0)
         {
             OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
