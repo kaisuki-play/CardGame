@@ -146,6 +146,7 @@ public class TableVisual : MonoBehaviour
             }
             i++;
         }
+
     }
 
     ///// <summary>

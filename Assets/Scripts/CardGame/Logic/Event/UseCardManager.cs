@@ -319,10 +319,13 @@ public class UseCardManager : MonoBehaviour
         if (GlobalSettings.Instance.Table.CardsOnTable.Count != 0)
         {
             OneCardManager cardManager = GlobalSettings.Instance.LastOneCardOnTable();
-
-            Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
-            UseCardManager.Instance.HandleImpeccable(cardManager);
+            if (TargetsManager.Instance.TargetsDic.ContainsKey(cardManager.UniqueCardID))
+            {
+                Player nextTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]);
+                UseCardManager.Instance.HandleImpeccable(cardManager);
+            }
         }
+        BackToWhoseTurn();
         await TaskManager.Instance.DontAwait();
     }
 
@@ -387,6 +390,7 @@ public class UseCardManager : MonoBehaviour
             targetPlayer.ShowOp1Button = false;
             await targetPlayer.InvokeSlashEvent(false);
         });
+
     }
 
     public async void BackToWhoseTurn()
@@ -395,8 +399,11 @@ public class UseCardManager : MonoBehaviour
         HighlightManager.DisableAllCards();
         await GlobalSettings.Instance.Table.ClearAllCardsWithNoTargets();
         TargetsManager.Instance.SpecialTarget.Clear();
-        HighlightManager.DisableAllOpButtons();
-        HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+        if (TurnManager.Instance.IsInactiveStatus)
+        {
+            HighlightManager.DisableAllOpButtons();
+            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+        }
     }
 
     //模拟借刀杀人多个目标的情况

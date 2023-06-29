@@ -149,6 +149,7 @@ public class OneCardManager : MonoBehaviour
                 {
                     //到弃牌堆之后 清理pending数组，新增弃牌堆数组
                     GlobalSettings.Instance.Table.CardsOnTable.Remove(this.gameObject);
+                    Debug.Log("----------------------------pending 还有几张牌-----------------------------" + GlobalSettings.Instance.Table.CardsOnTable.Count);
                     GlobalSettings.Instance.DisDeck.DisDeckCards.Add(this.gameObject);
                 }
                 break;

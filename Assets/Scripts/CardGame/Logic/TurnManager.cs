@@ -237,6 +237,8 @@ public class TurnManager : MonoBehaviour
             p.PArea.Portrait.transform.position = p.PArea.InitialPortraitPosition.position;
         }
 
+        HeroSkillRegister.HandlePlayersSkill();
+
         Sequence s = DOTween.Sequence();
         s.Append(Players[0].PArea.Portrait.transform.DOMove(Players[0].PArea.PortraitPosition.position, 1f).SetEase(Ease.InQuad));
         s.Insert(0f, Players[5].PArea.Portrait.transform.DOMove(Players[5].PArea.PortraitPosition.position, 1f).SetEase(Ease.InQuad));

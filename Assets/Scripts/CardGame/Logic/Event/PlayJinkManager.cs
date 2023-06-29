@@ -23,8 +23,10 @@ public class PlayJinkManager : MonoBehaviour
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play card owner:" + playedCard.Owner.PArea.Owner);
 
         //await SkillManager.AfterPlayAJinkBeforeSettle(cardManager, playedCard.Owner);
+
         await SkillManager.AfterPlayAJink(cardManager, playedCard.Owner);
         Debug.Log("***********************************去结算需要出闪的事件***************************************************");
+
         await Task.WhenAll(playedCard.Owner.InvokeJinkEvent(true));
 
     }

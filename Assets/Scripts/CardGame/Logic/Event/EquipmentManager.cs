@@ -158,7 +158,7 @@ public class EquipmentManager : MonoBehaviour
 
                 try
                 {
-                    await TaskManager.Instance.TaskBlockDic[TaskType.CixiongShuangguTask].Task;
+                    await TaskManager.Instance.TaskBlockDic[TaskType.CixiongShuangguTask][0].Task;
                 }
                 catch (Exception ex)
                 {
@@ -238,10 +238,11 @@ public class EquipmentManager : MonoBehaviour
     public async Task GuanshifuHook(OneCardManager playedCard, Player targetPlayer)
     {
         if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
-            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
-            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
+            && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
+            && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
         {
             await TaskManager.Instance.DontAwait();
+            return;
         }
         Player player = playedCard.Owner;
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
@@ -280,7 +281,7 @@ public class EquipmentManager : MonoBehaviour
                     UseCardManager.Instance.BackToWhoseTurn();
                 });
 
-                await TaskManager.Instance.TaskBlockDic[TaskType.GuanshifuTask].Task;
+                await TaskManager.Instance.TaskBlockDic[TaskType.GuanshifuTask][0].Task;
             }
             else
             {
@@ -416,10 +417,11 @@ public class EquipmentManager : MonoBehaviour
     public async Task QinglongyanyueHook(OneCardManager playedCard, Player targetPlayer)
     {
         if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
-            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
-            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
+            && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
+            && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
         {
             await TaskManager.Instance.DontAwait();
+            return;
         }
         Player player = playedCard.Owner;
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
@@ -427,22 +429,32 @@ public class EquipmentManager : MonoBehaviour
         {
             if (equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Qinglongyanyuedao)
             {
-                //TODO 是否是闲置状态 进入技能就默认为false TODO 临时变量之后需要做掉
-                TurnManager.Instance.IsInactiveStatus = false;
-
+                //TODO 是否是闲置状态 进入技能就默认为false
+                if (!TaskManager.Instance.TaskBlockDic.ContainsKey(TaskType.QinglongyanyueTask))
+                {
+                    OneCardManager lastCardOnTable = GlobalSettings.Instance.LastOneCardOnTable();
+                    if (lastCardOnTable != null)
+                    {
+                        if (TargetsManager.Instance.TargetsDic.ContainsKey(lastCardOnTable.UniqueCardID))
+                        {
+                            TargetsManager.Instance.TargetsDic[lastCardOnTable.UniqueCardID].RemoveAt(0);
+                            if (TargetsManager.Instance.TargetsDic[lastCardOnTable.UniqueCardID].Count == 0)
+                            {
+                                TargetsManager.Instance.TargetsDic.Remove(lastCardOnTable.UniqueCardID);
+                            }
+                        }
+                        await GlobalSettings.Instance.Table.ClearAllCardsWithNoTargets();
+                    }
+                }
                 TaskManager.Instance.AddATask(TaskType.QinglongyanyueTask);
                 Debug.Log("不解除");
                 HighlightManager.DisableAllOpButtons();
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                 player.PArea.Portrait.ChangeOp2ButtonText("发动追杀");
-                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
                 {
                     Debug.Log("之前是否有阻塞~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskManager.Instance.TaskBlockDic.ContainsKey(TaskType.QinglongyanyueTask));
-                    if (TaskManager.Instance.TaskBlockDic.ContainsKey(TaskType.QinglongyanyueTask))
-                    {
-                        TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
-                    }
                     HighlightManager.DisableAllOpButtons();
                     TargetsManager.Instance.DefaultTarget.Add(targetPlayer.ID);
                     UseCardManager.Instance.NeedToPlaySlash(EventEnum.QinglongyanyuedaoNeedToPlaySlash, player);
@@ -454,11 +466,9 @@ public class EquipmentManager : MonoBehaviour
                 player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
                 {
                     HighlightManager.DisableAllOpButtons();
-                    //TODO 临时变量之后需要做掉
-                    TurnManager.Instance.IsInactiveStatus = true;
                     TaskManager.Instance.UnBlockTask(TaskType.QinglongyanyueTask);
                 });
-                await TaskManager.Instance.TaskBlockDic[TaskType.QinglongyanyueTask].Task;
+                await TaskManager.Instance.TaskBlockDic[TaskType.QinglongyanyueTask][0].Task;
             }
             else
             {
@@ -625,7 +635,7 @@ public class EquipmentManager : MonoBehaviour
                     TaskManager.Instance.UnBlockTask(TaskType.ZhuqueyushanTask);
                 });
 
-                await TaskManager.Instance.TaskBlockDic[TaskType.ZhuqueyushanTask].Task;
+                await TaskManager.Instance.TaskBlockDic[TaskType.ZhuqueyushanTask][0].Task;
             }
             else
             {
@@ -681,7 +691,7 @@ public class EquipmentManager : MonoBehaviour
                     TaskManager.Instance.UnBlockTask(TaskType.FrostBladeTask);
                 });
 
-                await TaskManager.Instance.TaskBlockDic[TaskType.FrostBladeTask].Task;
+                await TaskManager.Instance.TaskBlockDic[TaskType.FrostBladeTask][0].Task;
             }
             else
             {
@@ -776,7 +786,7 @@ public class EquipmentManager : MonoBehaviour
                     TaskManager.Instance.UnBlockTask(TaskType.QilingongTask);
                 });
 
-                await TaskManager.Instance.TaskBlockDic[TaskType.QilingongTask].Task;
+                await TaskManager.Instance.TaskBlockDic[TaskType.QilingongTask][0].Task;
             }
             else
             {
@@ -861,7 +871,7 @@ public class EquipmentManager : MonoBehaviour
                     TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
                 });
 
-                await TaskManager.Instance.TaskBlockDic[TaskType.SilverMoonTask].Task;
+                await TaskManager.Instance.TaskBlockDic[TaskType.SilverMoonTask][0].Task;
             }
             else
             {
@@ -951,7 +961,7 @@ public class EquipmentManager : MonoBehaviour
                         TaskManager.Instance.UnBlockTask(TaskType.BaguazhenTask);
                     });
 
-                    await TaskManager.Instance.TaskBlockDic[TaskType.BaguazhenTask].Task;
+                    await TaskManager.Instance.TaskBlockDic[TaskType.BaguazhenTask][0].Task;
                 }
                 else
                 {
@@ -1133,6 +1143,13 @@ public class EquipmentManager : MonoBehaviour
     /// <returns></returns>
     public async Task ActiveThunderHarmer(OneCardManager playedCard, Player targetPlayer)
     {
+        if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
+            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
+            || playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.ThunderSlash)
+        {
+            await TaskManager.Instance.DontAwait();
+            return;
+        }
         Player player = playedCard.Owner;
         (bool hasEquipment, OneCardManager equipmentCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasEquipment)
@@ -1167,7 +1184,7 @@ public class EquipmentManager : MonoBehaviour
                     TaskManager.Instance.UnBlockTask(TaskType.ThunderHarmerTask);
                 });
 
-                await TaskManager.Instance.TaskBlockDic[TaskType.ThunderHarmerTask].Task;
+                await TaskManager.Instance.TaskBlockDic[TaskType.ThunderHarmerTask][0].Task;
             }
             else
             {
@@ -1210,6 +1227,7 @@ public class EquipmentManager : MonoBehaviour
         {
             GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
             List<int> relationCardIds = new List<int>();
+            //
             OneCardManager thunderDamageCardManager = GlobalSettings.Instance.PDeck.DisguisedCardAssetWithType(player, SubTypeOfCards.ThunderSlash, relationCardIds, false);
             SettleManager.Instance.StartSettle(thunderDamageCardManager, thunderDamageCardManager.CardAsset.SpellAttribute, targetPlayer);
             TaskManager.Instance.UnBlockTask(TaskType.ThunderHarmerTask);
@@ -1285,7 +1303,7 @@ public class EquipmentManager : MonoBehaviour
 
                 try
                 {
-                    await TaskManager.Instance.TaskBlockDic[TaskType.VictorySwordTask].Task;
+                    await TaskManager.Instance.TaskBlockDic[TaskType.VictorySwordTask][0].Task;
                 }
                 catch (Exception ex)
                 {

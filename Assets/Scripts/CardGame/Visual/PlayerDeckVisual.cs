@@ -187,8 +187,8 @@ public class PlayerDeckVisual : MonoBehaviour
             HandleCards(cardAsset1);
         }
         DeckCards.Shuffle();
-        //InsertNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
-        InsertNewCardAsset(TiesuoAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
+        InsertNewCardAsset(JiedaoSharenAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
+        //InsertNewCardAsset(TiesuoAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(AnalepticAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(TaoyuanjieyiAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(ThunderAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
@@ -207,17 +207,17 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(CixiongAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, CixiongAsset.WeaponAttackDistance);
         //InsertNewCardAsset(GuanshifuAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, GuanshifuAsset.WeaponAttackDistance);
         //InsertNewCardAsset(QinggangjianAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, QinggangjianAsset.WeaponAttackDistance);
-        //InsertNewCardAsset(QinglongyanyueAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, QinglongyanyueAsset.WeaponAttackDistance);
+        InsertNewCardAsset(QinglongyanyueAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, QinglongyanyueAsset.WeaponAttackDistance);
         //InsertNewCardAsset(FangtianhuajiAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, FangtianhuajiAsset.WeaponAttackDistance);
-        InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ZbsmAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(ZbsmAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ZbsmAsset.WeaponAttackDistance);
         //InsertNewCardAsset(ZhuqueyushanAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ZhuqueyushanAsset.WeaponAttackDistance);
         //InsertNewCardAsset(FrostBladeAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, FrostBladeAsset.WeaponAttackDistance);
         //InsertNewCardAsset(QilingongAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, QilingongAsset.WeaponAttackDistance);
         //InsertNewCardAsset(DiluAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.AddAHorse);
-        InsertNewCardAsset(SilverMoonAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Weapons, SilverMoonAsset.WeaponAttackDistance);
+        //InsertNewCardAsset(SilverMoonAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Weapons, SilverMoonAsset.WeaponAttackDistance);
         //InsertNewCardAsset(BaguazhenAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
         //InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
-        InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
+        //InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
         //InsertNewCardAsset(CartAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Treasure);
         //InsertNewCardAsset(ThunderHarmer, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ThunderHarmer.WeaponAttackDistance);
         //InsertNewCardAsset(VictorySword, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, VictorySword.WeaponAttackDistance);

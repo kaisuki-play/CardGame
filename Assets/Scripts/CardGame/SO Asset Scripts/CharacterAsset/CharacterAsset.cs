@@ -18,7 +18,10 @@ public enum PlayerWarrior
     Zhoutai,
     Chengong,
     KuailiangKuaiyue,
-    Zhangsong
+    Zhangsong,
+    Athena,
+    Maat,
+    Fenrir
 }
 
 public enum Nation
@@ -26,7 +29,9 @@ public enum Nation
     Wei,
     Shu,
     Wu,
-    Qun
+    Qun,
+    Nordic,
+    Egyptian
 }
 
 public class CharacterAsset : ScriptableObject

@@ -52,15 +52,14 @@ public class EventManager : MonoBehaviour
     {
         bool usedAJink = e.UsedAJink;
         Player player = (Player)sender;
-        Debug.Log("触发事件 玩家:" + player.PArea.Owner);
+        Debug.Log("-----------------------------------------------触发事件 玩家:" + player.PArea.Owner);
+
         if (usedAJink)
         {
             UseCardManager.Instance.FinishSettle();
         }
         else
         {
-            //TODO 临时变量之后需要做掉
-            TurnManager.Instance.IsInactiveStatus = true;
             SettleManager.Instance.StartSettle();
         }
         await TaskManager.Instance.DontAwait();

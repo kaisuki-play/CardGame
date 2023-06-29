@@ -114,10 +114,6 @@ public class CardAsset : ScriptableObject
         this.Targets = cardAsset.Targets;
         this.SpellAttribute = cardAsset.SpellAttribute;
         this.SpecialSpellAmount = cardAsset.SpecialSpellAmount;
-        if (this.SubTypeOfCard == SubTypeOfCards.Slash || this.SubTypeOfCard == SubTypeOfCards.FireSlash || this.SubTypeOfCard == SubTypeOfCards.ThunderSlash)
-        {
-            Debug.Log(this.SubTypeOfCard + "__---------------------_______--------" + this.Targets);
-        }
     }
 
 }

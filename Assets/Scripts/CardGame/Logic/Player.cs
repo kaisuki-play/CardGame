@@ -779,6 +779,7 @@ public class Player : MonoBehaviour
         {
             targets.AddRange(TargetsManager.Instance.DefaultTarget);
             TargetsManager.Instance.DefaultTarget.Clear();
+            await RemoveNeedToPlaySlash(playedCard);
             UseCardManager.Instance.UseAVisualCardFromHand(playedCard, targets);
         }
         else

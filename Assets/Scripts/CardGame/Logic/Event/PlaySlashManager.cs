@@ -32,6 +32,7 @@ public class PlaySlashManager : MonoBehaviour
         //            break;
         //    }
         //}
+
         await Task.WhenAll(playedCard.Owner.InvokeSlashEvent(true));
     }
 }

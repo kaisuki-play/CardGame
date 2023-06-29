@@ -329,6 +329,9 @@ public class SkillManager : MonoBehaviour
     /// <returns></returns>
     public static async Task AfterUsedCardPending(OneCardManager playedCard)
     {
+        // TODO先结算技能
+        await HeroSkillManager.ActiveAthenaSkill1(playedCard);
+        // TODO再结算装备
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
         {

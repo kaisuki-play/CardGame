@@ -23,13 +23,20 @@ public enum TaskType
     UnderCartTask,
     QinglongyanyueTask,
     ThunderHarmerTask,
-    VictorySwordTask
+    VictorySwordTask,
+    //技能
+    AthenaSkill1,
+    AthenaSkill2,
+    MaatSkill1,
+    MaatSkill2,
+    FenrirSkill1,
+    FenrirSkill2
 }
 public class TaskManager : MonoBehaviour
 {
     public static TaskManager Instance;
     //public List<TaskCompletionSource<bool>> TaskBlockList = new List<TaskCompletionSource<bool>>();
-    public Dictionary<TaskType, TaskCompletionSource<bool>> TaskBlockDic = new Dictionary<TaskType, TaskCompletionSource<bool>>();
+    public Dictionary<TaskType, List<TaskCompletionSource<bool>>> TaskBlockDic = new Dictionary<TaskType, List<TaskCompletionSource<bool>>>();
     public TaskCompletionSource<bool> DelayTipTask = new TaskCompletionSource<bool>();
     private void Awake()
     {
@@ -38,18 +45,31 @@ public class TaskManager : MonoBehaviour
 
     public void AddATask(TaskType taskType)
     {
+        //if (TaskManager.Instance.TaskBlockDic.ContainsKey(taskType))
+        //{
+        //    Debug.Log("*************************之前有" + taskType);
+        //    TaskManager.Instance.TaskBlockDic[taskType].SetResult(true);
+        //}
+        TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
         if (TaskManager.Instance.TaskBlockDic.ContainsKey(taskType))
         {
-            Debug.Log("*************************之前有" + taskType);
-            TaskManager.Instance.TaskBlockDic[taskType].SetResult(true);
+            TaskManager.Instance.TaskBlockDic[taskType].Add(tcs);
         }
-        TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
-        TaskManager.Instance.TaskBlockDic[taskType] = tcs;
+        else
+        {
+            List<TaskCompletionSource<bool>> newTcss = new List<TaskCompletionSource<bool>>();
+            newTcss.Add(tcs);
+            TaskManager.Instance.TaskBlockDic[taskType] = newTcss;
+        }
+        if (TaskManager.Instance.TaskBlockDic.Count > 0)
+        {
+            TurnManager.Instance.IsInactiveStatus = false;
+        }
     }
 
     public async Task Block(TaskType taskType)
     {
-        await TaskManager.Instance.TaskBlockDic[taskType].Task;
+        await TaskManager.Instance.TaskBlockDic[taskType][0].Task;
     }
 
     public async Task DontAwait()
@@ -70,7 +90,7 @@ public class TaskManager : MonoBehaviour
         {
             Debug.Log("加入阻塞后，还有几个阻塞任务~~~~~~~~~~~" + taskt + "~~~~~~~~~~~~~~~");
         }
-        await TaskManager.Instance.TaskBlockDic[taskType].Task;
+        await TaskManager.Instance.TaskBlockDic[taskType][0].Task;
     }
 
     public void UnBlockTask(TaskType taskType)
@@ -81,8 +101,33 @@ public class TaskManager : MonoBehaviour
         }
         if (TaskManager.Instance.TaskBlockDic.ContainsKey(taskType))
         {
+            if (TaskManager.Instance.TaskBlockDic.Count == 1 && TaskManager.Instance.TaskBlockDic[taskType].Count == 1)
+            {
+                TurnManager.Instance.IsInactiveStatus = true;
+            }
             Debug.Log("1解除阻塞后，还有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskManager.Instance.TaskBlockDic.Keys.Count);
-            TaskManager.Instance.TaskBlockDic[taskType].SetResult(true);
+            TaskManager.Instance.TaskBlockDic[taskType][0].SetResult(true);
+            TaskManager.Instance.TaskBlockDic[taskType].RemoveAt(0);
+            if (TaskManager.Instance.TaskBlockDic[taskType].Count == 0)
+            {
+                TaskManager.Instance.TaskBlockDic.Remove(taskType);
+            }
+        }
+    }
+
+    public void UnBlockTaskForAll(TaskType taskType)
+    {
+        if (TaskManager.Instance.TaskBlockDic.ContainsKey(taskType))
+        {
+            if (TaskManager.Instance.TaskBlockDic.Count == 1)
+            {
+                TurnManager.Instance.IsInactiveStatus = true;
+            }
+            foreach (TaskCompletionSource<bool> tcs in TaskManager.Instance.TaskBlockDic[taskType])
+            {
+                Debug.Log("1解除阻塞后，还有几个阻塞任务~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskManager.Instance.TaskBlockDic.Keys.Count);
+                TaskManager.Instance.TaskBlockDic[taskType][0].SetResult(true);
+            }
             TaskManager.Instance.TaskBlockDic.Remove(taskType);
         }
     }
@@ -96,8 +141,20 @@ public class TaskManager : MonoBehaviour
         if (TaskManager.Instance.TaskBlockDic.ContainsKey(taskType))
         {
             Exception exception = new Exception(exMessage);
-            TaskManager.Instance.TaskBlockDic[taskType].SetException(exception);
-            TaskManager.Instance.TaskBlockDic.Remove(taskType);
+            TaskManager.Instance.TaskBlockDic[taskType][0].SetException(exception);
+            TaskManager.Instance.TaskBlockDic[taskType].RemoveAt(0);
+            if (TaskManager.Instance.TaskBlockDic[taskType].Count == 0)
+            {
+                TaskManager.Instance.TaskBlockDic.Remove(taskType);
+            }
+        }
+        if (TaskManager.Instance.TaskBlockDic.Count > 0)
+        {
+            TurnManager.Instance.IsInactiveStatus = false;
+        }
+        else
+        {
+            TurnManager.Instance.IsInactiveStatus = true;
         }
     }
 
