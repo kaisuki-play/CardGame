@@ -150,7 +150,7 @@ public class SettleManager : MonoBehaviour
             if (curTargetPlayer.Health <= 0)
             {
                 Debug.Log("中断流程，进入濒死流程");
-                DyingManager.Instance.EnterDying(curTargetPlayer);
+                DyingManager.Instance.EnterDying(cardManager.Owner, curTargetPlayer);
                 //阻塞不往下执行
                 await TaskManager.Instance.BlockTask(TaskType.DyingTask);
             }

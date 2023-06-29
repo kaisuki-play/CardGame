@@ -199,10 +199,10 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, 4);
 
-        //InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
+        InsertNewCardAsset(ShunshouqianyangAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(GuohechaiqiaoAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(LbssAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
-        //InsertNewCardAsset(BlcdAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
+        InsertNewCardAsset(BlcdAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(ZhugeliannuAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ZhugeliannuAsset.WeaponAttackDistance);
         //InsertNewCardAsset(CixiongAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, CixiongAsset.WeaponAttackDistance);
         //InsertNewCardAsset(GuanshifuAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, GuanshifuAsset.WeaponAttackDistance);

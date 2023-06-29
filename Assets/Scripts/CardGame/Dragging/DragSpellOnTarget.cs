@@ -211,6 +211,7 @@ public class DragSpellOnTarget : DraggingActions
             GlobalSettings.Instance.FindPlayerByID(targetID).PArea.Portrait.Highlighted = false;
             _targetType = _manager.CardAsset.Targets;
             Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~" + _targetType);
+            ResetTriangleTargetComponent();
             switch (_targetType)
             {
                 //TODO 加个hook哪些角色不能成为目标
@@ -221,7 +222,14 @@ public class DragSpellOnTarget : DraggingActions
                     }
                     break;
                 case TargetingOptions.EnemyCharacters:
-                    if (targetID != _playerOwner.ID && _manager.Owner.CanAttack(targetID) && ValidateHandCards(targetID) && ValidateDelayTipCards(targetID))
+                    if (!ValidateHandCards(targetID) || !ValidateDelayTipCards(targetID))
+                    {
+                        return;
+                    }
+                    // 有目标限制的
+                    await SkillManager.AfterDragOnTarget(_manager, targetID);
+
+                    if (targetID != _playerOwner.ID && _manager.Owner.CanAttack(targetID))
                     {
                         if (GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Jiedaosharen).Item1)
                         {
@@ -267,8 +275,6 @@ public class DragSpellOnTarget : DraggingActions
             ResetTriangleTargetComponent();
             await CheckCart();
         }
-
-        ResetTriangleTargetComponent();
     }
 
     public async Task UseSpellCard(bool targetValid, int targetID)

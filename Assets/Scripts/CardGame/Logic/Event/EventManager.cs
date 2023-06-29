@@ -77,7 +77,8 @@ public class EventManager : MonoBehaviour
         }
         else
         {
-            await LooseHealthManager.LooseHealth(player, 1);
+            //TODO需要修改伤害来源
+            await LooseHealthManager.LooseHealth(null, player, 1);
             TaskManager.Instance.UnBlockTask(TaskType.SilverMoonTask);
         }
         await TaskManager.Instance.DontAwait();

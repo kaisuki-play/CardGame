@@ -14,6 +14,8 @@ public class DyingManager : MonoBehaviour
     public static DyingManager Instance;
     //是否有玩家濒死
     public bool IsInDyingInquiry = false;
+    //伤害来源
+    public Player DamageOriginPlayer;
     //当前濒死玩家
     public Player DyingPlayer;
     //当前询问的对象
@@ -25,10 +27,11 @@ public class DyingManager : MonoBehaviour
         Instance = this;
     }
 
-    public void EnterDying(Player dyingPlayer)
+    public void EnterDying(Player damageOriginPlayer, Player dyingPlayer)
     {
         Debug.Log("进入濒死状态");
         DyingManager.Instance.IsInDyingInquiry = true;
+        DyingManager.Instance.DamageOriginPlayer = damageOriginPlayer;
         DyingManager.Instance.DyingPlayer = dyingPlayer;
         DyingManager.Instance.InquireTargetId = TurnManager.Instance.whoseTurn.ID;
         InquiryNonMedicalSkills();
@@ -150,6 +153,8 @@ public class DyingManager : MonoBehaviour
         Debug.Log("~~~~~~~~~~~~~~~~救回来了");
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
+        //清空伤害来源
+        DyingManager.Instance.DamageOriginPlayer = null;
         //清空濒死玩家
         DyingManager.Instance.DyingPlayer = null;
         //重置濒死状态
@@ -158,18 +163,22 @@ public class DyingManager : MonoBehaviour
         TaskManager.Instance.UnBlockTask(TaskType.DyingTask);
     }
 
-    public void RealDie()
+    public async void RealDie()
     {
+        await SkillManager.AfterPlayerIsDead(DyingManager.Instance.DamageOriginPlayer.ID, DyingManager.Instance.DyingPlayer.ID);
         //设置濒死人为死亡
         DyingManager.Instance.DyingPlayer.IsDead = true;
         ////全局移除玩家
         //GlobalSettings.Instance.RemoveDiePlayer();
         //TODO 玩家所有牌进入弃牌堆
         DyingManager.Instance.DyingPlayer.DisAllCards();
+        //清空伤害来源
+        DyingManager.Instance.DamageOriginPlayer = null;
         //清空濒死玩家
         DyingManager.Instance.DyingPlayer = null;
         //重置濒死状态
         DyingManager.Instance.IsInDyingInquiry = false;
+
         //进入伤害后的流程
         TaskManager.Instance.UnBlockTask(TaskType.DyingTask);
 

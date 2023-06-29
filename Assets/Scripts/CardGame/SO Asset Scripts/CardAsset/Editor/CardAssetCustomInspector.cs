@@ -58,12 +58,8 @@ public class CardAssetCustomInspector : Editor
         switch (st)
         {
             case TypesOfCards.Base:
-                EditorGUILayout.PropertyField(SpellScriptName_prop);
-                EditorGUILayout.PropertyField(SpecialSpellAmount_prop);
-                EditorGUILayout.PropertyField(Targets_prop);
-                EditorGUILayout.PropertyField(SpellAttribute_prop);
-                break;
             case TypesOfCards.Tips:
+            case TypesOfCards.DelayTips:
                 EditorGUILayout.PropertyField(SpellScriptName_prop);
                 EditorGUILayout.PropertyField(SpecialSpellAmount_prop);
                 EditorGUILayout.PropertyField(Targets_prop);
