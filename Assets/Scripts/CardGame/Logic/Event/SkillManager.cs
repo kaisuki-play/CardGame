@@ -364,7 +364,8 @@ public class SkillManager : MonoBehaviour
     public static async Task StartAfterDamage(OneCardManager playedCard, Player targetPlayer, bool isFromIronChain = false)
     {
         //TODO需要移到queue中的技能
-        await HeroSkillManager.ActiveMaatSkill1(playedCard, targetPlayer.ID);
+        //await HeroSkillManager.ActiveMaatSkill1(playedCard, targetPlayer.ID);
+        await HeroSkillRegister.PriorityHeroSkill(playedCard, HeroSkillActivePhase.Hook10, targetPlayer.ID);
 
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)

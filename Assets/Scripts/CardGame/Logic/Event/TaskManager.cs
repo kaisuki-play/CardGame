@@ -74,7 +74,7 @@ public class TaskManager : MonoBehaviour
 
     public async Task DontAwait()
     {
-        await Task.Run(() => { Debug.Log("不需要阻塞"); });
+        await Task.Run(() => { Debug.Log(""); });
     }
 
     public async Task ReturnException(string message)

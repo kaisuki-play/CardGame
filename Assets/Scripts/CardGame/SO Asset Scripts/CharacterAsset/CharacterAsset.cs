@@ -21,7 +21,11 @@ public enum PlayerWarrior
     Zhangsong,
     Athena,
     Maat,
-    Fenrir
+    Fenrir,
+    Anubis,
+    女娲,
+    白虎,
+    Apollo
 }
 
 public enum Nation

@@ -46,6 +46,7 @@ public class Player : MonoBehaviour
     //public event EventHandler<NeedToPlayJinkEventArgs> NeedToPlayJinkEvent;
     public event Func<object, BoolTypeEventArgs, Task> NeedToPlayJinkEvent;
     public event Func<object, BoolTypeEventArgs, Task> NeedToPlaySlashEvent;
+    public event Func<object, SkillEventArgs, Task> HeroSkillEvent;
 
     //是否忽视防具
     public bool IgnoreArmor = false;
@@ -137,6 +138,32 @@ public class Player : MonoBehaviour
             {
                 return curPlayer;
             }
+        }
+    }
+
+    public Player OtherDontIgnoreDeadPlayer
+    {
+        get
+        {
+            int currentIndex = 0;
+            for (int i = 0; i < GlobalSettings.Instance.PlayerInstances.Length; i++)
+            {
+                if (GlobalSettings.Instance.PlayerInstances[i].ID == this.ID)
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            Player curPlayer = null;
+            if (currentIndex > 0)
+            {
+                curPlayer = GlobalSettings.Instance.PlayerInstances[currentIndex - 1];
+            }
+            else
+            {
+                curPlayer = GlobalSettings.Instance.PlayerInstances[GlobalSettings.Instance.PlayerInstances.Length - 1];
+            }
+            return curPlayer;
         }
     }
 
@@ -1010,6 +1037,21 @@ public class Player : MonoBehaviour
             var eventArgs = new BoolTypeEventArgs(UsedA);
             await Task.WhenAll(NeedToPlaySlashEvent.Invoke(this, eventArgs));
             NeedToPlaySlashEvent = null;
+        }
+    }
+
+    /// <summary>
+    /// 触发技能事件
+    /// </summary>
+    /// <param name="UsedA"></param>
+    /// <returns></returns>
+    public async Task InvokeHeroSkillEvent(OneCardManager playedCard, HeroSkillActivePhase skillPhase, int targetID)
+    {
+        if (HeroSkillEvent != null)
+        {
+            var eventArgs = new SkillEventArgs(playedCard, skillPhase, targetID);
+            await Task.WhenAll(HeroSkillEvent.Invoke(this, eventArgs));
+            HeroSkillEvent = null;
         }
     }
 }

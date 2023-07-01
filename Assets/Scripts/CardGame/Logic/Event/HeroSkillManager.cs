@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 using static UnityEngine.GraphicsBuffer;
+using System.Linq;
 
 public class HeroSkillManager : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class HeroSkillManager : MonoBehaviour
             await TaskManager.Instance.DontAwait();
             return;
         }
-        if (HeroSkillRegister.SkillRegister.ContainsKey(playedCard.Owner.ID) && HeroSkillRegister.SkillRegister[playedCard.Owner.ID].Contains(HeroSkillType.AthenaSkill1))
+        if (HeroSkillRegister.SkillRegister.ContainsKey(playedCard.Owner.ID))//&& HeroSkillRegister.SkillRegister[playedCard.Owner.ID].Contains(HeroSkillType.AthenaSkill1)
         {
             TaskManager.Instance.AddATask(TaskType.AthenaSkill1);
 
@@ -69,7 +70,7 @@ public class HeroSkillManager : MonoBehaviour
             await TaskManager.Instance.DontAwait();
             return;
         }
-        if (HeroSkillRegister.SkillRegister.ContainsKey(playedCard.Owner.ID) && HeroSkillRegister.SkillRegister[playedCard.Owner.ID].Contains(HeroSkillType.AthenaSkill2))
+        if (HeroSkillRegister.SkillRegister.ContainsKey(playedCard.Owner.ID)) //HeroSkillRegister.SkillRegister[playedCard.Owner.ID].Contains(HeroSkillType.AthenaSkill2)
         {
             TaskManager.Instance.AddATask(TaskType.AthenaSkill2);
 
@@ -114,21 +115,21 @@ public class HeroSkillManager : MonoBehaviour
     /// <param name="playedCard"></param>
     /// <param name="targetID"></param>
     /// <returns></returns>
-    public static async Task ActiveMaatSkill1(OneCardManager playedCard, int targetID)
+    public static async Task ActiveMaatSkill1(Player mainPlayer, OneCardManager playedCard, int targetID)
     {
-        Player maatPlayer = null;
-        foreach (Player p in GlobalSettings.Instance.PlayerInstances)
-        {
-            if (HeroSkillRegister.SkillRegister.ContainsKey(p.ID) && HeroSkillRegister.SkillRegister[p.ID].Contains(HeroSkillType.MattSkill1))
-            {
-                maatPlayer = p;
-                break;
-            }
-        }
-        if (maatPlayer == null)
-        {
-            return;
-        }
+        //Player maatPlayer = null;
+        //foreach (Player p in GlobalSettings.Instance.PlayerInstances)
+        //{
+        //    if (HeroSkillRegister.SkillRegister.ContainsKey(p.ID))//&& HeroSkillRegister.SkillRegister[p.ID].Contains(HeroSkillType.MattSkill1)
+        //    {
+        //        maatPlayer = p;
+        //        break;
+        //    }
+        //}
+        //if (maatPlayer == null)
+        //{
+        //    return;
+        //}
         //牌必须是杀
         if (playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Slash
             && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.FireSlash
@@ -140,7 +141,7 @@ public class HeroSkillManager : MonoBehaviour
 
         TaskManager.Instance.AddATask(TaskType.MaatSkill1);
 
-        Player player = maatPlayer;
+        Player player = mainPlayer;
 
         HighlightManager.DisableAllOpButtons();
         player.ShowOp2Button = true;
@@ -224,7 +225,7 @@ public class HeroSkillManager : MonoBehaviour
         GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = numberOfCards;
-        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
         {
             GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
             tcs.SetResult(true);
@@ -253,7 +254,7 @@ public class HeroSkillManager : MonoBehaviour
     /// <returns></returns>
     public static async Task ActiveMaatSkill2(int damageOriginId, int targetId)
     {
-        if (HeroSkillRegister.SkillRegister.ContainsKey(targetId) && HeroSkillRegister.SkillRegister[targetId].Contains(HeroSkillType.MattSkill2))
+        if (HeroSkillRegister.SkillRegister.ContainsKey(targetId)) //&& HeroSkillRegister.SkillRegister[targetId].Contains(HeroSkillType.MattSkill2)
         {
             HeroSkillRegister.SkillRegister.Remove(damageOriginId);
         }
