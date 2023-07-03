@@ -16,7 +16,8 @@ public class SkillManager : MonoBehaviour
     public static async Task AfterUsedCardPending(OneCardManager playedCard)
     {
         // TODO先结算技能
-        await HeroSkillManager.ActiveAthenaSkill1(playedCard);
+        //await HeroSkillManager.ActiveAthenaSkill1(playedCard);
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook1, playedCard);
         // TODO再结算装备
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
@@ -140,6 +141,8 @@ public class SkillManager : MonoBehaviour
     /// <returns></returns>
     public static async Task NeedToPlaySlash(Player player, bool needTarget)
     {
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook4);
+
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(player, TypeOfEquipment.Weapons);
         if (hasWeapon)
         {
@@ -257,8 +260,10 @@ public class SkillManager : MonoBehaviour
     /// <param name="targetPlayer"></param>
     /// <param name="originalDamage"></param>
     /// <returns></returns>
-    public static int StartCalculateDamageForSource(OneCardManager playedCard, Player targetPlayer, int originalDamage, SpellAttribute spellAttribute = SpellAttribute.None, bool isFromIronChain = false)
+    public static async Task<int> StartCalculateDamageForSource(OneCardManager playedCard, Player targetPlayer, int originalDamage, SpellAttribute spellAttribute = SpellAttribute.None, bool isFromIronChain = false)
     {
+        originalDamage = await HeroSkillRegister.CalculateDamageForSkill(playedCard.Owner, playedCard, HeroSkillActivePhase.Hook9, targetPlayer.ID, originalDamage);
+
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
         {
@@ -365,7 +370,7 @@ public class SkillManager : MonoBehaviour
     {
         //TODO需要移到queue中的技能
         //await HeroSkillManager.ActiveMaatSkill1(playedCard, targetPlayer.ID);
-        await HeroSkillRegister.PriorityHeroSkill(playedCard, HeroSkillActivePhase.Hook10, targetPlayer.ID);
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook10, playedCard, targetPlayer.ID);
 
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
@@ -555,6 +560,24 @@ public class SkillManager : MonoBehaviour
         {
             await TaskManager.Instance.DontAwait();
         }
+    }
+
+    /// <summary>
+    /// 拖拽卡牌后
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <param name="targetPlayer"></param>
+    /// <returns></returns>
+    public static async Task AfterDragTargetOrDragCard(OneCardManager playedCard = null, Player targetPlayer = null)
+    {
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.AfterDragTargetOrDragCard, playedCard);
+    }
+
+    public static async Task EnterDying()
+    {
+        // TODO先结算技能
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook13);
+        await TaskManager.Instance.DontAwait();
     }
 
 }

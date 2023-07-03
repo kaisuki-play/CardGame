@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 using System;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public enum HeroSkillActivePhase
 {
@@ -38,6 +39,7 @@ public enum HeroSkillActivePhase
     Hook30,
     Hook31,
     Hook32,
+    AfterDragTargetOrDragCard
 }
 
 public enum HeroSkillType
@@ -48,7 +50,9 @@ public enum HeroSkillType
     MattSkill2,
     FenrirSkill1,
     FenrirSkill2,
-    AnubisSkill1
+    AnubisSkill1,
+    OsirisSkill1,
+    OsirisSkill2
 }
 
 public struct HeroSkillInfo
@@ -90,12 +94,13 @@ public class HeroSkillRegister : MonoBehaviour
                     skillList.Add(new HeroSkillInfo(HeroSkillType.AthenaSkill1, skill1PhaseList));
 
                     List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
-                    skill2PhaseList.Add(HeroSkillActivePhase.Hook11);
+                    skill2PhaseList.Add(HeroSkillActivePhase.Hook15);
 
                     skillList.Add(new HeroSkillInfo(HeroSkillType.AthenaSkill1, skill2PhaseList));
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
                 }
                 break;
             case PlayerWarrior.Maat:
@@ -112,6 +117,7 @@ public class HeroSkillRegister : MonoBehaviour
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
                 }
                 break;
             case PlayerWarrior.Fenrir:
@@ -131,6 +137,7 @@ public class HeroSkillRegister : MonoBehaviour
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
                 }
 
                 break;
@@ -144,8 +151,27 @@ public class HeroSkillRegister : MonoBehaviour
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
                 }
 
+                break;
+            case PlayerWarrior.Osiris:
+                {
+                    List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
+                    skill1PhaseList.Add(HeroSkillActivePhase.AfterDragTargetOrDragCard);
+
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.OsirisSkill1, skill1PhaseList));
+
+                    List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
+                    skill2PhaseList.Add(HeroSkillActivePhase.Hook13);
+
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.OsirisSkill2, skill2PhaseList));
+
+                    HeroSkillRegister.SkillRegister[player.ID] = skillList;
+
+                    HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
+                }
                 break;
         }
 
@@ -170,8 +196,12 @@ public class HeroSkillRegister : MonoBehaviour
         return false;
     }
 
-    public static async Task PriorityHeroSkill(OneCardManager playedCard, HeroSkillActivePhase heroSkillActivePhase, int targetID)
+    public static async Task PriorityHeroSkill(HeroSkillActivePhase heroSkillActivePhase, OneCardManager playedCard = null, int targetID = -1)
     {
+        if (TurnManager.Instance.whoseTurn == null)
+        {
+            return;
+        }
         Player player1 = TurnManager.Instance.whoseTurn;
         Player player2 = player1.OtherDontIgnoreDeadPlayer;
         Player player3 = player2.OtherDontIgnoreDeadPlayer;
@@ -183,35 +213,55 @@ public class HeroSkillRegister : MonoBehaviour
 
         if (HeroSkillRegister.NeedToActiveSkillForPlayer(player1, heroSkillActivePhase))
         {
-            await player1.InvokeHeroSkillEvent(playedCard, heroSkillActivePhase, targetID);
+            await player1.InvokeHeroSkillEvent(heroSkillActivePhase, playedCard, targetID);
         }
 
         if (HeroSkillRegister.NeedToActiveSkillForPlayer(player2, heroSkillActivePhase))
         {
-            await player2.InvokeHeroSkillEvent(playedCard, heroSkillActivePhase, targetID);
+            await player2.InvokeHeroSkillEvent(heroSkillActivePhase, playedCard, targetID);
         }
 
         if (HeroSkillRegister.NeedToActiveSkillForPlayer(player3, heroSkillActivePhase))
         {
-            await player3.InvokeHeroSkillEvent(playedCard, heroSkillActivePhase, targetID);
+            await player3.InvokeHeroSkillEvent(heroSkillActivePhase, playedCard, targetID);
         }
 
         if (HeroSkillRegister.NeedToActiveSkillForPlayer(player4, heroSkillActivePhase))
         {
-            await player4.InvokeHeroSkillEvent(playedCard, heroSkillActivePhase, targetID);
+            await player4.InvokeHeroSkillEvent(heroSkillActivePhase, playedCard, targetID);
         }
 
         if (HeroSkillRegister.NeedToActiveSkillForPlayer(player5, heroSkillActivePhase))
         {
-            await player5.InvokeHeroSkillEvent(playedCard, heroSkillActivePhase, targetID);
+            await player5.InvokeHeroSkillEvent(heroSkillActivePhase, playedCard, targetID);
         }
 
         if (HeroSkillRegister.NeedToActiveSkillForPlayer(player6, heroSkillActivePhase))
         {
-            await player6.InvokeHeroSkillEvent(playedCard, heroSkillActivePhase, targetID);
+            await player6.InvokeHeroSkillEvent(heroSkillActivePhase, playedCard, targetID);
         }
         await TaskManager.Instance.DontAwait();
     }
+
+    /// <summary>
+    /// 计算伤害值
+    /// </summary>
+    /// <param name="damageSource"></param>
+    /// <param name="playedCard"></param>
+    /// <param name="heroSkillActivePhase"></param>
+    /// <param name="targetID"></param>
+    /// <param name="originDamage"></param>
+    /// <returns></returns>
+    public static async Task<int> CalculateDamageForSkill(Player damageSource, OneCardManager playedCard, HeroSkillActivePhase heroSkillActivePhase, int targetID, int originDamage)
+    {
+        if (HeroSkillRegister.NeedToActiveSkillForPlayer(damageSource, heroSkillActivePhase))
+        {
+            int res = await damageSource.InvokeHeroDamageCalculuateEvent(playedCard, heroSkillActivePhase, targetID, originDamage);
+            return res;
+        }
+        return originDamage;
+    }
+
 
 }
 

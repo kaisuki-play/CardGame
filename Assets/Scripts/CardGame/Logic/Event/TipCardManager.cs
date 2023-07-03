@@ -106,11 +106,11 @@ public class TipCardManager : MonoBehaviour
                     break;
                 //顺手牵羊
                 case SubTypeOfCards.Shunshouqianyang:
-                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]), TargetCardsPanelType.Shunshouqianyang);
+                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]), CardSelectPanelType.Shunshouqianyang);
                     break;
                 //过河拆桥
                 case SubTypeOfCards.Guohechaiqiao:
-                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]), TargetCardsPanelType.GuoheChaiqiao);
+                    ShowCardsSelection(GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID][0]), CardSelectPanelType.GuoheChaiqiao);
                     break;
                 //五谷丰登
                 case SubTypeOfCards.Wugufengdeng:
@@ -122,7 +122,7 @@ public class TipCardManager : MonoBehaviour
                         else
                         {
                             int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
-                            ShowCardsFromDeck(cardManager.TargetsPlayerIDs.Count, TargetCardsPanelType.Wugufengdeng);
+                            ShowCardsFromDeck(cardManager.TargetsPlayerIDs.Count, CardSelectPanelType.Wugufengdeng);
                         }
                     }
                     break;
@@ -279,7 +279,7 @@ public class TipCardManager : MonoBehaviour
     /// </summary>
     /// <param name="cardsNumber"></param>
     /// <param name="targetCardsPanelType"></param>
-    public void ShowCardsFromDeck(int cardsNumber, TargetCardsPanelType targetCardsPanelType)
+    public void ShowCardsFromDeck(int cardsNumber, CardSelectPanelType targetCardsPanelType)
     {
         GlobalSettings.Instance.CardSelectVisual.PanelType = targetCardsPanelType;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
@@ -297,7 +297,7 @@ public class TipCardManager : MonoBehaviour
     /// </summary>
     /// <param name="targetPlayer"></param>
     /// <param name="targetCardsPanelType"></param>
-    public void ShowCardsSelection(Player targetPlayer, TargetCardsPanelType targetCardsPanelType)
+    public void ShowCardsSelection(Player targetPlayer, CardSelectPanelType targetCardsPanelType)
     {
         GlobalSettings.Instance.CardSelectVisual.PanelType = targetCardsPanelType;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);

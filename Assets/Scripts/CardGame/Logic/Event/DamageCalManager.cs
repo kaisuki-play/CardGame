@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class DamageCalManager : MonoBehaviour
 {
-    public static int FinalDamage(int originalDamage, OneCardManager playedCard = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null)
+    public static async Task<int> FinalDamage(int originalDamage, OneCardManager playedCard = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null)
     {
         Debug.Log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         //酒杀钩子
@@ -15,7 +16,7 @@ public class DamageCalManager : MonoBehaviour
         {
             Debug.Log("1$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
             //伤害来源技能、装备等
-            originalDamage = SkillManager.StartCalculateDamageForSource(playedCard, targetPlayer, originalDamage, spellAttribute);
+            originalDamage = await SkillManager.StartCalculateDamageForSource(playedCard, targetPlayer, originalDamage, spellAttribute);
             //伤害目标的技能、装备等
             originalDamage = SkillManager.StartCalculateDamageForTarget(playedCard, targetPlayer, originalDamage, spellAttribute);
         }

@@ -206,9 +206,12 @@ public class HighlightManager : MonoBehaviour
         {
             oneCardManager.TargetComponent.SetActive(false);
         }
-        if (cardType == SubTypeOfCards.Peach && DyingManager.Instance.DyingPlayer.ID == player.ID)
+        if (DyingManager.Instance.IsInDyingInquiry)
         {
-            EnableCardWithCardType(player, SubTypeOfCards.Analeptic);
+            if (cardType == SubTypeOfCards.Peach && DyingManager.Instance.DyingPlayer.ID == player.ID)
+            {
+                EnableCardWithCardType(player, SubTypeOfCards.Analeptic);
+            }
         }
     }
 }

@@ -30,7 +30,10 @@ public enum TaskType
     MaatSkill1,
     MaatSkill2,
     FenrirSkill1,
-    FenrirSkill2
+    FenrirSkill2,
+    AnubisSkill1,
+    OsirisSkill1,
+    OsirisSkill2
 }
 public class TaskManager : MonoBehaviour
 {

@@ -325,7 +325,11 @@ public class UseCardManager : MonoBehaviour
                 UseCardManager.Instance.HandleImpeccable(cardManager);
             }
         }
-        BackToWhoseTurn();
+        else
+        {
+            BackToWhoseTurn();
+        }
+
         await TaskManager.Instance.DontAwait();
     }
 

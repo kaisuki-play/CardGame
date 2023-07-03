@@ -63,6 +63,8 @@ public class GlobalSettings : MonoBehaviour
     public CardAsset PeachSlashAsset;
     public CardAsset AnapliticSlashAsset;
     public CardAsset JinkAsset;
+    [Header("ScoreEvaluationVisual")]
+    public ScoreEvaluationVisual ScoreEvaluation;
 
     public Dictionary<AreaPosition, Player> Players = new Dictionary<AreaPosition, Player>();
 

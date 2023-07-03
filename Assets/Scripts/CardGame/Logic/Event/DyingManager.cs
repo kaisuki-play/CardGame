@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public enum DyingInquirePhase
 {
@@ -27,14 +28,19 @@ public class DyingManager : MonoBehaviour
         Instance = this;
     }
 
-    public void EnterDying(Player damageOriginPlayer, Player dyingPlayer)
+    public async void EnterDying(Player damageOriginPlayer, Player dyingPlayer)
     {
         Debug.Log("进入濒死状态");
         DyingManager.Instance.IsInDyingInquiry = true;
         DyingManager.Instance.DamageOriginPlayer = damageOriginPlayer;
         DyingManager.Instance.DyingPlayer = dyingPlayer;
         DyingManager.Instance.InquireTargetId = TurnManager.Instance.whoseTurn.ID;
-        InquiryNonMedicalSkills();
+        await InquiryNonMedicalSkills();
+        await InquiryMedicalSkills();
+        if (DyingManager.Instance.IsInDyingInquiry)
+        {
+            DyingManager.Instance.InquiryPeachs();
+        }
     }
 
     public void ClickCancel()
@@ -46,12 +52,6 @@ public class DyingManager : MonoBehaviour
             DyingManager.Instance.InquireTargetId = TurnManager.Instance.whoseTurn.ID;
             switch (DyingInquirePhase)
             {
-                case DyingInquirePhase.NonMedicalSkill:
-                    DyingManager.Instance.InquiryMedicalSkills();
-                    break;
-                case DyingInquirePhase.MedicalSkill:
-                    DyingManager.Instance.InquiryPeachs();
-                    break;
                 case DyingInquirePhase.InquiryPeach:
                     Debug.Log("Real Die");
                     DyingManager.Instance.RealDie();
@@ -67,45 +67,48 @@ public class DyingManager : MonoBehaviour
     /// <summary>
     /// 非救治技能询问
     /// </summary>
-    public void InquiryNonMedicalSkills()
+    public async Task InquiryNonMedicalSkills()
     {
-        DyingInquirePhase = DyingInquirePhase.NonMedicalSkill;
+        //DyingInquirePhase = DyingInquirePhase.NonMedicalSkill;
 
-        HighlightManager.DisableAllCards();
+        //HighlightManager.DisableAllCards();
 
-        Player InquirePlayer = GlobalSettings.Instance.FindPlayerByID(DyingManager.Instance.InquireTargetId);
+        //Player InquirePlayer = GlobalSettings.Instance.FindPlayerByID(DyingManager.Instance.InquireTargetId);
 
-        // TODO 玩家非救治技能高亮
+        //// TODO 玩家非救治技能高亮
 
-        InquirePlayer.ShowOp1Button = true;
-        InquirePlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-        InquirePlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
-        {
-            InquirePlayer.ShowOp1Button = false;
-            DyingManager.Instance.ClickCancel();
-        });
+        //InquirePlayer.ShowOp1Button = true;
+        //InquirePlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+        //InquirePlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+        //{
+        //    InquirePlayer.ShowOp1Button = false;
+        //    DyingManager.Instance.ClickCancel();
+        //});
+        await TaskManager.Instance.DontAwait();
     }
 
     /// <summary>
     /// 救治技能询问
     /// </summary>
-    public void InquiryMedicalSkills()
+    public async Task InquiryMedicalSkills()
     {
-        DyingInquirePhase = DyingInquirePhase.MedicalSkill;
+        //DyingInquirePhase = DyingInquirePhase.MedicalSkill;
 
-        HighlightManager.DisableAllCards();
+        //HighlightManager.DisableAllCards();
 
-        Player InquirePlayer = GlobalSettings.Instance.FindPlayerByID(DyingManager.Instance.InquireTargetId);
+        //Player InquirePlayer = GlobalSettings.Instance.FindPlayerByID(DyingManager.Instance.InquireTargetId);
 
-        // TODO 玩家救治技能高亮
+        //// TODO 玩家救治技能高亮
 
-        InquirePlayer.ShowOp1Button = true;
-        InquirePlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-        InquirePlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
-        {
-            InquirePlayer.ShowOp1Button = false;
-            DyingManager.Instance.ClickCancel();
-        });
+        //InquirePlayer.ShowOp1Button = true;
+        //InquirePlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+        //InquirePlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+        //{
+        //    InquirePlayer.ShowOp1Button = false;
+        //    DyingManager.Instance.ClickCancel();
+        //});
+        await SkillManager.EnterDying();
+        await TaskManager.Instance.DontAwait();
     }
 
     public void InquiryPeachs()

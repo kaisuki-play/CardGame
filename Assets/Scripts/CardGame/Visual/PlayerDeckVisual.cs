@@ -194,7 +194,7 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(ThunderAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(HuogongAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(WugufengdengAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
-        //InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
+        InsertNewCardAsset(NanmanAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(WanjianqifaAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(JuedouAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black);
         //InsertNewCardAsset(FthjAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, 4);
@@ -279,6 +279,7 @@ public class PlayerDeckVisual : MonoBehaviour
         }
         return null;
     }
+
 
     public (CardSuits, CardRank, CardColor) DisguisedCardSuit(List<int> relationCardIds)
     {

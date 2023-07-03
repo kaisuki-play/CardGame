@@ -212,7 +212,7 @@ public class EquipmentManager : MonoBehaviour
     /// 弃一张牌
     public void DisCardForCixiong(Player targetPlayer)
     {
-        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
         {
@@ -299,7 +299,7 @@ public class EquipmentManager : MonoBehaviour
     //贯石斧弃两张牌造成伤害
     public void DisCardForGuanshifu(Player targetPlayer)
     {
-        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 2;
         GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
@@ -389,7 +389,7 @@ public class EquipmentManager : MonoBehaviour
     //贯石斧弃两张牌造成伤害
     public void SelectCardForZhangbashemao(Player targetPlayer, bool needTarget)
     {
-        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.UseSomeCardAsSlash;
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.UseSomeCardAsSlash;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 2;
         GlobalSettings.Instance.CardSelectVisual.AfterSelectCardAsOtherCardCompletion = () =>
@@ -710,7 +710,7 @@ public class EquipmentManager : MonoBehaviour
     //寒冰剑弃两张手牌，防止伤害
     public void SelectCardForFrostBlade(Player targetPlayer)
     {
-        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 2;
         GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
@@ -804,7 +804,7 @@ public class EquipmentManager : MonoBehaviour
     //发动麒麟弓
     public void SelectCardForQilingong(Player targetPlayer)
     {
-        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 1;
         GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
@@ -1220,7 +1220,7 @@ public class EquipmentManager : MonoBehaviour
 
     public void SelectCardForThunderHarmer(Player player, Player targetPlayer)
     {
-        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 1;
         GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
@@ -1358,7 +1358,7 @@ public class EquipmentManager : MonoBehaviour
     /// 弃一张牌
     public void DisCardForVictorySword(Player targetPlayer)
     {
-        GlobalSettings.Instance.CardSelectVisual.PanelType = TargetCardsPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
         {

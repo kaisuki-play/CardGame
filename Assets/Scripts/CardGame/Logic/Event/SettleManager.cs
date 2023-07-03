@@ -139,7 +139,7 @@ public class SettleManager : MonoBehaviour
             }
 
             //计算最终伤害
-            originalDamage = DamageCalManager.FinalDamage(originalDamage, cardManager, spellAttribute, curTargetPlayer);
+            originalDamage = await DamageCalManager.FinalDamage(originalDamage, cardManager, spellAttribute, curTargetPlayer);
 
             //结算伤害
             await HealthManager.Instance.DamageEffect(originalDamage, curTargetPlayer);

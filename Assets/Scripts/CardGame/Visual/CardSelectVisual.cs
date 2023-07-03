@@ -3,10 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+
+public enum CardSelectPanelType
+{
+    GuoheChaiqiao,
+    Wugufengdeng,
+    Shunshouqianyang,
+    DisHandCard,
+    UseSomeCardAsSlash,
+    DisSomeCardForDestNumber,
+}
 
 public class CardSelectVisual : MonoBehaviour
 {
-    public TargetCardsPanelType PanelType;
+    public CardSelectPanelType PanelType;
 
     public GameObject HandSlots;
     public GameObject JudgementSlots;
@@ -20,6 +31,8 @@ public class CardSelectVisual : MonoBehaviour
     public System.Action AfterSelectCardAsOtherCardCompletion;
     public int DisCardNumber = 1;
     public int AlreadyDisCardNumber = 0;
+    public List<int> RankSumList = new List<int>();
+    public int RankSum = 0;
 
     public List<int> SelectCardIds = new List<int>();
 
@@ -90,7 +103,7 @@ public class CardSelectVisual : MonoBehaviour
         switch (GlobalSettings.Instance.CardSelectVisual.PanelType)
         {
             //顺手牵羊
-            case TargetCardsPanelType.Shunshouqianyang:
+            case CardSelectPanelType.Shunshouqianyang:
                 {
                     (bool hasShunshouqianyang, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Shunshouqianyang);
                     if (hasShunshouqianyang)
@@ -102,7 +115,7 @@ public class CardSelectVisual : MonoBehaviour
                 }
                 break;
             //过河拆桥
-            case TargetCardsPanelType.GuoheChaiqiao:
+            case CardSelectPanelType.GuoheChaiqiao:
                 {
                     (bool hasGuohechaiqiao, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Guohechaiqiao);
                     if (hasGuohechaiqiao)
@@ -114,7 +127,7 @@ public class CardSelectVisual : MonoBehaviour
                 }
                 break;
             //五谷丰登
-            case TargetCardsPanelType.Wugufengdeng:
+            case CardSelectPanelType.Wugufengdeng:
                 {
                     (bool hasWugufengdeng, OneCardManager cardManager) = GlobalSettings.Instance.Table.HasCardOnTable(SubTypeOfCards.Wugufengdeng);
                     if (hasWugufengdeng)
@@ -139,7 +152,7 @@ public class CardSelectVisual : MonoBehaviour
                 }
                 break;
             //弃牌
-            case TargetCardsPanelType.DisHandCard:
+            case CardSelectPanelType.DisHandCard:
                 {
                     await originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
                     Destroy(selectCard);
@@ -152,7 +165,7 @@ public class CardSelectVisual : MonoBehaviour
                     }
                 }
                 break;
-            case TargetCardsPanelType.UseSomeCardAsSlash:
+            case CardSelectPanelType.UseSomeCardAsSlash:
                 {
                     this.SelectCardIds.Add(originCardManager.UniqueCardID);
                     Destroy(selectCard);
@@ -164,7 +177,48 @@ public class CardSelectVisual : MonoBehaviour
                     }
                 }
                 break;
+            case CardSelectPanelType.DisSomeCardForDestNumber:
+                if (selectCard.GetComponent<OneCardManager>().CanBePlayedNow == false)
+                {
+                    this.SelectCardIds.Add(originCardManager.UniqueCardID);
+                    AlreadyDisCardNumber++;
+                }
+                else
+                {
+                    this.SelectCardIds.Remove(originCardManager.UniqueCardID);
+                    AlreadyDisCardNumber--;
+                }
+                selectCard.GetComponent<OneCardManager>().CanBePlayedNow = !selectCard.GetComponent<OneCardManager>().CanBePlayedNow;
+
+                int rankSum = 0;
+                foreach (int cId in this.SelectCardIds)
+                {
+                    GameObject card = IDHolder.GetGameObjectWithID(cId);
+                    OneCardManager cardManager = card.GetComponent<OneCardManager>();
+                    rankSum += (int)cardManager.CardAsset.CardRank;
+                }
+
+                if (RankSumList.Contains(rankSum))
+                {
+                    this.RankSum = rankSum;
+                    await DisSelectCards();
+                    this.AfterSelectCardAsOtherCardCompletion.Invoke();
+                }
+
+                break;
         }
+    }
+
+    public async Task DisSelectCards()
+    {
+        while (this.SelectCardIds.Count > 0)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(this.SelectCardIds[0]);
+            this.SelectCardIds.RemoveAt(0);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            await cardManager.Owner.PArea.HandVisual.DisCardFromHand(cardManager.UniqueCardID);
+        }
+        this.Dismiss();
     }
 
     public void DisAllCards()

@@ -47,6 +47,9 @@ public class Player : MonoBehaviour
     public event Func<object, BoolTypeEventArgs, Task> NeedToPlayJinkEvent;
     public event Func<object, BoolTypeEventArgs, Task> NeedToPlaySlashEvent;
     public event Func<object, SkillEventArgs, Task> HeroSkillEvent;
+    //委托类型的可以返回参数的
+    public delegate Task<int> DamageCalHandler(object sender, SkillDamageEventArgs extraArgs);
+    public DamageCalHandler DamageCalculateHandler;
 
     //是否忽视防具
     public bool IgnoreArmor = false;
@@ -724,6 +727,7 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public async Task DragTarget(OneCardManager playedCard, List<int> targets)
     {
+        await SkillManager.AfterDragTargetOrDragCard(playedCard);
         playedCard.isUsedCard = true;
         if (playedCard.isUsedCard)
         {
@@ -742,6 +746,7 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public async Task DragCard(OneCardManager playedCard, List<int> targets)
     {
+        await SkillManager.AfterDragTargetOrDragCard(playedCard);
         if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Impeccable
             || (playedCard.CardAsset.TypeOfCard == TypesOfCards.Equipment)
             || (playedCard.CardAsset.TypeOfCard == TypesOfCards.DelayTips
@@ -866,6 +871,24 @@ public class Player : MonoBehaviour
         this.Hand.CardsInHand.Clear();
         this.EquipmentLogic.CardsInEquipment.Clear();
         this.JudgementLogic.CardsInJudgement.Clear();
+    }
+
+
+    /// <summary>
+    /// 拼点类型展示卡牌
+    /// </summary>
+    /// <returns></returns>
+    public async Task<int> ScoreEvaluationCard()
+    {
+        //牌堆顶来一张牌
+        GameObject card = GlobalSettings.Instance.PDeck.DeckCards[0];
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+
+        //从牌堆中弃掉
+        GlobalSettings.Instance.PDeck.DeckCards.Remove(card);
+
+        int randSum = await GlobalSettings.Instance.ScoreEvaluation.AddCard(card);
+        return randSum;
     }
 
 
@@ -1045,13 +1068,26 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="UsedA"></param>
     /// <returns></returns>
-    public async Task InvokeHeroSkillEvent(OneCardManager playedCard, HeroSkillActivePhase skillPhase, int targetID)
+    public async Task InvokeHeroSkillEvent(HeroSkillActivePhase skillPhase, OneCardManager playedCard = null, int targetID = -1)
     {
         if (HeroSkillEvent != null)
         {
             var eventArgs = new SkillEventArgs(playedCard, skillPhase, targetID);
             await Task.WhenAll(HeroSkillEvent.Invoke(this, eventArgs));
-            HeroSkillEvent = null;
+        }
+    }
+
+    public async Task<int> InvokeHeroDamageCalculuateEvent(OneCardManager playedCard, HeroSkillActivePhase skillPhase, int targetID, int damage)
+    {
+        if (DamageCalculateHandler != null)
+        {
+            var eventArgs = new SkillDamageEventArgs(playedCard, skillPhase, targetID, damage);
+            int res = await DamageCalculateHandler.Invoke(this, eventArgs);
+            return res;
+        }
+        else
+        {
+            return 0;
         }
     }
 }
