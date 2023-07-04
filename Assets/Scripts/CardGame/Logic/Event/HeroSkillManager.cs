@@ -394,12 +394,8 @@ public class HeroSkillManager : MonoBehaviour
     /// <param name="playedCard"></param>
     /// <param name="targetID"></param>
     /// <returns></returns>
-    public static async Task ActiveOsirisSkill1(Player mainPlayer, OneCardManager playedCard)
+    public static async Task ActiveOsirisSkill1(Player mainPlayer, OneCardManager playedCard = null)
     {
-        if (playedCard != null && playedCard.IsDisguisedCard)
-        {
-            return;
-        }
         if (TurnManager.Instance.TurnPhase != TurnPhase.PlayCard)
         {
             return;
@@ -410,6 +406,15 @@ public class HeroSkillManager : MonoBehaviour
         }
         if (HeroSkillState.HeroSkillBooleanDic_Once.ContainsKey(HeroSKillStateKey.OsirisSkill1State) && HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.OsirisSkill1State] == true)
         {
+            if (playedCard == null)
+            {
+                return;
+            }
+            if (playedCard != null && playedCard.IsDisguisedCard)
+            {
+                return;
+            }
+
             GameObject card = playedCard.gameObject;
             if (!playedCard.TargetComponent.activeSelf)
             {
@@ -427,7 +432,7 @@ public class HeroSkillManager : MonoBehaviour
         {
             Player player = mainPlayer;
 
-            HighlightManager.DisableAllOpButtons();
+            //HighlightManager.DisableAllOpButtons();
             player.ShowOp2Button = true;
             player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
             player.PArea.Portrait.ChangeOp2ButtonText("发动Osiris技能1");
@@ -437,34 +442,8 @@ public class HeroSkillManager : MonoBehaviour
                 HighlightManager.DisableAllCards();
                 HighlightManager.ShowACards(player);
                 HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.OsirisSkill1State] = true;
-                //else
-                //{
-                //    DragSpellOnTarget dragSpellOnTarget = playedCard.TargetComponent.GetComponent<DragSpellOnTarget>();
-                //    dragSpellOnTarget.ResetTriangleTargetComponent();
-                //}
-
-                //List<int> relationIds = new List<int>();
-                //relationIds.Add(playedCard.UniqueCardID);
-                //OneCardManager cardManager = GlobalSettings.Instance.PDeck.DisguisedCardAssetWithType(playedCard.Owner, SubTypeOfCards.Wugufengdeng, relationIds, false);
-                //cardManager.CanBePlayedNow = true;
-
-                //TaskManager.Instance.ExceptionBlockTask(TaskType.OsirisSkill1, "手牌当五谷丰登");
             });
         }
-        //TaskManager.Instance.AddATask(TaskType.OsirisSkill1);
-
-
-
-        //player.ShowOp3Button = true;
-        //player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
-        //player.PArea.Portrait.ChangeOp3Button2Text("不发动Osiris技能1");
-        //player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
-        //{
-        //    HighlightManager.DisableAllOpButtons();
-        //    TaskManager.Instance.UnBlockTask(TaskType.OsirisSkill1);
-        //});
-
-        //await TaskManager.Instance.TaskBlockDic[TaskType.OsirisSkill1][0].Task;
         await TaskManager.Instance.DontAwait();
     }
 
@@ -700,6 +679,10 @@ public class HeroSkillManager : MonoBehaviour
         {
             await mainPlayer.DisACardFromHand(card.GetComponent<OneCardManager>().UniqueCardID);
             DelayTipManager.flopCardManager = card.GetComponent<OneCardManager>();
+            if (DelayTipManager.flopCardManager.CardAsset.CardColor == CardColor.Red)
+            {
+                await ActiveNephthysSkill3(mainPlayer, DelayTipManager.flopCardManager);
+            }
             TaskManager.Instance.UnBlockTask(TaskType.NephthysSkill2);
         };
 
@@ -758,7 +741,13 @@ public class HeroSkillManager : MonoBehaviour
         await TaskManager.Instance.TaskBlockDic[TaskType.NephthysSkill3][0].Task;
     }
 
-
+    /// <summary>
+    /// 普罗米修斯技能1
+    /// </summary>
+    /// <param name="mainPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <param name="heroSkillActivePhase"></param>
+    /// <returns></returns>
     public static async Task ActivePrometheusSkill1(Player mainPlayer, OneCardManager playedCard, HeroSkillActivePhase heroSkillActivePhase)
     {
         if (TurnManager.Instance.whoseTurn.ID != mainPlayer.ID)
@@ -805,6 +794,10 @@ public class HeroSkillManager : MonoBehaviour
                     {
                         HighlightManager.DisableAllOpButtons();
                         TaskManager.Instance.UnBlockTask(TaskType.PrometheusSkill1);
+                        if (TaskManager.Instance.TaskBlockDic.Keys.Count == 0)
+                        {
+                            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+                        }
                     });
 
                     await TaskManager.Instance.TaskBlockDic[TaskType.PrometheusSkill1][0].Task;
@@ -859,9 +852,100 @@ public class HeroSkillManager : MonoBehaviour
         await TaskManager.Instance.DontAwait();
     }
 
-    public static async Task ActivePrometheusSkill2(Player mainPlayer, OneCardManager playedCard)
+    /// <summary>
+    /// 普罗米修斯技能2
+    /// </summary>
+    /// <param name="mainPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <param name="heroSkillActivePhase"></param>
+    /// <returns></returns>
+    public static async Task ActivePrometheusSkill2(Player mainPlayer, OneCardManager playedCard, HeroSkillActivePhase heroSkillActivePhase)
     {
-        await TestAsync(mainPlayer, "普罗米修斯2");
+        if (TurnManager.Instance.whoseTurn.ID == mainPlayer.ID)
+        {
+            return;
+        }
+        switch (heroSkillActivePhase)
+        {
+            case HeroSkillActivePhase.Hook27:
+                {
+                    TaskManager.Instance.AddATask(TaskType.PrometheusSkill2);
+
+                    Player player = mainPlayer;
+
+                    HighlightManager.DisableAllCards();
+                    HighlightManager.DisableAllOpButtons();
+                    player.ShowOp2Button = true;
+                    player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                    player.PArea.Portrait.ChangeOp2ButtonText("发动Prometheus技能2");
+                    player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        HighlightManager.DisableAllCards();
+                        await mainPlayer.DrawSomeCards(2);
+                        await GiveCardsToOther(mainPlayer, playedCard, TurnManager.Instance.whoseTurn);
+                    });
+
+                    player.ShowOp3Button = true;
+                    player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                    player.PArea.Portrait.ChangeOp3Button2Text("不发动Prometheus技能2");
+                    player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        TaskManager.Instance.UnBlockTask(TaskType.PrometheusSkill2);
+                        if (TaskManager.Instance.TaskBlockDic.Keys.Count == 0)
+                        {
+                            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+                        }
+                    });
+
+                    await TaskManager.Instance.TaskBlockDic[TaskType.PrometheusSkill2][0].Task;
+                }
+                break;
+            case HeroSkillActivePhase.Hook28:
+                if (HeroSkillState.HeroSkillBooleanDic_Once.ContainsKey(HeroSKillStateKey.PrometheusSkill2Card) && HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.PrometheusSkill2Card] == true)
+                {
+                    if (!HeroSkillState.HeroSkillBooleanDic_Once.ContainsKey(HeroSKillStateKey.EnteredDying) || HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.EnteredDying] == false)
+                    {
+                        await LooseHealthManager.LooseHealth(mainPlayer, mainPlayer, 1);
+                    }
+                }
+                break;
+        }
+    }
+
+    public static async Task GiveCardsToOther(Player mainPlayer, OneCardManager playedCard, Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.GiveCardToOther;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.AfterSelectCardAsOtherCardCompletion = async () =>
+        {
+            //存储牌
+            HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.PrometheusSkill2Card] = true;
+            GlobalSettings.Instance.CardSelectVisual.DisAllCards();
+            foreach (int cardId in GlobalSettings.Instance.CardSelectVisual.SelectCardIds)
+            {
+                GameObject card = IDHolder.GetGameObjectWithID(cardId);
+                await mainPlayer.GiveCardToTarget(targetPlayer, card.GetComponent<OneCardManager>());
+            }
+            GlobalSettings.Instance.CardSelectVisual.SelectCardIds.Clear();
+            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            TaskManager.Instance.UnBlockTask(TaskType.PrometheusSkill2);
+        };
+
+        for (int i = mainPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        for (int i = mainPlayer.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.EquipmentLogic.CardsInEquipment[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        await TaskManager.Instance.DontAwait();
     }
 
     public static async Task TestAsync(Player mainPlayer, string skillName)

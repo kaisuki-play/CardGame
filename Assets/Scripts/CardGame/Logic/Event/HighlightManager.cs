@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
+using static UnityEngine.GraphicsBuffer;
 
 public enum CardsType
 {
@@ -82,6 +84,21 @@ public class HighlightManager : MonoBehaviour
         {
             await SkillManager.NeedToPlaySlash(player, true);
         }
+        //List<HeroSkillInfo> skillList = HeroSkillRegister.SkillRegister[player.ID];
+        //bool hasSkill = false;
+        //foreach (HeroSkillInfo heroSkillInfo in skillList)
+        //{
+        //    if (heroSkillInfo.SkillType == HeroSkillType.OsirisSkill1)
+        //    {
+        //        hasSkill = true;
+        //        break;
+        //    }
+        //}
+        //if (hasSkill)
+        //{
+        //    await HeroSkillManager.ActiveOsirisSkill1(player);
+        //}
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.HookHightlight);
     }
 
     public static void EnableCardWithCardType(Player player, SubTypeOfCards cardType, bool needTargetComponent = true)

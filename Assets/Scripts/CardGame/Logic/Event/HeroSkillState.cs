@@ -5,7 +5,9 @@ public enum HeroSKillStateKey
 {
     OsirisSkill1State,//手牌当五谷丰登
     OsirisSkill2State,//木乃伊
-    PrometheusSkill1Card
+    PrometheusSkill1Card,
+    PrometheusSkill2Card,
+    EnteredDying,
 }
 public class HeroSkillState : MonoBehaviour
 {

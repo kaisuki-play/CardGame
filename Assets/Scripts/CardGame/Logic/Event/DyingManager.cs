@@ -31,6 +31,9 @@ public class DyingManager : MonoBehaviour
     public async void EnterDying(Player damageOriginPlayer, Player dyingPlayer)
     {
         Debug.Log("进入濒死状态");
+        //记录濒死状态
+        HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.EnteredDying] = true;
+
         DyingManager.Instance.IsInDyingInquiry = true;
         DyingManager.Instance.DamageOriginPlayer = damageOriginPlayer;
         DyingManager.Instance.DyingPlayer = dyingPlayer;

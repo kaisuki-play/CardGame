@@ -646,18 +646,27 @@ public class Player : MonoBehaviour
     {
         switch (cardManager.CardLocation)
         {
-            case CardLocation.Judgement:
-                //删除装备来源的人的卡
-                this.JudgementLogic.CardsInJudgement.Remove(cardManager.UniqueCardID);
-                this.PArea.JudgementVisual.RemoveCard(cardManager.gameObject);
-                break;
             case CardLocation.Hand:
-                this.Hand.CardsInHand.Remove(cardManager.UniqueCardID);
-                this.PArea.HandVisual.RemoveCard(cardManager.gameObject);
+                {
+                    this.Hand.CardsInHand.Remove(cardManager.UniqueCardID);
+                    this.PArea.HandVisual.RemoveCard(cardManager.gameObject);
+                }
+                break;
+            case CardLocation.Judgement:
+                {
+
+                    //删除装备来源的人的卡
+                    this.JudgementLogic.CardsInJudgement.Remove(cardManager.UniqueCardID);
+                    this.PArea.JudgementVisual.RemoveCard(cardManager.gameObject);
+                }
                 break;
             case CardLocation.Equipment:
-                this.EquipmentLogic.CardsInEquipment.Remove(cardManager.UniqueCardID);
-                this.PArea.EquipmentVisaul.RemoveCard(cardManager.gameObject);
+                {
+                    this.EquipmentLogic.CardsInEquipment.Remove(cardManager.UniqueCardID);
+                    this.PArea.EquipmentVisaul.RemoveCard(cardManager.gameObject);
+                }
+                break;
+            default:
                 break;
         }
         //cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Hand);

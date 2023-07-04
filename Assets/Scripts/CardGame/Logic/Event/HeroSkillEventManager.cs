@@ -185,23 +185,13 @@ public class HeroSkillEventManager : MonoBehaviour
                     Debug.Log("-----------------------------------------------Prometheus 有技能需要触发" + e.SkillPhase);
                     OneCardManager playedCard = e.PlayedCard;
                     int targetID = e.TargetID;
-                    HeroSkillInfo skillInfo = new HeroSkillInfo();
-                    foreach (HeroSkillInfo skill in skillList)
+                    if (skillList[0].PhaseList.Contains(skillPhase))
                     {
-                        if (skill.PhaseList.Contains(skillPhase))
-                        {
-                            skillInfo = skill;
-                            break;
-                        }
+                        await HeroSkillManager.ActivePrometheusSkill1(player, playedCard, skillPhase);
                     }
-                    switch (skillInfo.SkillType)
+                    if (skillList[1].PhaseList.Contains(skillPhase))
                     {
-                        case HeroSkillType.PrometheusSkill1:
-                            await HeroSkillManager.ActivePrometheusSkill1(player, playedCard, skillPhase);
-                            break;
-                        case HeroSkillType.PrometheusSkill2:
-                            await HeroSkillManager.ActivePrometheusSkill2(player, playedCard);
-                            break;
+                        await HeroSkillManager.ActivePrometheusSkill2(player, playedCard, skillPhase);
                     }
                 }
                 break;

@@ -39,7 +39,8 @@ public enum HeroSkillActivePhase
     Hook30,
     Hook31,
     Hook32,
-    Hook33
+    Hook33,
+    HookHightlight
 }
 
 public enum HeroSkillType
@@ -164,7 +165,7 @@ public class HeroSkillRegister : MonoBehaviour
             case PlayerWarrior.Osiris:
                 {
                     List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
-                    skill1PhaseList.Add(HeroSkillActivePhase.Hook27);
+                    skill1PhaseList.Add(HeroSkillActivePhase.HookHightlight);
                     skill1PhaseList.Add(HeroSkillActivePhase.Hook16);
 
                     skillList.Add(new HeroSkillInfo(HeroSkillType.OsirisSkill1, skill1PhaseList));
@@ -210,6 +211,7 @@ public class HeroSkillRegister : MonoBehaviour
 
                     List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
                     skill2PhaseList.Add(HeroSkillActivePhase.Hook27);
+                    skill2PhaseList.Add(HeroSkillActivePhase.Hook28);
 
                     skillList.Add(new HeroSkillInfo(HeroSkillType.PrometheusSkill2, skill2PhaseList));
 

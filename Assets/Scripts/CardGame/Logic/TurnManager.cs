@@ -157,11 +157,12 @@ public class TurnManager : MonoBehaviour
                 break;
             case TurnPhase.PlayCard:
                 StatusText.text = "PlayCard Phase";
-                HighlightManager.EnableCardsWithType(whoseTurn);
                 await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook27);
+                HighlightManager.EnableCardsWithType(whoseTurn);
                 break;
             case TurnPhase.EndPlayCard:
                 //TODO 技能Hook
+                await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook28);
                 TurnManager.Instance.TurnPhase = TurnPhase.SkipDisCard;
                 break;
             ///是否跳过弃牌阶段

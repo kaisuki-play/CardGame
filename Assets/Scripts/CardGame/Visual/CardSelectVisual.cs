@@ -14,7 +14,8 @@ public enum CardSelectPanelType
     UseSomeCardAsSlash,
     DisSomeCardForDestNumber,
     Judgement,
-    ShowTargetACard
+    ShowTargetACard,
+    GiveCardToOther
 }
 
 public class CardSelectVisual : MonoBehaviour
@@ -220,6 +221,26 @@ public class CardSelectVisual : MonoBehaviour
                 {
                     Dismiss();
                     this.AfterSelectCardForJudgementCompletion(originCard);
+                }
+                break;
+            case CardSelectPanelType.GiveCardToOther:
+                {
+                    if (selectCard.GetComponent<OneCardManager>().CanBePlayedNow == false)
+                    {
+                        this.SelectCardIds.Add(originCardManager.UniqueCardID);
+                        AlreadyDisCardNumber++;
+                    }
+                    else
+                    {
+                        this.SelectCardIds.Remove(originCardManager.UniqueCardID);
+                        AlreadyDisCardNumber--;
+                    }
+                    selectCard.GetComponent<OneCardManager>().CanBePlayedNow = !selectCard.GetComponent<OneCardManager>().CanBePlayedNow;
+
+                    if (AlreadyDisCardNumber == 2)
+                    {
+                        this.AfterSelectCardAsOtherCardCompletion.Invoke();
+                    }
                 }
                 break;
         }
