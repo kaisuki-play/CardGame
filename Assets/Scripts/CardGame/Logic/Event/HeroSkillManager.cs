@@ -404,6 +404,11 @@ public class HeroSkillManager : MonoBehaviour
         {
             return;
         }
+        if (HeroSkillState.HeroSkillBooleanDic_Once.ContainsKey(HeroSKillStateKey.OsirisSkill2State) && HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.OsirisSkill2State] == true)
+        {
+            Debug.Log("发动过木乃伊");
+            return;
+        }
         if (HeroSkillState.HeroSkillBooleanDic_Once.ContainsKey(HeroSKillStateKey.OsirisSkill1State) && HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.OsirisSkill1State] == true)
         {
             if (playedCard == null)
@@ -471,6 +476,8 @@ public class HeroSkillManager : MonoBehaviour
             {
                 HighlightManager.DisableAllOpButtons();
                 HighlightManager.DisableAllCards();
+                //本回合发动过木乃伊了
+                HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.OsirisSkill2State] = true;
                 foreach (Player targetPlayer in GlobalSettings.Instance.PlayerInstances)
                 {
                     if (targetPlayer.ID != mainPlayer.ID)
