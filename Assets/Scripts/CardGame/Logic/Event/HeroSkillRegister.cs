@@ -200,6 +200,25 @@ public class HeroSkillRegister : MonoBehaviour
                     HeroDamageEventManager.RegisterDamageEvent(player);
                 }
                 break;
+            case PlayerWarrior.Prometheus:
+                {
+                    List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
+                    skill1PhaseList.Add(HeroSkillActivePhase.Hook27);
+                    skill1PhaseList.Add(HeroSkillActivePhase.Hook1);
+
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.PrometheusSkill1, skill1PhaseList));
+
+                    List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
+                    skill2PhaseList.Add(HeroSkillActivePhase.Hook27);
+
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.PrometheusSkill2, skill2PhaseList));
+
+                    HeroSkillRegister.SkillRegister[player.ID] = skillList;
+
+                    HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
+                }
+                break;
         }
 
     }

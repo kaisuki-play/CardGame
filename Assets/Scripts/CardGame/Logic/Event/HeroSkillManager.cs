@@ -759,6 +759,110 @@ public class HeroSkillManager : MonoBehaviour
     }
 
 
+    public static async Task ActivePrometheusSkill1(Player mainPlayer, OneCardManager playedCard, HeroSkillActivePhase heroSkillActivePhase)
+    {
+        if (TurnManager.Instance.whoseTurn.ID != mainPlayer.ID)
+        {
+            return;
+        }
+
+        switch (heroSkillActivePhase)
+        {
+            case HeroSkillActivePhase.Hook27:
+                {
+                    TaskManager.Instance.AddATask(TaskType.PrometheusSkill1);
+
+                    Player player = mainPlayer;
+
+                    HighlightManager.DisableAllOpButtons();
+                    player.ShowOp2Button = true;
+                    player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                    player.PArea.Portrait.ChangeOp2ButtonText("发动Prometheus技能1");
+                    player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        HighlightManager.DisableAllCards();
+                        foreach (Player targetPlayer in GlobalSettings.Instance.PlayerInstances)
+                        {
+                            if (targetPlayer.ID != mainPlayer.ID)
+                            {
+                                targetPlayer.ShowOp1Button = true;
+                                targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                                targetPlayer.PArea.Portrait.ChangeOp1ButtonText("选择");
+                                targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+                                {
+                                    HighlightManager.DisableAllOpButtons();
+                                    await ShowOtherCard(mainPlayer, playedCard, targetPlayer);
+                                });
+                            }
+                        }
+                    });
+
+                    player.ShowOp3Button = true;
+                    player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                    player.PArea.Portrait.ChangeOp3Button2Text("不发动Prometheus技能1");
+                    player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        TaskManager.Instance.UnBlockTask(TaskType.PrometheusSkill1);
+                    });
+
+                    await TaskManager.Instance.TaskBlockDic[TaskType.PrometheusSkill1][0].Task;
+                }
+                break;
+            case HeroSkillActivePhase.Hook1:
+                {
+                    if (TurnManager.Instance.TurnPhase != TurnPhase.PlayCard)
+                    {
+                        return;
+                    }
+                    if (HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.PrometheusSkill1Card])
+                    {
+                        OneCardManager storedCardManager = HeroSkillState.HeroSkillCardDic_Once[HeroSKillStateKey.PrometheusSkill1Card];
+                        if (playedCard.CardAsset.TypeOfCard == storedCardManager.CardAsset.TypeOfCard)
+                        {
+                            Debug.Log("跟之前的牌类型一样");
+                            await mainPlayer.DrawSomeCards(1);
+                        }
+                        await TaskManager.Instance.DontAwait();
+                    }
+                    else
+                    {
+                        await TaskManager.Instance.DontAwait();
+                    }
+                }
+                break;
+        }
+
+
+    }
+
+    public static async Task ShowOtherCard(Player mainPlayer, OneCardManager playedCard, Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.Judgement;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.AfterSelectCardForJudgementCompletion = async (card) =>
+        {
+            //存储牌
+            HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.PrometheusSkill1Card] = true;
+            HeroSkillState.HeroSkillCardDic_Once[HeroSKillStateKey.PrometheusSkill1Card] = card.GetComponent<OneCardManager>();
+            HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            TaskManager.Instance.UnBlockTask(TaskType.PrometheusSkill1);
+        };
+
+        for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    public static async Task ActivePrometheusSkill2(Player mainPlayer, OneCardManager playedCard)
+    {
+        await TestAsync(mainPlayer, "普罗米修斯2");
+    }
 
     public static async Task TestAsync(Player mainPlayer, string skillName)
     {

@@ -5,15 +5,20 @@ public enum HeroSKillStateKey
 {
     OsirisSkill1State,//手牌当五谷丰登
     OsirisSkill2State,//木乃伊
+    PrometheusSkill1Card
 }
 public class HeroSkillState : MonoBehaviour
 {
-    //存储boolean类型的技能,限定一次
+    //存储boolean类型的技能,回合结束后清除
     public static Dictionary<HeroSKillStateKey, bool> HeroSkillBooleanDic_Once = new Dictionary<HeroSKillStateKey, bool>();
+
+    ///存储卡牌类型的技能,回合结束后清除
+    public static Dictionary<HeroSKillStateKey, OneCardManager> HeroSkillCardDic_Once = new Dictionary<HeroSKillStateKey, OneCardManager>();
 
     //清除一次性的值
     public static void ClearOnceValue()
     {
         HeroSkillBooleanDic_Once.Clear();
+        HeroSkillCardDic_Once.Clear();
     }
 }

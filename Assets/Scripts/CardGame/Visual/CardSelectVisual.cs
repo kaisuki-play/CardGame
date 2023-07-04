@@ -14,6 +14,7 @@ public enum CardSelectPanelType
     UseSomeCardAsSlash,
     DisSomeCardForDestNumber,
     Judgement,
+    ShowTargetACard
 }
 
 public class CardSelectVisual : MonoBehaviour
@@ -210,6 +211,12 @@ public class CardSelectVisual : MonoBehaviour
 
                 break;
             case CardSelectPanelType.Judgement:
+                {
+                    Dismiss();
+                    this.AfterSelectCardForJudgementCompletion(originCard);
+                }
+                break;
+            case CardSelectPanelType.ShowTargetACard:
                 {
                     Dismiss();
                     this.AfterSelectCardForJudgementCompletion(originCard);
