@@ -574,6 +574,12 @@ public class HeroSkillManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Nephthys技能1
+    /// </summary>
+    /// <param name="mainPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
     public static async Task ActiveNephthysSkill1(Player mainPlayer, OneCardManager playedCard)
     {
         if (TurnManager.Instance.whoseTurn.ID != mainPlayer.ID)
@@ -650,6 +656,13 @@ public class HeroSkillManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Nephthys技能2
+    /// </summary>
+    /// <param name="mainPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <param name="targetId"></param>
+    /// <returns></returns>
     public static async Task ActiveNephthysSkill2(Player mainPlayer, OneCardManager playedCard, int targetId)
     {
         TaskManager.Instance.AddATask(TaskType.NephthysSkill2);
@@ -699,6 +712,13 @@ public class HeroSkillManager : MonoBehaviour
         await TaskManager.Instance.DontAwait();
     }
 
+
+    /// <summary>
+    /// Nephthys 技能3
+    /// </summary>
+    /// <param name="mainPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
     public static async Task ActiveNephthysSkill3(Player mainPlayer, OneCardManager playedCard)
     {
         //你的回合外，你使用牌
@@ -710,8 +730,35 @@ public class HeroSkillManager : MonoBehaviour
         {
             return;
         }
-        await TestAsync(mainPlayer, "NephthysSkill3");
+        TaskManager.Instance.AddATask(TaskType.NephthysSkill3);
+
+        Player player = mainPlayer;
+
+        HighlightManager.DisableAllOpButtons();
+        player.ShowOp2Button = true;
+        player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp2ButtonText("发动Nephthys技能3");
+        player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            HighlightManager.DisableAllCards();
+            await player.DrawSomeCards(1);
+            TaskManager.Instance.UnBlockTask(TaskType.NephthysSkill3);
+        });
+
+        player.ShowOp3Button = true;
+        player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp3Button2Text("不发动Nephthys技能3");
+        player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            TaskManager.Instance.UnBlockTask(TaskType.NephthysSkill3);
+        });
+
+        await TaskManager.Instance.TaskBlockDic[TaskType.NephthysSkill3][0].Task;
     }
+
+
 
     public static async Task TestAsync(Player mainPlayer, string skillName)
     {
