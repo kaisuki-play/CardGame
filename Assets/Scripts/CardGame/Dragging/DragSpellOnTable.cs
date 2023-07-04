@@ -45,6 +45,9 @@ public class DragSpellOnTable : DraggingActions
 
     public override async void OnEndDrag()
     {
+        // TODO Osiris技能1
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook16, _manager);
+
         if (!_manager.CanBePlayedNow)
         {
             OnCancelDrag();

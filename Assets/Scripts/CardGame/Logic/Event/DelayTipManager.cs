@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 public class DelayTipManager : MonoBehaviour
 {
+    public static OneCardManager flopCardManager = null;
     /// <summary>
     /// 出了一张延时锦囊牌
     /// </summary>
@@ -75,11 +76,16 @@ public class DelayTipManager : MonoBehaviour
         OneCardManager flopedCard = await TurnManager.Instance.whoseTurn.FlopCard();
         Debug.Log("翻出卡牌的花色:" + flopedCard.CardAsset.Suits);
 
+        DelayTipManager.flopCardManager = flopedCard;
+
+        //TODO 判定生效前
+        await SkillManager.BeforeJudgementWork(DelayTipManager.flopCardManager, lastJudgementCard);
+
         switch (judgementCardManager.CardAsset.SubTypeOfCard)
         {
             case SubTypeOfCards.Lebusishu:
                 Debug.Log("乐不思蜀");
-                if (flopedCard.CardAsset.Suits != CardSuits.Hearts)
+                if (DelayTipManager.flopCardManager.CardAsset.Suits != CardSuits.Hearts)
                 {
                     TurnManager.Instance.SkipPlayCardPhase = true;
                 }
@@ -87,7 +93,7 @@ public class DelayTipManager : MonoBehaviour
                 break;
             case SubTypeOfCards.Binliangcunduan:
                 Debug.Log("兵粮寸断");
-                if (flopedCard.CardAsset.Suits != CardSuits.Clubs)
+                if (DelayTipManager.flopCardManager.CardAsset.Suits != CardSuits.Clubs)
                 {
                     TurnManager.Instance.SkipDrawCardPhase = true;
                 }
@@ -95,7 +101,7 @@ public class DelayTipManager : MonoBehaviour
                 break;
             case SubTypeOfCards.Thunder:
                 Debug.Log("闪电");
-                if (flopedCard.CardAsset.Suits == CardSuits.Spades && flopedCard.CardAsset.CardRank != CardRank.Rank_A && flopedCard.CardAsset.CardRank != CardRank.Rank_10 && flopedCard.CardAsset.CardRank != CardRank.Rank_J && flopedCard.CardAsset.CardRank != CardRank.Rank_Q && flopedCard.CardAsset.CardRank != CardRank.Rank_K)
+                if (DelayTipManager.flopCardManager.CardAsset.Suits == CardSuits.Spades && DelayTipManager.flopCardManager.CardAsset.CardRank != CardRank.Rank_A && DelayTipManager.flopCardManager.CardAsset.CardRank != CardRank.Rank_10 && DelayTipManager.flopCardManager.CardAsset.CardRank != CardRank.Rank_J && DelayTipManager.flopCardManager.CardAsset.CardRank != CardRank.Rank_Q && DelayTipManager.flopCardManager.CardAsset.CardRank != CardRank.Rank_K)
                 {
                     TaskManager.Instance.DelayTipTask = new TaskCompletionSource<bool>();
                     await targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);

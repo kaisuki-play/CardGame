@@ -26,7 +26,8 @@ public enum PlayerWarrior
     女娲,
     白虎,
     Apollo,
-    Osiris
+    Osiris,
+    Nephthys
 }
 
 public enum Nation

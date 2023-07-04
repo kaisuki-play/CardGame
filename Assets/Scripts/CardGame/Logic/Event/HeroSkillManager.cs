@@ -66,12 +66,16 @@ public class HeroSkillManager : MonoBehaviour
     /// <param name="playedCard"></param>
     /// <param name="targetID"></param>
     /// <returns></returns>
-    public static async Task ActiveAthenaSkill2(OneCardManager playedCard, int targetID)
+    public static async Task ActiveAthenaSkill2(Player mainPlayer, OneCardManager playedCard, int targetID)
     {
         //牌必须是锦囊牌
         if (playedCard.CardAsset.TypeOfCard != TypesOfCards.Tips && playedCard.CardAsset.TypeOfCard != TypesOfCards.DelayTips)
         {
             await TaskManager.Instance.DontAwait();
+            return;
+        }
+        if (mainPlayer.ID != playedCard.Owner.ID)
+        {
             return;
         }
         if (HeroSkillRegister.SkillRegister.ContainsKey(playedCard.Owner.ID)) //HeroSkillRegister.SkillRegister[playedCard.Owner.ID].Contains(HeroSkillType.AthenaSkill2)
@@ -390,9 +394,9 @@ public class HeroSkillManager : MonoBehaviour
     /// <param name="playedCard"></param>
     /// <param name="targetID"></param>
     /// <returns></returns>
-    public static async Task ActiveOsirisSkill1(Player mainPlayer, OneCardManager playedCard, int targetID)
+    public static async Task ActiveOsirisSkill1(Player mainPlayer, OneCardManager playedCard)
     {
-        if (playedCard.IsDisguisedCard)
+        if (playedCard != null && playedCard.IsDisguisedCard)
         {
             return;
         }
@@ -404,49 +408,64 @@ public class HeroSkillManager : MonoBehaviour
         {
             return;
         }
-        TaskManager.Instance.AddATask(TaskType.OsirisSkill1);
-
-        Player player = mainPlayer;
-
-        HighlightManager.DisableAllOpButtons();
-        player.ShowOp2Button = true;
-        player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
-        player.PArea.Portrait.ChangeOp2ButtonText("发动Osiris技能1");
-        player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        if (HeroSkillState.HeroSkillBooleanDic_Once.ContainsKey(HeroSKillStateKey.OsirisSkill1State) && HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.OsirisSkill1State] == true)
         {
-            HighlightManager.DisableAllOpButtons();
-            HighlightManager.DisableAllCards();
-
             GameObject card = playedCard.gameObject;
             if (!playedCard.TargetComponent.activeSelf)
             {
                 DragSpellOnTable dragSpellOnTable = card.GetComponent<DragSpellOnTable>();
                 dragSpellOnTable.OnCancelDrag();
             }
-            else
-            {
-                DragSpellOnTarget dragSpellOnTarget = playedCard.TargetComponent.GetComponent<DragSpellOnTarget>();
-                dragSpellOnTarget.ResetTriangleTargetComponent();
-            }
 
             List<int> relationIds = new List<int>();
             relationIds.Add(playedCard.UniqueCardID);
             OneCardManager cardManager = GlobalSettings.Instance.PDeck.DisguisedCardAssetWithType(playedCard.Owner, SubTypeOfCards.Wugufengdeng, relationIds, false);
             cardManager.CanBePlayedNow = true;
-
-            TaskManager.Instance.ExceptionBlockTask(TaskType.OsirisSkill1, "手牌当五谷丰登");
-        });
-
-        player.ShowOp3Button = true;
-        player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
-        player.PArea.Portrait.ChangeOp3Button2Text("不发动Osiris技能1");
-        player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+            await TaskManager.Instance.ReturnException("不走下面了");
+        }
+        else
         {
-            HighlightManager.DisableAllOpButtons();
-            TaskManager.Instance.UnBlockTask(TaskType.OsirisSkill1);
-        });
+            Player player = mainPlayer;
 
-        await TaskManager.Instance.TaskBlockDic[TaskType.OsirisSkill1][0].Task;
+            HighlightManager.DisableAllOpButtons();
+            player.ShowOp2Button = true;
+            player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+            player.PArea.Portrait.ChangeOp2ButtonText("发动Osiris技能1");
+            player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+            {
+                HighlightManager.DisableAllOpButtons();
+                HighlightManager.DisableAllCards();
+                HighlightManager.ShowACards(player);
+                HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.OsirisSkill1State] = true;
+                //else
+                //{
+                //    DragSpellOnTarget dragSpellOnTarget = playedCard.TargetComponent.GetComponent<DragSpellOnTarget>();
+                //    dragSpellOnTarget.ResetTriangleTargetComponent();
+                //}
+
+                //List<int> relationIds = new List<int>();
+                //relationIds.Add(playedCard.UniqueCardID);
+                //OneCardManager cardManager = GlobalSettings.Instance.PDeck.DisguisedCardAssetWithType(playedCard.Owner, SubTypeOfCards.Wugufengdeng, relationIds, false);
+                //cardManager.CanBePlayedNow = true;
+
+                //TaskManager.Instance.ExceptionBlockTask(TaskType.OsirisSkill1, "手牌当五谷丰登");
+            });
+        }
+        //TaskManager.Instance.AddATask(TaskType.OsirisSkill1);
+
+
+
+        //player.ShowOp3Button = true;
+        //player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+        //player.PArea.Portrait.ChangeOp3Button2Text("不发动Osiris技能1");
+        //player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+        //{
+        //    HighlightManager.DisableAllOpButtons();
+        //    TaskManager.Instance.UnBlockTask(TaskType.OsirisSkill1);
+        //});
+
+        //await TaskManager.Instance.TaskBlockDic[TaskType.OsirisSkill1][0].Task;
+        await TaskManager.Instance.DontAwait();
     }
 
 
@@ -553,5 +572,158 @@ public class HeroSkillManager : MonoBehaviour
             OneCardManager cardManager = card.GetComponent<OneCardManager>();
             GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
         }
+    }
+
+    public static async Task ActiveNephthysSkill1(Player mainPlayer, OneCardManager playedCard)
+    {
+        if (TurnManager.Instance.whoseTurn.ID != mainPlayer.ID)
+        {
+            return;
+        }
+        TaskManager.Instance.AddATask(TaskType.NephthysSkill1);
+
+        Player player = mainPlayer;
+
+        //已选玩家数量
+        List<Player> selectPlayerList = new List<Player>();
+
+        HighlightManager.DisableAllOpButtons();
+        player.ShowOp2Button = true;
+        player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp2ButtonText("发动Nephthys技能1");
+        player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            HighlightManager.DisableAllCards();
+            foreach (Player targetPlayer in GlobalSettings.Instance.PlayerInstances)
+            {
+                targetPlayer.ShowOp1Button = true;
+                targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                targetPlayer.PArea.Portrait.ChangeOp1ButtonText("选择");
+                targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+                {
+                    targetPlayer.ShowOp1Button = false;
+                    selectPlayerList.Add(targetPlayer);
+                    if (selectPlayerList.Count > 1)
+                    {
+                        mainPlayer.ShowOp2Button = true;
+                    }
+                    if (selectPlayerList.Count >= 2)
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        await DrawCardsForSelectPlayers(selectPlayerList);
+                        TaskManager.Instance.UnBlockTask(TaskType.NephthysSkill1);
+                    }
+                });
+            }
+
+            mainPlayer.ShowOp2Button = false;
+            mainPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+            mainPlayer.PArea.Portrait.ChangeOp1ButtonText("完成");
+            mainPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+            {
+                HighlightManager.DisableAllOpButtons();
+                await DrawCardsForSelectPlayers(selectPlayerList);
+                TaskManager.Instance.UnBlockTask(TaskType.NephthysSkill1);
+            });
+
+        });
+
+        player.ShowOp3Button = true;
+        player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp3Button2Text("不发动Nephthys技能1");
+        player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            TaskManager.Instance.UnBlockTask(TaskType.NephthysSkill1);
+        });
+
+        await TaskManager.Instance.TaskBlockDic[TaskType.NephthysSkill1][0].Task;
+    }
+
+    public static async Task DrawCardsForSelectPlayers(List<Player> selectPlayers)
+    {
+        TurnManager.Instance.DrawCardLimitPerTurn -= 1;
+        foreach (Player p in selectPlayers)
+        {
+            await p.DrawSomeCards(1);
+        }
+    }
+
+    public static async Task ActiveNephthysSkill2(Player mainPlayer, OneCardManager playedCard, int targetId)
+    {
+        TaskManager.Instance.AddATask(TaskType.NephthysSkill2);
+
+        Player player = mainPlayer;
+
+        HighlightManager.DisableAllOpButtons();
+        player.ShowOp2Button = true;
+        player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp2ButtonText("发动Nephthys技能2");
+        player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            HighlightManager.DisableAllCards();
+            await JudgementForNephthysSkill2(mainPlayer, GlobalSettings.Instance.FindPlayerByID(targetId));
+        });
+
+        player.ShowOp3Button = true;
+        player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp3Button2Text("不发动Nephthys技能2");
+        player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            TaskManager.Instance.UnBlockTask(TaskType.NephthysSkill2);
+        });
+
+        await TaskManager.Instance.TaskBlockDic[TaskType.NephthysSkill2][0].Task;
+    }
+
+    public static async Task JudgementForNephthysSkill2(Player mainPlayer, Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.Judgement;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.AfterSelectCardForJudgementCompletion = async (card) =>
+        {
+            await mainPlayer.DisACardFromHand(card.GetComponent<OneCardManager>().UniqueCardID);
+            DelayTipManager.flopCardManager = card.GetComponent<OneCardManager>();
+            TaskManager.Instance.UnBlockTask(TaskType.NephthysSkill2);
+        };
+
+        for (int i = mainPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    public static async Task ActiveNephthysSkill3(Player mainPlayer, OneCardManager playedCard)
+    {
+        //你的回合外，你使用牌
+        if (playedCard.Owner.ID != mainPlayer.ID || mainPlayer.ID == TurnManager.Instance.whoseTurn.ID)
+        {
+            return;
+        }
+        if (playedCard.CardAsset.CardColor != CardColor.Red)
+        {
+            return;
+        }
+        await TestAsync(mainPlayer, "NephthysSkill3");
+    }
+
+    public static async Task TestAsync(Player mainPlayer, string skillName)
+    {
+        TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+        mainPlayer.ShowOp1Button = true;
+        mainPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+        mainPlayer.PArea.Portrait.ChangeOp1ButtonText("发动" + skillName);
+        mainPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            tcs.SetResult(true);
+        });
+        await tcs.Task;
     }
 }

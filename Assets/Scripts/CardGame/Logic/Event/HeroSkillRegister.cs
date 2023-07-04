@@ -39,7 +39,7 @@ public enum HeroSkillActivePhase
     Hook30,
     Hook31,
     Hook32,
-    AfterDragTargetOrDragCard
+    Hook33
 }
 
 public enum HeroSkillType
@@ -52,7 +52,14 @@ public enum HeroSkillType
     FenrirSkill2,
     AnubisSkill1,
     OsirisSkill1,
-    OsirisSkill2
+    OsirisSkill2,
+    NephthysSkill1,
+    NephthysSkill2,
+    NephthysSkill3,
+    PrometheusSkill1,
+    PrometheusSkill2,
+    LiuFengSkill1,
+    LiuFengSkill2
 }
 
 public struct HeroSkillInfo
@@ -90,13 +97,12 @@ public class HeroSkillRegister : MonoBehaviour
                 {
                     List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
                     skill1PhaseList.Add(HeroSkillActivePhase.Hook1);
-
                     skillList.Add(new HeroSkillInfo(HeroSkillType.AthenaSkill1, skill1PhaseList));
 
                     List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
-                    skill2PhaseList.Add(HeroSkillActivePhase.Hook15);
+                    skill2PhaseList.Add(HeroSkillActivePhase.Hook11);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.AthenaSkill2, skill2PhaseList));
 
-                    skillList.Add(new HeroSkillInfo(HeroSkillType.AthenaSkill1, skill2PhaseList));
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
@@ -158,7 +164,8 @@ public class HeroSkillRegister : MonoBehaviour
             case PlayerWarrior.Osiris:
                 {
                     List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
-                    skill1PhaseList.Add(HeroSkillActivePhase.AfterDragTargetOrDragCard);
+                    skill1PhaseList.Add(HeroSkillActivePhase.Hook27);
+                    skill1PhaseList.Add(HeroSkillActivePhase.Hook16);
 
                     skillList.Add(new HeroSkillInfo(HeroSkillType.OsirisSkill1, skill1PhaseList));
 
@@ -166,6 +173,26 @@ public class HeroSkillRegister : MonoBehaviour
                     skill2PhaseList.Add(HeroSkillActivePhase.Hook13);
 
                     skillList.Add(new HeroSkillInfo(HeroSkillType.OsirisSkill2, skill2PhaseList));
+
+                    HeroSkillRegister.SkillRegister[player.ID] = skillList;
+
+                    HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
+                }
+                break;
+            case PlayerWarrior.Nephthys:
+                {
+                    List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
+                    skill1PhaseList.Add(HeroSkillActivePhase.Hook23);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.NephthysSkill1, skill1PhaseList));
+
+                    List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
+                    skill2PhaseList.Add(HeroSkillActivePhase.Hook33);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.NephthysSkill2, skill2PhaseList));
+
+                    List<HeroSkillActivePhase> skill3PhaseList = new List<HeroSkillActivePhase>();
+                    skill3PhaseList.Add(HeroSkillActivePhase.Hook1);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.NephthysSkill3, skill3PhaseList));
 
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 

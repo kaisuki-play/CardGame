@@ -11,4 +11,9 @@ public class HeroSkillState : MonoBehaviour
     //存储boolean类型的技能,限定一次
     public static Dictionary<HeroSKillStateKey, bool> HeroSkillBooleanDic_Once = new Dictionary<HeroSKillStateKey, bool>();
 
+    //清除一次性的值
+    public static void ClearOnceValue()
+    {
+        HeroSkillBooleanDic_Once.Clear();
+    }
 }

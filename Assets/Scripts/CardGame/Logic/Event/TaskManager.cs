@@ -33,7 +33,10 @@ public enum TaskType
     FenrirSkill2,
     AnubisSkill1,
     OsirisSkill1,
-    OsirisSkill2
+    OsirisSkill2,
+    NephthysSkill1,
+    NephthysSkill2,
+    NephthysSkill3
 }
 public class TaskManager : MonoBehaviour
 {
@@ -77,7 +80,7 @@ public class TaskManager : MonoBehaviour
 
     public async Task DontAwait()
     {
-        await Task.Run(() => { Debug.Log(""); });
+        await Task.Run(() => { });//Debug.Log("");
     }
 
     public async Task ReturnException(string message)

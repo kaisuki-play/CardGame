@@ -537,6 +537,10 @@ public class Player : MonoBehaviour
     /// <param name="numberOfCards"></param>
     public async Task DrawSomeCards(int numberOfCards)
     {
+        if (numberOfCards == 0)
+        {
+            return;
+        }
         if (GlobalSettings.Instance.PDeck.DeckCards.Count > 0)
         {
             if (Hand.CardsInHand.Count < PArea.HandVisual.Slots.Children.Length)
@@ -727,7 +731,6 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public async Task DragTarget(OneCardManager playedCard, List<int> targets)
     {
-        await SkillManager.AfterDragTargetOrDragCard(playedCard);
         playedCard.isUsedCard = true;
         if (playedCard.isUsedCard)
         {
@@ -746,7 +749,6 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public async Task DragCard(OneCardManager playedCard, List<int> targets)
     {
-        await SkillManager.AfterDragTargetOrDragCard(playedCard);
         if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Impeccable
             || (playedCard.CardAsset.TypeOfCard == TypesOfCards.Equipment)
             || (playedCard.CardAsset.TypeOfCard == TypesOfCards.DelayTips

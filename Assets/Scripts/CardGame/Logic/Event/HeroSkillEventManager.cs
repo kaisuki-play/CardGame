@@ -54,6 +54,9 @@ public class HeroSkillEventManager : MonoBehaviour
                         case HeroSkillType.AthenaSkill1:
                             await HeroSkillManager.ActiveAthenaSkill1(player, playedCard);
                             break;
+                        case HeroSkillType.AthenaSkill2:
+                            await HeroSkillManager.ActiveAthenaSkill2(player, playedCard, targetID);
+                            break;
                     }
 
                 }
@@ -141,10 +144,38 @@ public class HeroSkillEventManager : MonoBehaviour
                     switch (skillInfo.SkillType)
                     {
                         case HeroSkillType.OsirisSkill1:
-                            await HeroSkillManager.ActiveOsirisSkill1(player, playedCard, targetID);
+                            await HeroSkillManager.ActiveOsirisSkill1(player, playedCard);
                             break;
                         case HeroSkillType.OsirisSkill2:
                             await HeroSkillManager.ActiveOsirisSkill2(player);
+                            break;
+                    }
+                }
+                break;
+            case PlayerWarrior.Nephthys:
+                {
+                    Debug.Log("-----------------------------------------------Nephthys 有技能需要触发" + e.SkillPhase);
+                    OneCardManager playedCard = e.PlayedCard;
+                    int targetID = e.TargetID;
+                    HeroSkillInfo skillInfo = new HeroSkillInfo();
+                    foreach (HeroSkillInfo skill in skillList)
+                    {
+                        if (skill.PhaseList.Contains(skillPhase))
+                        {
+                            skillInfo = skill;
+                            break;
+                        }
+                    }
+                    switch (skillInfo.SkillType)
+                    {
+                        case HeroSkillType.NephthysSkill1:
+                            await HeroSkillManager.ActiveNephthysSkill1(player, playedCard);
+                            break;
+                        case HeroSkillType.NephthysSkill2:
+                            await HeroSkillManager.ActiveNephthysSkill2(player, playedCard, TurnManager.Instance.whoseTurn.ID);
+                            break;
+                        case HeroSkillType.NephthysSkill3:
+                            await HeroSkillManager.ActiveNephthysSkill3(player, playedCard);
                             break;
                     }
                 }

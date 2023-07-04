@@ -18,6 +18,10 @@ public class SkillManager : MonoBehaviour
         // TODO先结算技能
         //await HeroSkillManager.ActiveAthenaSkill1(playedCard);
         await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook1, playedCard);
+        if (playedCard.Owner.EquipmentLogic.CardsInEquipment.Count == 0)
+        {
+            return;
+        }
         // TODO再结算装备
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
@@ -407,7 +411,8 @@ public class SkillManager : MonoBehaviour
     /// <returns></returns>
     public static async Task AfterDragOnTarget(OneCardManager playedCard, int targetId)
     {
-        await HeroSkillManager.ActiveAthenaSkill2(playedCard, targetId);
+        //await HeroSkillManager.ActiveAthenaSkill2(playedCard, targetId);
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook11, playedCard, targetId);
         await TaskManager.Instance.DontAwait();
     }
 
@@ -563,20 +568,33 @@ public class SkillManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 拖拽卡牌后
+    /// 进入濒死
     /// </summary>
-    /// <param name="playedCard"></param>
-    /// <param name="targetPlayer"></param>
     /// <returns></returns>
-    public static async Task AfterDragTargetOrDragCard(OneCardManager playedCard = null, Player targetPlayer = null)
-    {
-        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.AfterDragTargetOrDragCard, playedCard);
-    }
-
     public static async Task EnterDying()
     {
         // TODO先结算技能
         await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook13);
+        await TaskManager.Instance.DontAwait();
+    }
+
+    /// <summary>
+    /// 摸牌阶段开始 hook23
+    /// </summary>
+    /// <returns></returns>
+    public static async Task DrawCardPhaseStart()
+    {
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook23);
+        await TaskManager.Instance.DontAwait();
+    }
+
+    /// <summary>
+    /// 判定生效前 hook33
+    /// </summary>
+    /// <returns></returns>
+    public static async Task BeforeJudgementWork(OneCardManager judgementCard, int targetId)
+    {
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook33, judgementCard, targetId);
         await TaskManager.Instance.DontAwait();
     }
 

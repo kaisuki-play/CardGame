@@ -51,6 +51,8 @@ public class TurnManager : MonoBehaviour
 
     public bool IsInactiveStatus = true;
 
+    public int DrawCardLimitPerTurn = 1;
+
     // Record the phases in per turn
     private TurnPhase _turnPhase;
     public TurnPhase TurnPhase
@@ -124,11 +126,13 @@ public class TurnManager : MonoBehaviour
                 }
                 break;
             case TurnPhase.StartDrawCard:
+                //摸牌阶段开始hook
+                await SkillManager.DrawCardPhaseStart();
                 TurnManager.Instance.TurnPhase = TurnPhase.DrawCard;
                 break;
             case TurnPhase.DrawCard:
                 StatusText.text = "DrawCard Phase";
-                await whoseTurn.DrawACard();
+                await whoseTurn.DrawSomeCards(this.DrawCardLimitPerTurn);
                 TurnManager.Instance.TurnPhase = TurnPhase.EndDrawCard;
                 break;
             case TurnPhase.EndDrawCard:
@@ -154,6 +158,7 @@ public class TurnManager : MonoBehaviour
             case TurnPhase.PlayCard:
                 StatusText.text = "PlayCard Phase";
                 HighlightManager.EnableCardsWithType(whoseTurn);
+                await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook27);
                 break;
             case TurnPhase.EndPlayCard:
                 //TODO 技能Hook
@@ -359,6 +364,10 @@ public class TurnManager : MonoBehaviour
         HighlightManager.DisableAllCards();
         HighlightManager.DisableAllOpButtons();
         HighlightManager.DisableAllTargetsGlow();
+        //重置每轮摸牌数量
+        DrawCardLimitPerTurn = 1;
+
+        HeroSkillState.ClearOnceValue();
 
         TurnManager.Instance.whoseTurn = TurnManager.Instance.whoseTurn.OtherPlayer;
     }

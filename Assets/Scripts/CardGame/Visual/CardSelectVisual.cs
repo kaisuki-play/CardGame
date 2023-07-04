@@ -13,6 +13,7 @@ public enum CardSelectPanelType
     DisHandCard,
     UseSomeCardAsSlash,
     DisSomeCardForDestNumber,
+    Judgement,
 }
 
 public class CardSelectVisual : MonoBehaviour
@@ -29,6 +30,8 @@ public class CardSelectVisual : MonoBehaviour
 
     public System.Action AfterDisCardCompletion;
     public System.Action AfterSelectCardAsOtherCardCompletion;
+    public System.Action<GameObject> AfterSelectCardForJudgementCompletion;
+
     public int DisCardNumber = 1;
     public int AlreadyDisCardNumber = 0;
     public List<int> RankSumList = new List<int>();
@@ -205,6 +208,12 @@ public class CardSelectVisual : MonoBehaviour
                     this.AfterSelectCardAsOtherCardCompletion.Invoke();
                 }
 
+                break;
+            case CardSelectPanelType.Judgement:
+                {
+                    Dismiss();
+                    this.AfterSelectCardForJudgementCompletion(originCard);
+                }
                 break;
         }
     }
