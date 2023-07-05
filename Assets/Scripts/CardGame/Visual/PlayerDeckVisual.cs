@@ -251,7 +251,7 @@ public class PlayerDeckVisual : MonoBehaviour
 
                 // apply the look from CardAsset
                 OneCardManager manager = card.GetComponent<OneCardManager>();
-                manager.CardAsset = ca;
+                manager.SetCardAssetA(ca);
                 manager.ReadCardFromAsset();
                 if (needTarget)
                 {
@@ -278,6 +278,23 @@ public class PlayerDeckVisual : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public CardAsset CardAssetBWithType(SubTypeOfCards subTypeOfCards, CardAsset oldCardAsset)
+    {
+        foreach (CardAsset cardAsset in GlobalSettings.Instance.DeckSource.Cards)
+        {
+            if (cardAsset.SubTypeOfCard == subTypeOfCards)
+            {
+                CardAsset ca = ScriptableObject.CreateInstance<CardAsset>();
+                ca.ReadFromAsset(cardAsset);
+                ca.Suits = oldCardAsset.Suits;
+                ca.CardRank = oldCardAsset.CardRank;
+                ca.CardColor = oldCardAsset.CardColor;
+                return ca;
+            }
+        }
+        return oldCardAsset;
     }
 
 
@@ -623,7 +640,7 @@ public class PlayerDeckVisual : MonoBehaviour
 
         // apply the look from CardAsset
         OneCardManager manager = card.GetComponent<OneCardManager>();
-        manager.CardAsset = ca;
+        manager.SetCardAssetA(ca);
         manager.ReadCardFromAsset();
 
         // parent a new creature gameObject to table slots
@@ -662,7 +679,7 @@ public class PlayerDeckVisual : MonoBehaviour
 
         // apply the look from CardAsset
         OneCardManager manager = card.GetComponent<OneCardManager>();
-        manager.CardAsset = ca;
+        manager.SetCardAssetA(ca);
         manager.ReadCardFromAsset();
 
         // parent a new creature gameObject to table slots

@@ -58,7 +58,7 @@ public class TargetCardsPanel : MonoBehaviour
 
         // apply the look from CardAsset
         OneCardManager manager = card.GetComponent<OneCardManager>();
-        manager.CardAsset = cardManager.CardAsset;
+        manager.SetCardAssetA(cardManager.CardAsset);
         manager.ReadCardFromAsset();
         manager.UniqueCardID = cardManager.UniqueCardID;
         manager.Owner = cardManager.Owner;

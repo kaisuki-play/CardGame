@@ -38,6 +38,27 @@ public class OneCardManager : MonoBehaviour
     public int UniqueCardID;
     public CardAsset CardAsset;
 
+    //private CardAsset _cardAsset = null;
+    //public CardAsset CardAsset
+    //{
+    //    get
+    //    {
+    //        if (IsUseCardAssetB)
+    //        {
+    //            return CardAssetB;
+    //        }
+    //        else
+    //        {
+    //            return CardAssetA;
+    //        }
+    //    }
+    //    set
+    //    {
+    //        _cardAsset = value;
+    //        ReadCardFromAsset();
+    //    }
+    //}
+
     [Header("Image References")]
     public Image CardGraphicImage;
     public Image CardBodyImage;
@@ -73,7 +94,54 @@ public class OneCardManager : MonoBehaviour
     void Awake()
     {
         if (CardAsset != null)
+            CardAssetA = CardAsset;
+        ReadCardFromAsset();
+    }
+
+    private bool _isUseCardAssetB;
+    public bool IsUseCardAssetB
+    {
+        get { return _isUseCardAssetB; }
+        set
+        {
+            _isUseCardAssetB = value;
+            if (_isUseCardAssetB == false)
+            {
+                this.CardAsset = CardAssetA;
+                this.CardAssetB = null;
+            }
+            else
+            {
+                this.CardAsset = CardAssetB;
+            }
             ReadCardFromAsset();
+        }
+    }
+
+    private CardAsset _cardAssetA;
+    public CardAsset CardAssetA
+    {
+        get { return _cardAssetA; }
+        set { _cardAssetA = value; }
+    }
+
+    private CardAsset _cardAssetB;
+    public CardAsset CardAssetB
+    {
+        get { return _cardAssetB; }
+        set { _cardAssetB = value; }
+    }
+
+    public void SetCardAssetA(CardAsset newAssetA)
+    {
+        CardAsset = newAssetA;
+        CardAssetA = newAssetA;
+    }
+
+    public void LaunchCardB(CardAsset newAssetB)
+    {
+        CardAssetB = newAssetB;
+        this.IsUseCardAssetB = true;
     }
 
     private bool canBePlayedNow = false;
@@ -142,7 +210,10 @@ public class OneCardManager : MonoBehaviour
 
     public async Task ChangeOwnerAndLocation(Player owner, CardLocation cardLocation)
     {
-
+        if (this.Owner != null && (owner == null || this.Owner.ID != owner.ID))
+        {
+            this.IsUseCardAssetB = false;
+        }
         switch (cardLocation)
         {
             case CardLocation.DisDeck:

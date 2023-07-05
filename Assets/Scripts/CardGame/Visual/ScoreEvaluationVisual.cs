@@ -69,7 +69,7 @@ public class ScoreEvaluationVisual : MonoBehaviour
             card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
 
             //位置改为弃牌堆
-            await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
+            await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
         }
     }
 

@@ -101,34 +101,34 @@ public class EquipmentVisaul : MonoBehaviour
     }
 
     // gives player a new card from a given position
-    public void GivePlayerAJudgementCard(CardAsset c, int UniqueID)
-    {
-        // Instantiate a card depending on its type
-        GameObject card = GameObject.Instantiate(GlobalSettings.Instance.BaseCardPrefab, Slots.Children[0].transform.position, Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
-        card.SetActive(false);
+    //public void GivePlayerAJudgementCard(CardAsset c, int UniqueID)
+    //{
+    //    // Instantiate a card depending on its type
+    //    GameObject card = GameObject.Instantiate(GlobalSettings.Instance.BaseCardPrefab, Slots.Children[0].transform.position, Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
+    //    card.SetActive(false);
 
-        // apply the look of the card based on the info from CardAsset
-        OneCardManager manager = card.GetComponent<OneCardManager>();
-        manager.CardAsset = c;
-        manager.ReadCardFromAsset();
+    //    // apply the look of the card based on the info from CardAsset
+    //    OneCardManager manager = card.GetComponent<OneCardManager>();
+    //    manager.SetCardAssetA(c);
+    //    manager.ReadCardFromAsset();
 
 
-        card.transform.SetParent(Slots.Children[0].transform);
+    //    card.transform.SetParent(Slots.Children[0].transform);
 
-        // pass this card to HandVisual class
-        AddCard(card);
+    //    // pass this card to HandVisual class
+    //    AddCard(card);
 
-        // Bring card to front while it travels from draw spot to hand
-        WhereIsTheCardOrCreature w = card.GetComponent<WhereIsTheCardOrCreature>();
-        w.BringToFront();
-        w.Slot = 0;
+    //    // Bring card to front while it travels from draw spot to hand
+    //    WhereIsTheCardOrCreature w = card.GetComponent<WhereIsTheCardOrCreature>();
+    //    w.BringToFront();
+    //    w.Slot = 0;
 
-        // pass a unique ID to this card.
-        IDHolder id = card.AddComponent<IDHolder>();
-        id.UniqueID = UniqueID;
+    //    // pass a unique ID to this card.
+    //    IDHolder id = card.AddComponent<IDHolder>();
+    //    id.UniqueID = UniqueID;
 
-        ChangeLastCardStatusToInHand(card, w);
-    }
+    //    ChangeLastCardStatusToInHand(card, w);
+    //}
 
     // this method will be called when the card arrived to hand 
     void ChangeLastCardStatusToInHand(GameObject card, WhereIsTheCardOrCreature w)

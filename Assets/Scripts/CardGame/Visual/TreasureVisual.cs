@@ -277,7 +277,7 @@ public class TreasureVisual : MonoBehaviour
         await tcs1.Task;
 
         //改变位置为弃牌堆
-        await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
+        await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
         //卡牌生效
         PlayCardManager.Instance.ActivateEffect(playedCard);
     }
@@ -397,6 +397,6 @@ public class TreasureVisual : MonoBehaviour
         card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
 
         cardManager.CanBePlayedNow = false;
-        await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
+        await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
     }
 }

@@ -182,7 +182,7 @@ public class HandVisual : MonoBehaviour
         card.transform.SetParent(GlobalSettings.Instance.DisDeck.MainCanvas.transform);
 
         //位置改为弃牌堆
-        await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
+        await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
     }
 
     // 2 Overloaded method to show a spell played from hand
@@ -254,7 +254,7 @@ public class HandVisual : MonoBehaviour
         await tcs1.Task;
 
         //再变到弃牌堆
-        await cardManager.ChangeOwnerAndLocation(cardManager.Owner, CardLocation.DisDeck);
+        await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
         PlayCardManager.Instance.ActivateEffect(playedCard);
     }
 
