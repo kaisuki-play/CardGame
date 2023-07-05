@@ -240,7 +240,7 @@ public class HeroSkillEventManager : MonoBehaviour
                             await HeroSkillManager.ActiveYangxiuSkill2(player, playedCard);
                             break;
                         case HeroSkillType.YangxiuSkill3:
-                            await HeroSkillManager.ActiveYangxiuSkill3(player, skillPhase, playedCard);
+                            await HeroSkillManager.ActiveYangxiuSkill3(player, targetID);
                             break;
                     }
                 }

@@ -1291,48 +1291,46 @@ public class HeroSkillManager : MonoBehaviour
         await TaskManager.Instance.TaskBlockDic[TaskType.YangxiuSkill2][0].Task;
     }
 
-    public static async Task ActiveYangxiuSkill3(Player mainPlayer, HeroSkillActivePhase heroSkillActivePhase, OneCardManager playedCard = null)
+    public static async Task ActiveYangxiuSkill3(Player mainPlayer, int targetId)
     {
-        if (heroSkillActivePhase == HeroSkillActivePhase.Hook10)
+        if (mainPlayer.ID != targetId)
         {
-            TaskManager.Instance.AddATask(TaskType.YangxiuSkill3);
+            return;
+        }
+        TaskManager.Instance.AddATask(TaskType.YangxiuSkill3);
 
-            Player player = mainPlayer;
+        Player player = mainPlayer;
 
-            HighlightManager.DisableAllCards();
+        HighlightManager.DisableAllCards();
+        HighlightManager.DisableAllOpButtons();
+        player.ShowOp2Button = true;
+        player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp2ButtonText("发动杨修技能3");
+        player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        {
             HighlightManager.DisableAllOpButtons();
-            player.ShowOp2Button = true;
-            player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
-            player.PArea.Portrait.ChangeOp2ButtonText("发动杨修技能3");
-            player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+            GlobalSettings.Instance.CustomButtonsVisual.CustomButtonType = CustomButtonType.TypeOfCard;
+            GlobalSettings.Instance.CustomButtonsVisual.Show();
+            GlobalSettings.Instance.CustomButtonsVisual.AfterClickButtonCompletion = async (buttonTxt) =>
             {
-                HighlightManager.DisableAllOpButtons();
-                GlobalSettings.Instance.CustomButtonsVisual.CustomButtonType = CustomButtonType.TypeOfCard;
-                GlobalSettings.Instance.CustomButtonsVisual.Show();
-                GlobalSettings.Instance.CustomButtonsVisual.AfterClickButtonCompletion = async (buttonTxt) =>
-                {
-                    Debug.Log(buttonTxt);
-                    TypesOfCards selectType = buttonTxt == "基本牌" ? TypesOfCards.Base : (buttonTxt == "锦囊牌" ? TypesOfCards.Tips : TypesOfCards.Equipment);
-                    HeroSkillState.HeroSkillCardTypeDic_Once[HeroSKillStateKey.YangxiuSkill3State] = selectType;
-                    TaskManager.Instance.UnBlockTask(TaskType.YangxiuSkill3);
-                };
-            });
-
-            player.ShowOp3Button = true;
-            player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
-            player.PArea.Portrait.ChangeOp3Button2Text("不发动杨修技能3");
-            player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
-            {
-                HighlightManager.DisableAllOpButtons();
+                Debug.Log(buttonTxt);
+                TypesOfCards selectType = buttonTxt == "基本牌" ? TypesOfCards.Base : (buttonTxt == "锦囊牌" ? TypesOfCards.Tips : TypesOfCards.Equipment);
+                HeroSkillState.HeroSkillCardTypeDic_Once[HeroSKillStateKey.YangxiuSkill3State] = selectType;
                 TaskManager.Instance.UnBlockTask(TaskType.YangxiuSkill3);
-            });
+            };
+        });
 
-            await TaskManager.Instance.TaskBlockDic[TaskType.YangxiuSkill3][0].Task;
-        }
-        else
+        player.ShowOp3Button = true;
+        player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp3Button2Text("不发动杨修技能3");
+        player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
         {
+            HighlightManager.DisableAllOpButtons();
+            TaskManager.Instance.UnBlockTask(TaskType.YangxiuSkill3);
+        });
 
-        }
+        await TaskManager.Instance.TaskBlockDic[TaskType.YangxiuSkill3][0].Task;
+
     }
 
     /// <summary>
