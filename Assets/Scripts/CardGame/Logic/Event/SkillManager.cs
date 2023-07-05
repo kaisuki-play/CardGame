@@ -53,6 +53,7 @@ public class SkillManager : MonoBehaviour
     /// <returns></returns>
     public static async Task StartHandleTargets(OneCardManager playedCard)
     {
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook2, playedCard);
         (bool hasWeapon, OneCardManager weaponCard) = EquipmentManager.Instance.HasEquipmentWithType(playedCard.Owner, TypeOfEquipment.Weapons);
         if (hasWeapon)
         {
@@ -570,6 +571,17 @@ public class SkillManager : MonoBehaviour
         {
             await TaskManager.Instance.DontAwait();
         }
+    }
+
+    /// <summary>
+    /// 回合开始
+    /// hook 19
+    /// </summary>
+    /// <returns></returns>
+    public static async Task TurnStart()
+    {
+        await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook19);
+        await TaskManager.Instance.DontAwait();
     }
 
     /// <summary>

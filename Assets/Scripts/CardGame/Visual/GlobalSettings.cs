@@ -23,6 +23,7 @@ public class GlobalSettings : MonoBehaviour
     //public TargetCardsPanel TargetCardsPanel;
     public CardSelectVisual CardSelectVisual;
     public GoldenFingerVisual GoldenFingerVisual;
+    public CustomButtons CustomButtonsVisual;
     [Header("Deck")]
     public DeckSource DeckSource;
     [Header("Colors")]
@@ -65,6 +66,8 @@ public class GlobalSettings : MonoBehaviour
     public CardAsset JinkAsset;
     [Header("ScoreEvaluationVisual")]
     public ScoreEvaluationVisual ScoreEvaluation;
+    [Header("CustomButton")]
+    public GameObject CustomButtonPrefab;
 
     public Dictionary<AreaPosition, Player> Players = new Dictionary<AreaPosition, Player>();
 

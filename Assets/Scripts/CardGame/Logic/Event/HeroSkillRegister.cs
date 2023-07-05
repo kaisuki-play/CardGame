@@ -42,7 +42,8 @@ public enum HeroSkillActivePhase
     Hook32,
     Hook33,
     HookHightlight,
-    HookChangedOwner
+    HookChangedOwner,
+    HookPlayCardPhase
 }
 
 public enum HeroSkillType
@@ -62,7 +63,10 @@ public enum HeroSkillType
     PrometheusSkill1,
     PrometheusSkill2,
     LiuFengSkill1,
-    LiuFengSkill2
+    LiuFengSkill2,
+    YangxiuSkill1,
+    YangxiuSkill2,
+    YangxiuSkill3
 }
 
 public struct HeroSkillInfo
@@ -93,7 +97,7 @@ public class HeroSkillRegister : MonoBehaviour
     public static void HandlePlayerSkill(Player player)
     {
         List<HeroSkillInfo> skillList = new List<HeroSkillInfo>();
-        Debug.Log(player.PArea.Owner + "~~~~~~~~~~~~~~~~~~~~~~~~~~" + player.ID);
+        Debug.Log(player.PArea.Owner + "~~~~~~~~~~~~~~~~~~~~~~~~~~" + player.ID + " " + player.CharAsset.PlayerWarrior);
         switch (player.CharAsset.PlayerWarrior)
         {
             case PlayerWarrior.Athena:
@@ -221,8 +225,43 @@ public class HeroSkillRegister : MonoBehaviour
                     List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
                     skill2PhaseList.Add(HeroSkillActivePhase.Hook27);
                     skill2PhaseList.Add(HeroSkillActivePhase.Hook28);
-
                     skillList.Add(new HeroSkillInfo(HeroSkillType.PrometheusSkill2, skill2PhaseList));
+
+                    HeroSkillRegister.SkillRegister[player.ID] = skillList;
+
+                    HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
+                }
+                break;
+            case PlayerWarrior.Liufeng:
+                {
+                    List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
+                    skill1PhaseList.Add(HeroSkillActivePhase.Hook19);
+                    skill1PhaseList.Add(HeroSkillActivePhase.HookPlayCardPhase);
+
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.LiuFengSkill1, skill1PhaseList));
+
+                    HeroSkillRegister.SkillRegister[player.ID] = skillList;
+
+                    HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
+                }
+                break;
+            case PlayerWarrior.Yangxiu:
+                {
+                    List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
+                    skill1PhaseList.Add(HeroSkillActivePhase.HookHightlight);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.YangxiuSkill1, skill1PhaseList));
+
+                    List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
+                    skill2PhaseList.Add(HeroSkillActivePhase.Hook2);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.YangxiuSkill2, skill2PhaseList));
+
+                    List<HeroSkillActivePhase> skill3PhaseList = new List<HeroSkillActivePhase>();
+                    skill3PhaseList.Add(HeroSkillActivePhase.Hook10);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.YangxiuSkill3, skill3PhaseList));
 
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 

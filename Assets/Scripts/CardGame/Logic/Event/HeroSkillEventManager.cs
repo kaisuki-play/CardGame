@@ -30,7 +30,7 @@ public class HeroSkillEventManager : MonoBehaviour
     public static async Task HandleHeroSkillActiveEvent(object sender, SkillEventArgs e)
     {
         Player player = (Player)sender;
-        Debug.Log("触发事件 玩家:" + player.PArea.Owner);
+        Debug.Log("触发事件 玩家:" + player.PArea.Owner + "-----------------------------------------------" + player.CharAsset.PlayerWarrior);
         HeroSkillActivePhase skillPhase = e.SkillPhase;
         List<HeroSkillInfo> skillList = HeroSkillRegister.SkillRegister[player.ID];
         switch (player.CharAsset.PlayerWarrior)
@@ -195,6 +195,56 @@ public class HeroSkillEventManager : MonoBehaviour
                     }
                 }
                 break;
+            case PlayerWarrior.Liufeng:
+                {
+                    Debug.Log("-----------------------------------------------刘封 有技能需要触发");
+                    OneCardManager playedCard = e.PlayedCard;
+                    int targetID = e.TargetID;
+                    HeroSkillInfo skillInfo = new HeroSkillInfo();
+                    foreach (HeroSkillInfo skill in skillList)
+                    {
+                        if (skill.PhaseList.Contains(skillPhase))
+                        {
+                            skillInfo = skill;
+                            break;
+                        }
+                    }
+                    switch (skillInfo.SkillType)
+                    {
+                        case HeroSkillType.LiuFengSkill1:
+                            await HeroSkillManager.ActiveLiufengSkill1(player, playedCard, targetID, skillPhase);
+                            break;
+                    }
+                }
+                break;
+            case PlayerWarrior.Yangxiu:
+                {
+                    Debug.Log("-----------------------------------------------杨修 有技能需要触发");
+                    OneCardManager playedCard = e.PlayedCard;
+                    int targetID = e.TargetID;
+                    HeroSkillInfo skillInfo = new HeroSkillInfo();
+                    foreach (HeroSkillInfo skill in skillList)
+                    {
+                        if (skill.PhaseList.Contains(skillPhase))
+                        {
+                            skillInfo = skill;
+                            break;
+                        }
+                    }
+                    switch (skillInfo.SkillType)
+                    {
+                        case HeroSkillType.YangxiuSkill1:
+                            await HeroSkillManager.ActiveYangxiuSkill1(player, playedCard);
+                            break;
+                        case HeroSkillType.YangxiuSkill2:
+                            await HeroSkillManager.ActiveYangxiuSkill2(player, playedCard);
+                            break;
+                        case HeroSkillType.YangxiuSkill3:
+                            await HeroSkillManager.ActiveYangxiuSkill3(player, skillPhase, playedCard);
+                            break;
+                    }
+                }
+                break;
         }
         await TaskManager.Instance.DontAwait();
     }
@@ -307,10 +357,10 @@ public class HeroCardABSwitchEventManager : MonoBehaviour
 {
     public static void RegisterABSwitchEvent(Player player)
     {
-        player.HeroCardABSwitchEvent += HandleHeroSkillActiveEvent;
+        player.HeroCardABSwitchEvent += HandleHeroSwitchABActiveEvent;
     }
 
-    public static async Task HandleHeroSkillActiveEvent(object sender, SkillCardABSwitchEventArgs e)
+    public static async Task HandleHeroSwitchABActiveEvent(object sender, SkillCardABSwitchEventArgs e)
     {
         Player player = (Player)sender;
         Debug.Log("触发事件 玩家:" + player.PArea.Owner);

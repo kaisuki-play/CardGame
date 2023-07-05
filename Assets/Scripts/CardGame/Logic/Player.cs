@@ -42,6 +42,7 @@ public class Player : MonoBehaviour
     public Judgement JudgementLogic;
     public Equipment EquipmentLogic;
     public Treasure TreasureLogic;
+    public HeroHead HeroHeadLogic;
 
     //public event EventHandler<NeedToPlayJinkEventArgs> NeedToPlayJinkEvent;
     public event Func<object, BoolTypeEventArgs, Task> NeedToPlayJinkEvent;
@@ -678,6 +679,43 @@ public class Player : MonoBehaviour
         await targetPlayer.PArea.HandVisual.GetACardFromOther(cardManager.gameObject, this);
     }
 
+    public async Task GiveCardOnOtherTarget(Player targetPlayer, OneCardManager cardManager)
+    {
+        switch (cardManager.CardLocation)
+        {
+            case CardLocation.Hand:
+                {
+                    this.Hand.CardsInHand.Remove(cardManager.UniqueCardID);
+                    this.PArea.HandVisual.RemoveCard(cardManager.gameObject);
+                }
+                break;
+            case CardLocation.Judgement:
+                {
+
+                    //删除装备来源的人的卡
+                    this.JudgementLogic.CardsInJudgement.Remove(cardManager.UniqueCardID);
+                    this.PArea.JudgementVisual.RemoveCard(cardManager.gameObject);
+                }
+                break;
+            case CardLocation.Equipment:
+                {
+                    this.EquipmentLogic.CardsInEquipment.Remove(cardManager.UniqueCardID);
+                    this.PArea.EquipmentVisaul.RemoveCard(cardManager.gameObject);
+                }
+                break;
+            default:
+                break;
+        }
+        //cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Hand);
+
+        //新增给目标人的卡
+        targetPlayer.HeroHeadLogic.CardsOnHero.Insert(0, cardManager.UniqueCardID);
+
+        targetPlayer.PArea.HeroHeadVisual.PutCardOnHero(cardManager.gameObject);
+
+        await TaskManager.Instance.DontAwait();
+    }
+
     /// <summary>
     /// 给别人装备上自己装备区的装备
     /// </summary>
@@ -861,6 +899,39 @@ public class Player : MonoBehaviour
     {
         this.JudgementLogic.RemoveCard(cardId);
         await this.PArea.JudgementVisual.DisCardFromJudgement(cardId);
+    }
+
+    /// <summary>
+    /// 根据id弃牌
+    /// </summary>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public async Task DisACardWithCardManager(OneCardManager playedCard)
+    {
+        int cardId = playedCard.UniqueCardID;
+        switch (playedCard.CardLocation)
+        {
+            case CardLocation.Hand:
+                {
+                    this.Hand.CardsInHand.Remove(cardId);
+                    await this.PArea.HandVisual.DisCardFromHand(cardId);
+                }
+                break;
+            case CardLocation.Judgement:
+                {
+                    this.JudgementLogic.CardsInJudgement.Remove(cardId);
+                    await this.PArea.JudgementVisual.DisCardFromJudgement(cardId);
+                }
+                break;
+            case CardLocation.Equipment:
+                {
+                    this.EquipmentLogic.CardsInEquipment.Remove(cardId);
+                    await this.PArea.EquipmentVisaul.DisCardFromEquipment(cardId);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     /// <summary>

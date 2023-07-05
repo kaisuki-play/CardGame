@@ -28,7 +28,9 @@ public enum PlayerWarrior
     Apollo,
     Osiris,
     Nephthys,
-    Prometheus
+    Prometheus,
+    Liufeng,
+    Yangxiu
 }
 
 public enum Nation

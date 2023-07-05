@@ -39,6 +39,9 @@ public enum TaskType
     NephthysSkill3,
     PrometheusSkill1,
     PrometheusSkill2,
+    LiufengSkill1,
+    YangxiuSkill2,
+    YangxiuSkill3
 }
 public class TaskManager : MonoBehaviour
 {

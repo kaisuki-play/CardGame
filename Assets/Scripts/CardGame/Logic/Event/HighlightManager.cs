@@ -144,6 +144,14 @@ public class HighlightManager : MonoBehaviour
 
     public static bool CanBePlayedNow(OneCardManager oneCardManager)
     {
+        if (HeroSkillState.HeroSkillCardTypeDic_Once.ContainsKey(HeroSKillStateKey.YangxiuSkill3State))
+        {
+            TypesOfCards typesOfCard = HeroSkillState.HeroSkillCardTypeDic_Once[HeroSKillStateKey.YangxiuSkill3State];
+            if (oneCardManager.CardAsset.TypeOfCard == typesOfCard)
+            {
+                return false;
+            }
+        }
         switch (oneCardManager.CardAsset.SubTypeOfCard)
         {
             case SubTypeOfCards.Slash:

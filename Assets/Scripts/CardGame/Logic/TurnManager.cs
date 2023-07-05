@@ -76,6 +76,8 @@ public class TurnManager : MonoBehaviour
         {
             case TurnPhase.StartTurn:
                 StatusText.text = "Start Turn";
+                Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~回合开始");
+                await SkillManager.TurnStart();
                 TurnManager.Instance.TurnPhase = TurnPhase.SkipJudgement;
                 break;
             ///是否跳过判定阶段
