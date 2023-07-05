@@ -141,12 +141,6 @@ public class DyingManager : MonoBehaviour
         this.InquireTargetId = inquirePlayer.OtherPlayer.ID;
         switch (DyingInquirePhase)
         {
-            case DyingInquirePhase.NonMedicalSkill:
-                DyingManager.Instance.InquiryNonMedicalSkills();
-                break;
-            case DyingInquirePhase.MedicalSkill:
-                DyingManager.Instance.InquiryMedicalSkills();
-                break;
             case DyingInquirePhase.InquiryPeach:
                 DyingManager.Instance.InquiryPeachs();
                 break;

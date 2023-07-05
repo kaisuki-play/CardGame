@@ -128,6 +128,10 @@ public class TableVisual : MonoBehaviour
         cardManager.CanBePlayedNow = false;
         //到弃牌堆
         await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
+        if (CardsOnTable.Count == 0)
+        {
+            GlobalSettings.Instance.DisDeck.ChangeAllDisDeckUnOwner();
+        }
     }
 
     /// <summary>

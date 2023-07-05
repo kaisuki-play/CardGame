@@ -190,7 +190,7 @@ public class SettleManager : MonoBehaviour
         }
         Debug.Log("没铁索了，继续往下结算");
         //TODO 自己回合死亡，回合需要传到下一个玩家手里
-        if (cardManager.CardAsset.TypeOfCard == TypesOfCards.DelayTips)
+        if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips && cardManager.CardAsset.SubTypeOfTip == TypesOfTip.DelayTips)
         {
             TaskManager.Instance.DelayTipTask.SetResult(true);
             //DelayTipManager.HandleDelayTip(TurnManager.Instance.whoseTurn);

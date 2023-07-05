@@ -55,7 +55,7 @@ public class GoldenFingerVisual : MonoBehaviour
         // apply the look from CardAsset
         OneCardManager manager = card.GetComponent<OneCardManager>();
         manager.SetCardAssetA(cardManager.CardAsset);
-        manager.ReadCardFromAsset();
+        manager.ReadCardFromAssetA();
         manager.UniqueCardID = cardManager.UniqueCardID;
         manager.Owner = cardManager.Owner;
 

@@ -98,7 +98,7 @@ public class HeroSkillEventManager : MonoBehaviour
                     switch (skillInfo.SkillType)
                     {
                         case HeroSkillType.FenrirSkill2:
-                            await HeroSkillManager.ActiveFenrirSkill2(player);
+                            //await HeroSkillManager.ActiveFenrirSkill2(player);
                             break;
                     }
                 }
@@ -257,7 +257,7 @@ public class HeroDamageEventManager : MonoBehaviour
                     player.ShowOp2Button = true;
                     player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                     player.PArea.Portrait.ChangeOp2ButtonText("发动Fenrir技能1");
-                    player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                    player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                     {
                         HighlightManager.DisableAllOpButtons();
                         activeSkill = true;
@@ -267,7 +267,7 @@ public class HeroDamageEventManager : MonoBehaviour
                     player.ShowOp3Button = true;
                     player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
                     player.PArea.Portrait.ChangeOp3Button2Text("不发动Fenrir技能1");
-                    player.PArea.Portrait.OpButton3.onClick.AddListener(async () =>
+                    player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
                     {
                         HighlightManager.DisableAllOpButtons();
                         activeSkill = false;
@@ -282,5 +282,64 @@ public class HeroDamageEventManager : MonoBehaviour
                 }
 
         }
+    }
+
+
+}
+
+public class SkillCardABSwitchEventArgs : EventArgs
+{
+    public HeroSkillActivePhase SkillPhase { get; }
+
+    public OneCardManager PlayedCard { get; }
+
+    public Player NewOwner { get; }
+
+    public SkillCardABSwitchEventArgs(OneCardManager playedCard, Player newOwner, HeroSkillActivePhase skillPhase)
+    {
+        SkillPhase = skillPhase;
+        PlayedCard = playedCard;
+        NewOwner = newOwner;
+    }
+}
+
+public class HeroCardABSwitchEventManager : MonoBehaviour
+{
+    public static void RegisterABSwitchEvent(Player player)
+    {
+        player.HeroCardABSwitchEvent += HandleHeroSkillActiveEvent;
+    }
+
+    public static async Task HandleHeroSkillActiveEvent(object sender, SkillCardABSwitchEventArgs e)
+    {
+        Player player = (Player)sender;
+        Debug.Log("触发事件 玩家:" + player.PArea.Owner);
+        HeroSkillActivePhase skillPhase = e.SkillPhase;
+        List<HeroSkillInfo> skillList = HeroSkillRegister.SkillRegister[player.ID];
+        OneCardManager playedCard = e.PlayedCard;
+        switch (player.CharAsset.PlayerWarrior)
+        {
+            case PlayerWarrior.Fenrir:
+
+                {
+                    HeroSkillInfo skillInfo = new HeroSkillInfo();
+                    foreach (HeroSkillInfo skill in skillList)
+                    {
+                        if (skill.PhaseList.Contains(skillPhase))
+                        {
+                            skillInfo = skill;
+                            break;
+                        }
+                    }
+                    switch (skillInfo.SkillType)
+                    {
+                        case HeroSkillType.FenrirSkill2:
+                            await HeroSkillManager.ActiveFenrirSkill2(player, playedCard);
+                            break;
+                    }
+                }
+                break;
+        }
+        await TaskManager.Instance.DontAwait();
     }
 }

@@ -418,7 +418,7 @@ public class Deck : MonoBehaviour
         // apply the look from CardAsset
         OneCardManager manager = card.GetComponent<OneCardManager>();
         manager.SetCardAssetA(ca);
-        manager.ReadCardFromAsset();
+        manager.ReadCardFromAssetA();
 
         // parent a new creature gameObject to table slots
         card.transform.SetParent(GlobalSettings.Instance.PDeck.ChildCanvas.transform);
@@ -455,7 +455,7 @@ public class Deck : MonoBehaviour
         // apply the look from CardAsset
         OneCardManager manager = card.GetComponent<OneCardManager>();
         manager.SetCardAssetA(ca);
-        manager.ReadCardFromAsset();
+        manager.ReadCardFromAssetA();
 
         // parent a new creature gameObject to table slots
         card.transform.SetParent(GlobalSettings.Instance.PDeck.ChildCanvas.transform);

@@ -159,18 +159,18 @@ public class TurnManager : MonoBehaviour
                 StatusText.text = "PlayCard Phase";
                 await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook27);
                 //TODO临时的，需要去掉的
-                if (whoseTurn.CharAsset.PlayerWarrior == PlayerWarrior.Fenrir)
-                {
-                    foreach (int cardId in whoseTurn.Hand.CardsInHand)
-                    {
-                        GameObject card = IDHolder.GetGameObjectWithID(cardId);
-                        OneCardManager cardManager = card.GetComponent<OneCardManager>();
-                        if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips || cardManager.CardAsset.TypeOfCard == TypesOfCards.DelayTips)
-                        {
-                            cardManager.LaunchCardB(GlobalSettings.Instance.PDeck.CardAssetBWithType(SubTypeOfCards.Slash, cardManager.CardAsset));
-                        }
-                    }
-                }
+                //if (whoseTurn.CharAsset.PlayerWarrior == PlayerWarrior.Fenrir)
+                //{
+                //    foreach (int cardId in whoseTurn.Hand.CardsInHand)
+                //    {
+                //        GameObject card = IDHolder.GetGameObjectWithID(cardId);
+                //        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+                //        if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips || cardManager.CardAsset.TypeOfCard == TypesOfCards.DelayTips)
+                //        {
+                //            cardManager.LaunchCardB(GlobalSettings.Instance.PDeck.CardAssetBWithType(SubTypeOfCards.Slash, cardManager.CardAsset));
+                //        }
+                //    }
+                //}
                 HighlightManager.EnableCardsWithType(whoseTurn);
                 break;
             case TurnPhase.EndPlayCard:

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using System;
 using static UnityEditor.Experimental.GraphView.GraphView;
+using static UnityEngine.GraphicsBuffer;
 
 public enum HeroSkillActivePhase
 {
@@ -40,7 +41,8 @@ public enum HeroSkillActivePhase
     Hook31,
     Hook32,
     Hook33,
-    HookHightlight
+    HookHightlight,
+    HookChangedOwner
 }
 
 public enum HeroSkillType
@@ -108,6 +110,7 @@ public class HeroSkillRegister : MonoBehaviour
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
                     HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
                 }
                 break;
             case PlayerWarrior.Maat:
@@ -125,6 +128,7 @@ public class HeroSkillRegister : MonoBehaviour
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
                     HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
                 }
                 break;
             case PlayerWarrior.Fenrir:
@@ -136,15 +140,17 @@ public class HeroSkillRegister : MonoBehaviour
                     skillList.Add(new HeroSkillInfo(HeroSkillType.FenrirSkill1, skill1PhaseList));
 
                     List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
-                    skill2PhaseList.Add(HeroSkillActivePhase.Hook4);
-                    skill2PhaseList.Add(HeroSkillActivePhase.Hook15);
-                    skill2PhaseList.Add(HeroSkillActivePhase.Hook16);
+                    //skill2PhaseList.Add(HeroSkillActivePhase.Hook4);
+                    //skill2PhaseList.Add(HeroSkillActivePhase.Hook15);
+                    //skill2PhaseList.Add(HeroSkillActivePhase.Hook16);
+                    skill2PhaseList.Add(HeroSkillActivePhase.HookChangedOwner);
 
                     skillList.Add(new HeroSkillInfo(HeroSkillType.FenrirSkill2, skill2PhaseList));
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
                     HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
                 }
 
                 break;
@@ -159,6 +165,7 @@ public class HeroSkillRegister : MonoBehaviour
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
                     HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
                 }
 
                 break;
@@ -179,6 +186,7 @@ public class HeroSkillRegister : MonoBehaviour
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
                     HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
                 }
                 break;
             case PlayerWarrior.Nephthys:
@@ -199,6 +207,7 @@ public class HeroSkillRegister : MonoBehaviour
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
                     HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
                 }
                 break;
             case PlayerWarrior.Prometheus:
@@ -219,6 +228,7 @@ public class HeroSkillRegister : MonoBehaviour
 
                     HeroSkillEventManager.RegisterSkillEvent(player);
                     HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
                 }
                 break;
         }
@@ -227,6 +237,10 @@ public class HeroSkillRegister : MonoBehaviour
 
     public static bool NeedToActiveSkillForPlayer(Player player, HeroSkillActivePhase heroSkillActivePhase)
     {
+        if (player == null)
+        {
+            return false;
+        }
         if (!HeroSkillRegister.SkillRegister.ContainsKey(player.ID))
         {
             return false;
@@ -308,6 +322,18 @@ public class HeroSkillRegister : MonoBehaviour
             return res;
         }
         return originDamage;
+    }
+
+    public static async Task HandleCardABForSkill(OneCardManager playedCard, Player newOwner, HeroSkillActivePhase heroSkillActivePhase)
+    {
+        if (HeroSkillRegister.NeedToActiveSkillForPlayer(newOwner, heroSkillActivePhase))
+        {
+            await newOwner.InvokeHeroCardABSwitchEvent(playedCard, newOwner, heroSkillActivePhase);
+        }
+        else
+        {
+            playedCard.IsUseCardAssetB = false;
+        }
     }
 
 

@@ -15,7 +15,7 @@ public class HeroSkillManager : MonoBehaviour
     public static async Task ActiveAthenaSkill1(Player mainPlayer, OneCardManager playedCard)
     {
         //牌必须是锦囊牌
-        if (playedCard.CardAsset.TypeOfCard != TypesOfCards.Tips && playedCard.CardAsset.TypeOfCard != TypesOfCards.DelayTips)
+        if (playedCard.CardAsset.TypeOfCard != TypesOfCards.Tips)
         {
             await TaskManager.Instance.DontAwait();
             return;
@@ -69,7 +69,7 @@ public class HeroSkillManager : MonoBehaviour
     public static async Task ActiveAthenaSkill2(Player mainPlayer, OneCardManager playedCard, int targetID)
     {
         //牌必须是锦囊牌
-        if (playedCard.CardAsset.TypeOfCard != TypesOfCards.Tips && playedCard.CardAsset.TypeOfCard != TypesOfCards.DelayTips)
+        if (playedCard.CardAsset.TypeOfCard != TypesOfCards.Tips)
         {
             await TaskManager.Instance.DontAwait();
             return;
@@ -375,17 +375,53 @@ public class HeroSkillManager : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Fenrir技能1
+    /// </summary>
+    /// <param name="mainPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public static async Task ActiveFenrirSkill1(Player mainPlayer, OneCardManager playedCard)
+    {
+        Debug.Log("-----------------------------------------------Fenrir 有技能需要触发");
+        if (playedCard.Owner != mainPlayer)
+        {
+            playedCard.IsUseCardAssetB = false;
+        }
+        else
+        {
+            if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips)
+            {
+                playedCard.IsUseCardAssetB = true;
+            }
+            else
+            {
+                playedCard.IsUseCardAssetB = false;
+            }
+        }
+        await TaskManager.Instance.DontAwait();
+    }
 
     /// <summary>
     /// Fenrir技能2
     /// </summary>
     /// <param name="mainPlayer"></param>
     /// <returns></returns>
-    public static async Task ActiveFenrirSkill2(Player mainPlayer)
+    public static async Task ActiveFenrirSkill2(Player mainPlayer, OneCardManager playedCard)
     {
         Debug.Log("-----------------------------------------------Fenrir 有技能需要触发");
+        if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips)
+        {
+            playedCard.LaunchCardB(GlobalSettings.Instance.PDeck.CardAssetBWithType(SubTypeOfCards.Slash, playedCard.CardAsset));
+            playedCard.IsUseCardAssetB = true;
+        }
+        else
+        {
+            playedCard.IsUseCardAssetB = false;
+        }
         await TaskManager.Instance.DontAwait();
     }
+
 
     /// <summary>
     /// Osiris技能1
@@ -472,7 +508,7 @@ public class HeroSkillManager : MonoBehaviour
             player.ShowOp2Button = true;
             player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
             player.PArea.Portrait.ChangeOp2ButtonText("发动Osiris技能2");
-            player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+            player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
             {
                 HighlightManager.DisableAllOpButtons();
                 HighlightManager.DisableAllCards();
@@ -522,7 +558,7 @@ public class HeroSkillManager : MonoBehaviour
         targetPlayer.ShowOp1Button = true;
         targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
         targetPlayer.PArea.Portrait.ChangeOp1ButtonText("取消");
-        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+        targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
         {
             HighlightManager.DisableAllOpButtons();
             GlobalSettings.Instance.CardSelectVisual.Dismiss();
@@ -774,7 +810,7 @@ public class HeroSkillManager : MonoBehaviour
                     player.ShowOp2Button = true;
                     player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                     player.PArea.Portrait.ChangeOp2ButtonText("发动Prometheus技能1");
-                    player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                    player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                     {
                         HighlightManager.DisableAllOpButtons();
                         HighlightManager.DisableAllCards();
@@ -841,7 +877,7 @@ public class HeroSkillManager : MonoBehaviour
     {
         GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.Judgement;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
-        GlobalSettings.Instance.CardSelectVisual.AfterSelectCardForJudgementCompletion = async (card) =>
+        GlobalSettings.Instance.CardSelectVisual.AfterSelectCardForJudgementCompletion = (card) =>
         {
             //存储牌
             HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.PrometheusSkill1Card] = true;
@@ -961,7 +997,7 @@ public class HeroSkillManager : MonoBehaviour
         mainPlayer.ShowOp1Button = true;
         mainPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
         mainPlayer.PArea.Portrait.ChangeOp1ButtonText("发动" + skillName);
-        mainPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+        mainPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
         {
             HighlightManager.DisableAllOpButtons();
             tcs.SetResult(true);

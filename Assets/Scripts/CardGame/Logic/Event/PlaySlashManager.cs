@@ -11,7 +11,7 @@ public class PlaySlashManager : MonoBehaviour
         Instance = this;
     }
 
-    public async void ActiveEffect(OneCardManager playedCard)
+    public async Task ActiveEffect(OneCardManager playedCard)
     {
         CardAsset cardAsset = playedCard.CardAsset;
         Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~play one card:" + cardAsset.SubTypeOfCard);

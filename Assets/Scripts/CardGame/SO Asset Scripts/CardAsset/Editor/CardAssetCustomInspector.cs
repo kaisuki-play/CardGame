@@ -18,7 +18,8 @@ public class CardAssetCustomInspector : Editor
     SpellAttribute_prop,
     Suits_prop,
     CardRank_prop,
-    WeaponAttackDistance_prop
+    WeaponAttackDistance_prop,
+        SubTypeOfTip_prop
     ;
 
     void OnEnable()
@@ -40,6 +41,7 @@ public class CardAssetCustomInspector : Editor
         CardRank_prop = serializedObject.FindProperty("CardRank");
         Suits_prop = serializedObject.FindProperty("Suits");
         WeaponAttackDistance_prop = serializedObject.FindProperty("WeaponAttackDistance");
+        SubTypeOfTip_prop = serializedObject.FindProperty("SubTypeOfTip");
 
     }
 
@@ -58,12 +60,17 @@ public class CardAssetCustomInspector : Editor
         switch (st)
         {
             case TypesOfCards.Base:
-            case TypesOfCards.Tips:
-            case TypesOfCards.DelayTips:
                 EditorGUILayout.PropertyField(SpellScriptName_prop);
                 EditorGUILayout.PropertyField(SpecialSpellAmount_prop);
                 EditorGUILayout.PropertyField(Targets_prop);
                 EditorGUILayout.PropertyField(SpellAttribute_prop);
+                break;
+            case TypesOfCards.Tips:
+                EditorGUILayout.PropertyField(SpellScriptName_prop);
+                EditorGUILayout.PropertyField(SpecialSpellAmount_prop);
+                EditorGUILayout.PropertyField(Targets_prop);
+                EditorGUILayout.PropertyField(SpellAttribute_prop);
+                EditorGUILayout.PropertyField(SubTypeOfTip_prop);
                 break;
             case TypesOfCards.Equipment:
                 EditorGUILayout.PropertyField(SpellScriptName_prop);

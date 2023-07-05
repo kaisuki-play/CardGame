@@ -14,7 +14,13 @@ public enum TargetingOptions
 
 public enum TypesOfCards
 {
-    Base, Tips, DelayTips, Equipment, None
+    Base, Tips, Equipment, None
+}
+
+public enum TypesOfTip
+{
+    Default,
+    DelayTips
 }
 
 public enum SubTypeOfCards
@@ -103,6 +109,9 @@ public class CardAsset : ScriptableObject
 
     [Header("Weapon Attack Distance")]
     public int WeaponAttackDistance;
+
+    [Header("Tips Sub Type")]
+    public TypesOfTip SubTypeOfTip;
 
     public void ReadFromAsset(CardAsset cardAsset)
     {

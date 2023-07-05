@@ -452,7 +452,7 @@ public class EquipmentManager : MonoBehaviour
                 player.ShowOp2Button = true;
                 player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                 player.PArea.Portrait.ChangeOp2ButtonText("发动追杀");
-                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                 {
                     Debug.Log("之前是否有阻塞~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + TaskManager.Instance.TaskBlockDic.ContainsKey(TaskType.QinglongyanyueTask));
                     HighlightManager.DisableAllOpButtons();
@@ -1223,7 +1223,7 @@ public class EquipmentManager : MonoBehaviour
         GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 1;
-        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
         {
             GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
             List<int> relationCardIds = new List<int>();

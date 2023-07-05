@@ -95,7 +95,7 @@ public class OneCardManager : MonoBehaviour
     {
         if (CardAsset != null)
             CardAssetA = CardAsset;
-        ReadCardFromAsset();
+        ReadCardFromAssetA();
     }
 
     private bool _isUseCardAssetB;
@@ -109,12 +109,13 @@ public class OneCardManager : MonoBehaviour
             {
                 this.CardAsset = CardAssetA;
                 this.CardAssetB = null;
+                ReadCardFromAssetA();
             }
             else
             {
                 this.CardAsset = CardAssetB;
+                ReadCardFromAsset();
             }
-            ReadCardFromAsset();
         }
     }
 
@@ -208,12 +209,21 @@ public class OneCardManager : MonoBehaviour
         CardGraphicImage.sprite = CardAsset.CardImage;
     }
 
+    public void ReadCardFromAssetA()
+    {
+        if (CardSuitsImage != null)
+        {
+            CardSuitsImage.sprite = GlobalSettings.Instance.CardSuits[(int)CardAssetA.Suits];
+        }
+        if (CardRankText != null)
+        {
+            CardRankText.text = CardRankString(CardAssetA.CardRank);
+        }
+        CardGraphicImage.sprite = CardAssetA.CardImage;
+    }
+
     public async Task ChangeOwnerAndLocation(Player owner, CardLocation cardLocation)
     {
-        if (this.Owner != null && (owner == null || this.Owner.ID != owner.ID))
-        {
-            this.IsUseCardAssetB = false;
-        }
         switch (cardLocation)
         {
             case CardLocation.DisDeck:

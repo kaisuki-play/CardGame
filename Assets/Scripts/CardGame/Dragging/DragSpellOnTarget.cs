@@ -317,7 +317,7 @@ public class DragSpellOnTarget : DraggingActions
     /// <returns></returns>
     public bool ValidateDelayTipCards(int targetID)
     {
-        if (_manager.CardAsset.TypeOfCard != TypesOfCards.DelayTips)
+        if (_manager.CardAsset.TypeOfCard == TypesOfCards.Tips && _manager.CardAsset.SubTypeOfTip != TypesOfTip.DelayTips)
         {
             return true;
         }

@@ -56,7 +56,7 @@ public class DragOnTarget : DraggingActions
         //_whereIsThisCard.SetHandSortingOrder();
     }
 
-    private int _tmpTargetId = 0;
+    //private int _tmpTargetId = 0;
 
     public override void OnDraggingInUpdate()
     {

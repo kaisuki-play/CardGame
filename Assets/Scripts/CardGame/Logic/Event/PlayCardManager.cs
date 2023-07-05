@@ -35,21 +35,21 @@ public class PlayCardManager : MonoBehaviour
         }
     }
 
-    public void ActivateEffect(OneCardManager playedCard)
+    public async Task ActivateEffect(OneCardManager playedCard)
     {
         switch (playedCard.CardAsset.SubTypeOfCard)
         {
             case SubTypeOfCards.Slash:
             case SubTypeOfCards.ThunderSlash:
             case SubTypeOfCards.FireSlash:
-                PlaySlashManager.Instance.ActiveEffect(playedCard);
+                await PlaySlashManager.Instance.ActiveEffect(playedCard);
                 break;
             case SubTypeOfCards.Jink:
                 //TODO 闪pending后触发银月枪
-                PlayJinkManager.Instance.ActiveEffect(playedCard);
+                await PlayJinkManager.Instance.ActiveEffect(playedCard);
                 break;
             case SubTypeOfCards.Impeccable:
-                PlayImpeccableManager.Instance.ActiveEffect(playedCard);
+                await PlayImpeccableManager.Instance.ActiveEffect(playedCard);
                 break;
         }
     }

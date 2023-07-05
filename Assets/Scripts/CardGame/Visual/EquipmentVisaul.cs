@@ -67,6 +67,8 @@ public class EquipmentVisaul : MonoBehaviour
 
         cardManager.CanBePlayedNow = false;
 
+        await cardManager.ChangeOwnerAndLocation(player, CardLocation.Table);
+
         //到了装备区
         await cardManager.ChangeOwnerAndLocation(player, CardLocation.Equipment);
     }

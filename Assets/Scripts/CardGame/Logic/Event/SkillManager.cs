@@ -192,6 +192,11 @@ public class SkillManager : MonoBehaviour
     /// <returns></returns>
     public static async Task CardLocationChanged(OneCardManager cardManager, Player newOwner, Player oldOwner, CardLocation newLocation, CardLocation oldLocation)
     {
+        //1.别人的牌到自己的牌 2.发牌 3.弃牌
+        if ((newOwner == null) || (oldOwner != null && oldOwner.ID != newOwner.ID) || (oldOwner == null && newOwner != null))
+        {
+            await HeroSkillRegister.HandleCardABForSkill(cardManager, newOwner, HeroSkillActivePhase.HookChangedOwner);
+        }
         if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Equipment)
         {
             await SkillManager.HandleEquipmentMove(cardManager, newOwner, oldOwner, newLocation, oldLocation);

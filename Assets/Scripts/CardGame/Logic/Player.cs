@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
     public event Func<object, BoolTypeEventArgs, Task> NeedToPlayJinkEvent;
     public event Func<object, BoolTypeEventArgs, Task> NeedToPlaySlashEvent;
     public event Func<object, SkillEventArgs, Task> HeroSkillEvent;
+    public event Func<object, SkillCardABSwitchEventArgs, Task> HeroCardABSwitchEvent;
     //委托类型的可以返回参数的
     public delegate Task<int> DamageCalHandler(object sender, SkillDamageEventArgs extraArgs);
     public DamageCalHandler DamageCalculateHandler;
@@ -760,7 +761,7 @@ public class Player : MonoBehaviour
     {
         if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfCard != SubTypeOfCards.Impeccable
             || (playedCard.CardAsset.TypeOfCard == TypesOfCards.Equipment)
-            || (playedCard.CardAsset.TypeOfCard == TypesOfCards.DelayTips
+            || (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfTip == TypesOfTip.DelayTips
             || (playedCard.CardAsset.TypeOfCard == TypesOfCards.Base && (playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Peach || playedCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Analeptic))))
         {
             playedCard.isUsedCard = true;
@@ -786,7 +787,7 @@ public class Player : MonoBehaviour
     /// <param name="targets"></param>
     public async Task UseACard(OneCardManager playedCard, List<int> targets)
     {
-        if (playedCard.CardAsset.TypeOfCard == TypesOfCards.DelayTips)
+        if (playedCard.CardAsset.TypeOfCard == TypesOfCards.Tips && playedCard.CardAsset.SubTypeOfTip == TypesOfTip.DelayTips)
         {
             await DelayTipManager.UseADelayTipsCardFromHand(playedCard, targets);
         }
@@ -1099,6 +1100,15 @@ public class Player : MonoBehaviour
         else
         {
             return 0;
+        }
+    }
+
+    public async Task InvokeHeroCardABSwitchEvent(OneCardManager playedCard, Player newOwner, HeroSkillActivePhase skillPhase)
+    {
+        if (HeroCardABSwitchEvent != null)
+        {
+            var eventArgs = new SkillCardABSwitchEventArgs(playedCard, newOwner, skillPhase);
+            await Task.WhenAll(HeroCardABSwitchEvent.Invoke(this, eventArgs));
         }
     }
 }

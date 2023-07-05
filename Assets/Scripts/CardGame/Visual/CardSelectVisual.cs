@@ -83,8 +83,8 @@ public class CardSelectVisual : MonoBehaviour
 
         // apply the look from CardAsset
         OneCardManager manager = card.GetComponent<OneCardManager>();
-        manager.SetCardAssetA(cardManager.CardAsset);
-        manager.ReadCardFromAsset();
+        manager.SetCardAssetA(cardManager.CardAssetA);
+        manager.ReadCardFromAssetA();
         manager.UniqueCardID = cardManager.UniqueCardID;
         manager.Owner = cardManager.Owner;
 
