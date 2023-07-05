@@ -15,7 +15,8 @@ public enum CardSelectPanelType
     DisSomeCardForDestNumber,
     Judgement,
     ShowTargetACard,
-    GiveCardToOther
+    GiveCardToOther,
+    ShowAllCardForSameColor
 }
 
 public class CardSelectVisual : MonoBehaviour
@@ -83,7 +84,7 @@ public class CardSelectVisual : MonoBehaviour
 
         // apply the look from CardAsset
         OneCardManager manager = card.GetComponent<OneCardManager>();
-        manager.SetCardAssetA(cardManager.CardAssetA);
+        manager.SetCardAssetA(cardManager.CardAsset);
         manager.ReadCardFromAssetA();
         manager.UniqueCardID = cardManager.UniqueCardID;
         manager.Owner = cardManager.Owner;

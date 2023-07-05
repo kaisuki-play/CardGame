@@ -206,6 +206,7 @@ public class TurnManager : MonoBehaviour
                 break;
             case TurnPhase.EndTurn:
                 StatusText.text = "End Turn Phase";
+                await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook31);
                 OnEndTurn();
                 break;
         }

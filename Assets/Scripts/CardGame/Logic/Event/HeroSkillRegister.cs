@@ -66,7 +66,9 @@ public enum HeroSkillType
     LiuFengSkill2,
     YangxiuSkill1,
     YangxiuSkill2,
-    YangxiuSkill3
+    YangxiuSkill3,
+    FreyjSkill1,
+    FreyjSkill2
 }
 
 public struct HeroSkillInfo
@@ -262,6 +264,23 @@ public class HeroSkillRegister : MonoBehaviour
                     List<HeroSkillActivePhase> skill3PhaseList = new List<HeroSkillActivePhase>();
                     skill3PhaseList.Add(HeroSkillActivePhase.Hook10);
                     skillList.Add(new HeroSkillInfo(HeroSkillType.YangxiuSkill3, skill3PhaseList));
+
+                    HeroSkillRegister.SkillRegister[player.ID] = skillList;
+
+                    HeroSkillEventManager.RegisterSkillEvent(player);
+                    HeroDamageEventManager.RegisterDamageEvent(player);
+                    HeroCardABSwitchEventManager.RegisterABSwitchEvent(player);
+                }
+                break;
+            case PlayerWarrior.Freyj:
+                {
+                    List<HeroSkillActivePhase> skill1PhaseList = new List<HeroSkillActivePhase>();
+                    skill1PhaseList.Add(HeroSkillActivePhase.HookChangedOwner);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.FreyjSkill1, skill1PhaseList));
+
+                    List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
+                    skill2PhaseList.Add(HeroSkillActivePhase.Hook31);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.FreyjSkill2, skill2PhaseList));
 
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 

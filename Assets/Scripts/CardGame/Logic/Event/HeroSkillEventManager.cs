@@ -245,6 +245,26 @@ public class HeroSkillEventManager : MonoBehaviour
                     }
                 }
                 break;
+            case PlayerWarrior.Freyj:
+
+                {
+                    HeroSkillInfo skillInfo = new HeroSkillInfo();
+                    foreach (HeroSkillInfo skill in skillList)
+                    {
+                        if (skill.PhaseList.Contains(skillPhase))
+                        {
+                            skillInfo = skill;
+                            break;
+                        }
+                    }
+                    switch (skillInfo.SkillType)
+                    {
+                        case HeroSkillType.FreyjSkill2:
+                            await HeroSkillManager.ActiveFreyjSkill2(player);
+                            break;
+                    }
+                }
+                break;
         }
         await TaskManager.Instance.DontAwait();
     }
@@ -385,6 +405,26 @@ public class HeroCardABSwitchEventManager : MonoBehaviour
                     {
                         case HeroSkillType.FenrirSkill2:
                             await HeroSkillManager.ActiveFenrirSkill2(player, playedCard);
+                            break;
+                    }
+                }
+                break;
+            case PlayerWarrior.Freyj:
+
+                {
+                    HeroSkillInfo skillInfo = new HeroSkillInfo();
+                    foreach (HeroSkillInfo skill in skillList)
+                    {
+                        if (skill.PhaseList.Contains(skillPhase))
+                        {
+                            skillInfo = skill;
+                            break;
+                        }
+                    }
+                    switch (skillInfo.SkillType)
+                    {
+                        case HeroSkillType.FreyjSkill1:
+                            await HeroSkillManager.ActiveFreyjSkill1(player, playedCard);
                             break;
                     }
                 }

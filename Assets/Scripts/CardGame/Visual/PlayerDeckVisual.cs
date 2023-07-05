@@ -297,6 +297,16 @@ public class PlayerDeckVisual : MonoBehaviour
         return oldCardAsset;
     }
 
+    public CardAsset CardAssetBWithSuite(CardSuits cardSuits, CardAsset oldCardAsset)
+    {
+        CardAsset ca = ScriptableObject.CreateInstance<CardAsset>();
+        ca.ReadFromAsset(oldCardAsset);
+        ca.Suits = cardSuits;
+        ca.CardRank = oldCardAsset.CardRank;
+        ca.CardColor = CardColor.Red;
+        return ca;
+    }
+
 
     public (CardSuits, CardRank, CardColor) DisguisedCardSuit(List<int> relationCardIds)
     {

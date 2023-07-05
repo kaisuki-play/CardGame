@@ -63,6 +63,10 @@ public class DragSpellOnTarget : DraggingActions
 
     public override void OnDraggingInUpdate()
     {
+        if (_playerOwner == null)
+        {
+            return;
+        }
         // This code only draws the arrow
         Vector3 notNormalized = transform.position - transform.parent.position;
         Vector3 direction = notNormalized.normalized;

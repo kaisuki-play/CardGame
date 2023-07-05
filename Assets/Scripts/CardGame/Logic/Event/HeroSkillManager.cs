@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Threading.Tasks;
 using static UnityEngine.GraphicsBuffer;
 using System.Linq;
+using DG.Tweening;
+using System;
 
 public class HeroSkillManager : MonoBehaviour
 {
@@ -1331,6 +1333,133 @@ public class HeroSkillManager : MonoBehaviour
         {
 
         }
+    }
+
+    /// <summary>
+    /// Freyj 技能1
+    /// </summary>
+    /// <param name="mainPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public static async Task ActiveFreyjSkill1(Player mainPlayer, OneCardManager playedCard)
+    {
+        Debug.Log("-----------------------------------------------Freyj 有技能需要触发");
+        if (playedCard.CardAsset.Suits == CardSuits.Spades)
+        {
+            playedCard.LaunchCardB(GlobalSettings.Instance.PDeck.CardAssetBWithSuite(CardSuits.Hearts, playedCard.CardAsset));
+            playedCard.IsUseCardAssetB = true;
+        }
+        else
+        {
+            playedCard.IsUseCardAssetB = false;
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    public static async Task ActiveFreyjSkill2(Player mainPlayer)
+    {
+        if (mainPlayer.ID != TurnManager.Instance.whoseTurn.ID)
+        {
+            return;
+        }
+        TaskManager.Instance.AddATask(TaskType.FreyjSkill2);
+
+        Player player = mainPlayer;
+
+        HighlightManager.DisableAllCards();
+        HighlightManager.DisableAllOpButtons();
+        player.ShowOp2Button = true;
+        player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp2ButtonText("发动Freyj技能2");
+        player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            await ShowAllHandCardsForFreyj(mainPlayer);
+        });
+
+        player.ShowOp3Button = true;
+        player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp3Button2Text("不发动Freyj技能2");
+        player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            TaskManager.Instance.UnBlockTask(TaskType.FreyjSkill2);
+        });
+
+        await TaskManager.Instance.TaskBlockDic[TaskType.FreyjSkill2][0].Task;
+    }
+
+    public static async Task ShowAllHandCardsForFreyj(Player mainPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.ShowTargetACard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+
+        //获取第一个颜色
+        GameObject firstCard = IDHolder.GetGameObjectWithID(mainPlayer.Hand.CardsInHand[0]);
+        OneCardManager firstCardManager = firstCard.GetComponent<OneCardManager>();
+        CardColor firstCardColor = firstCardManager.CardAsset.CardColor;
+
+        bool allCardsSameColor = true;
+
+        for (int i = mainPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+            if (firstCardColor != cardManager.CardAsset.CardColor)
+            {
+                allCardsSameColor = false;
+            }
+        }
+
+        var tcs = new TaskCompletionSource<bool>();
+
+        Sequence s = DOTween.Sequence();
+        s.AppendInterval(1f);
+        s.OnComplete(() =>
+        {
+            tcs.SetResult(true);
+        });
+
+        await tcs.Task;
+
+        GlobalSettings.Instance.CardSelectVisual.Dismiss();
+
+        if (allCardsSameColor == false)
+        {
+            TaskManager.Instance.UnBlockTask(TaskType.FreyjSkill2);
+        }
+        else
+        {
+            Debug.Log("丰收女神需要发牌了");
+            int cardCount = 0;
+            foreach (Player targetPlayer in GlobalSettings.Instance.PlayerInstances)
+            {
+                targetPlayer.ShowOp1Button = true;
+                targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                targetPlayer.PArea.Portrait.ChangeOp1ButtonText("选择");
+                targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+                {
+                    targetPlayer.ShowOp1Button = false;
+                    cardCount++;
+                    await targetPlayer.DrawSomeCards(1);
+                    if (cardCount == GlobalSettings.Instance.PlayerInstances.Select(n => n.IsDead == false).ToList().Count || cardCount == mainPlayer.Hand.CardsInHand.Count)
+                    {
+                        TaskManager.Instance.UnBlockTask(TaskType.FreyjSkill2);
+                    }
+                });
+            }
+
+            mainPlayer.ShowOp1Button = true;
+            mainPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+            mainPlayer.PArea.Portrait.ChangeOp1ButtonText("完成");
+            mainPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+            {
+                HighlightManager.DisableAllOpButtons();
+                TaskManager.Instance.UnBlockTask(TaskType.FreyjSkill2);
+            });
+        }
+
     }
 
 
