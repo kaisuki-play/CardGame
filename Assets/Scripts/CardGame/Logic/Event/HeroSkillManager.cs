@@ -1053,6 +1053,7 @@ public class HeroSkillManager : MonoBehaviour
                         mainPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
                         {
                             HighlightManager.DisableAllOpButtons();
+                            await DrawCardsForSelectPlayersLiufengSkill1(mainPlayer, selectPlayerList);
                             TaskManager.Instance.UnBlockTask(TaskType.LiufengSkill1);
                         });
                     });
@@ -1111,6 +1112,72 @@ public class HeroSkillManager : MonoBehaviour
         for (int i = targetPlayer.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
         {
             GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.EquipmentLogic.CardsInEquipment[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        await tcs.Task;
+    }
+
+    /// <summary>
+    /// 刘封技能1
+    /// </summary>
+    /// <param name="mainPlayer"></param>
+    /// <param name="playedCard"></param>
+    /// <returns></returns>
+    public static async Task ActiveLiufengSkill2(Player mainPlayer)
+    {
+        if (TurnManager.Instance.TurnPhase != TurnPhase.PlayCard)
+        {
+            return;
+        }
+        if (mainPlayer.ID == TurnManager.Instance.whoseTurn.ID)
+        {
+            return;
+        }
+        if (CounterManager.Instance.SlashCount >= CounterManager.Instance.MaxSlashLimit)
+        {
+            return;
+        }
+        if (mainPlayer.HeroHeadLogic.CardsOnHero.Count < 2)
+        {
+            return;
+        }
+        Player player = TurnManager.Instance.whoseTurn;
+
+        player.ShowOp3Button = true;
+        player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+        player.PArea.Portrait.ChangeOp3Button2Text("发动刘封技能2");
+        player.PArea.Portrait.OpButton3.onClick.AddListener(async () =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            HighlightManager.DisableAllCards();
+            await SelectCardForLiuFeng(mainPlayer, TurnManager.Instance.whoseTurn);
+        });
+        await TaskManager.Instance.DontAwait();
+    }
+
+    public static async Task SelectCardForLiuFeng(Player mainPlayer, Player targetPlayer)
+    {
+        TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.SelectSomeCardsToAsACard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 2;
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
+        {
+            OneCardManager cardManager = GlobalSettings.Instance.PDeck.DisguisedCardAssetWithType(targetPlayer, SubTypeOfCards.Slash, GlobalSettings.Instance.CardSelectVisual.SelectCardIds, false);
+            List<int> targets = new List<int>();
+            targets.Add(mainPlayer.ID);
+
+            GlobalSettings.Instance.CardSelectVisual.Dismiss();
+
+            await targetPlayer.DragTarget(cardManager, targets);
+            tcs.SetResult(true);
+        };
+
+        for (int i = mainPlayer.HeroHeadLogic.CardsOnHero.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.HeroHeadLogic.CardsOnHero[i]);
             OneCardManager cardManager = card.GetComponent<OneCardManager>();
             GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
         }
@@ -1315,7 +1382,16 @@ public class HeroSkillManager : MonoBehaviour
             {
                 Debug.Log(buttonTxt);
                 TypesOfCards selectType = buttonTxt == "基本牌" ? TypesOfCards.Base : (buttonTxt == "锦囊牌" ? TypesOfCards.Tips : TypesOfCards.Equipment);
-                HeroSkillState.HeroSkillCardTypeDic_Once[HeroSKillStateKey.YangxiuSkill3State] = selectType;
+                if (HeroSkillState.HeroSkillCardTypeDic_Once.ContainsKey(HeroSKillStateKey.YangxiuSkill3State))
+                {
+                    HeroSkillState.HeroSkillCardTypeDic_Once[HeroSKillStateKey.YangxiuSkill3State].Add(selectType);
+                }
+                else
+                {
+                    List<TypesOfCards> typesOfCards = new List<TypesOfCards>();
+                    typesOfCards.Add(selectType);
+                    HeroSkillState.HeroSkillCardTypeDic_Once[HeroSKillStateKey.YangxiuSkill3State] = typesOfCards;
+                }
                 TaskManager.Instance.UnBlockTask(TaskType.YangxiuSkill3);
             };
         });
@@ -1448,10 +1524,10 @@ public class HeroSkillManager : MonoBehaviour
                 });
             }
 
-            mainPlayer.ShowOp1Button = true;
-            mainPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-            mainPlayer.PArea.Portrait.ChangeOp1ButtonText("完成");
-            mainPlayer.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+            mainPlayer.ShowOp2Button = true;
+            mainPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+            mainPlayer.PArea.Portrait.ChangeOp2ButtonText("完成");
+            mainPlayer.PArea.Portrait.OpButton2.onClick.AddListener(() =>
             {
                 HighlightManager.DisableAllOpButtons();
                 TaskManager.Instance.UnBlockTask(TaskType.FreyjSkill2);

@@ -146,8 +146,8 @@ public class HighlightManager : MonoBehaviour
     {
         if (HeroSkillState.HeroSkillCardTypeDic_Once.ContainsKey(HeroSKillStateKey.YangxiuSkill3State))
         {
-            TypesOfCards typesOfCard = HeroSkillState.HeroSkillCardTypeDic_Once[HeroSKillStateKey.YangxiuSkill3State];
-            if (oneCardManager.CardAsset.TypeOfCard == typesOfCard)
+            List<TypesOfCards> typesOfCard = HeroSkillState.HeroSkillCardTypeDic_Once[HeroSKillStateKey.YangxiuSkill3State];
+            if (typesOfCard.Contains(oneCardManager.CardAsset.TypeOfCard))
             {
                 return false;
             }

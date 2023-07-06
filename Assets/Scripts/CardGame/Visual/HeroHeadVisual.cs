@@ -7,17 +7,22 @@ using UnityEngine;
 
 public class HeroHeadVisual : MonoBehaviour
 {
+    public AreaPosition Owner;
+
     public SameDistanceChildren Slots;
     private List<GameObject> _cardsInHeroHead = new List<GameObject>();
 
     // add a new card GameObject to hand
-    public void AddCard(GameObject card)
+    public async Task AddCard(GameObject card)
     {
         // we allways insert a new card as 0th element in CardsInHand List 
         _cardsInHeroHead.Insert(0, card);
 
         // parent this card to our Slots GameObject
         card.transform.SetParent(Slots.transform);
+
+        OneCardManager cardManager = card.GetComponent<OneCardManager>();
+        await cardManager.ChangeOwnerAndLocation(GlobalSettings.Instance.Players[this.Owner], CardLocation.HeroO);
 
         // re-calculate the position of the hand
         PlaceCardsOnNewSlots();
@@ -103,9 +108,9 @@ public class HeroHeadVisual : MonoBehaviour
         }
     }
 
-    public void PutCardOnHero(GameObject card)
+    public async void PutCardOnHero(GameObject card)
     {
-        AddCard(card);
+        await AddCard(card);
 
         // Bring card to front while it travels from draw spot to hand
         WhereIsTheCardOrCreature w = card.GetComponent<WhereIsTheCardOrCreature>();

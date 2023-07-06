@@ -16,7 +16,8 @@ public enum CardSelectPanelType
     Judgement,
     ShowTargetACard,
     GiveCardToOther,
-    ShowAllCardForSameColor
+    ShowAllCardForSameColor,
+    SelectSomeCardsToAsACard,
 }
 
 public class CardSelectVisual : MonoBehaviour
@@ -46,6 +47,12 @@ public class CardSelectVisual : MonoBehaviour
     {
         DisAllCards();
         this.gameObject.SetActive(false);
+    }
+
+    public void Show()
+    {
+        SelectCardIds.Clear();
+        this.gameObject.SetActive(true);
     }
 
     // 顺手牵羊、过河拆桥、寒冰剑 加牌
@@ -78,7 +85,7 @@ public class CardSelectVisual : MonoBehaviour
         card.GetComponent<Button>().onClick.RemoveAllListeners();
         card.GetComponent<Button>().onClick.AddListener(async () =>
         {
-            Debug.Log(card.GetComponent<OneCardManager>().UniqueCardID);
+            Debug.Log(card.GetComponent<OneCardManager>().ShowCardID);
             await HandleCard(card);
         });
 
@@ -86,7 +93,8 @@ public class CardSelectVisual : MonoBehaviour
         OneCardManager manager = card.GetComponent<OneCardManager>();
         manager.SetCardAssetA(cardManager.CardAsset);
         manager.ReadCardFromAssetA();
-        manager.UniqueCardID = cardManager.UniqueCardID;
+        manager.UniqueCardID = IDFactory.GetUniqueID();
+        manager.ShowCardID = cardManager.UniqueCardID;
         manager.Owner = cardManager.Owner;
 
         // parent a new creature gameObject to table slots
@@ -102,7 +110,7 @@ public class CardSelectVisual : MonoBehaviour
 
     public async Task HandleCard(GameObject selectCard)
     {
-        int cardId = selectCard.GetComponent<OneCardManager>().UniqueCardID;
+        int cardId = selectCard.GetComponent<OneCardManager>().ShowCardID;
 
         GameObject originCard = IDHolder.GetGameObjectWithID(cardId);
         OneCardManager originCardManager = originCard.GetComponent<OneCardManager>();
@@ -242,6 +250,23 @@ public class CardSelectVisual : MonoBehaviour
                     {
                         this.AfterSelectCardAsOtherCardCompletion.Invoke();
                     }
+                }
+                break;
+            case CardSelectPanelType.SelectSomeCardsToAsACard:
+                if (selectCard.GetComponent<OneCardManager>().CanBePlayedNow == false)
+                {
+                    this.SelectCardIds.Add(cardId);
+                    AlreadyDisCardNumber++;
+                }
+                else
+                {
+                    this.SelectCardIds.Remove(cardId);
+                    AlreadyDisCardNumber--;
+                }
+                selectCard.GetComponent<OneCardManager>().CanBePlayedNow = !selectCard.GetComponent<OneCardManager>().CanBePlayedNow;
+                if (AlreadyDisCardNumber == DisCardNumber)
+                {
+                    this.AfterDisCardCompletion.Invoke();
                 }
                 break;
         }

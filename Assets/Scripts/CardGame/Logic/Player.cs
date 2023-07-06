@@ -709,7 +709,7 @@ public class Player : MonoBehaviour
         //cardManager.ChangeOwnerAndLocation(targetPlayer, CardLocation.Hand);
 
         //新增给目标人的卡
-        targetPlayer.HeroHeadLogic.CardsOnHero.Insert(0, cardManager.UniqueCardID);
+        targetPlayer.HeroHeadLogic.AddCard(cardManager.UniqueCardID);
 
         targetPlayer.PArea.HeroHeadVisual.PutCardOnHero(cardManager.gameObject);
 
@@ -899,6 +899,27 @@ public class Player : MonoBehaviour
     {
         this.JudgementLogic.RemoveCard(cardId);
         await this.PArea.JudgementVisual.DisCardFromJudgement(cardId);
+    }
+
+    /// <summary>
+    /// 根据cardId弃一张装备的牌
+    /// </summary>
+    /// <param name="cardId"></param>
+    public async Task DisACardFromEquipment(int cardId)
+    {
+        this.EquipmentLogic.RemoveCard(cardId);
+        await this.PArea.EquipmentVisaul.DisCardFromEquipment(cardId);
+    }
+
+    /// <summary>
+    /// 根据cardId弃一张英雄头上的牌
+    /// </summary>
+    /// <param name="cardId"></param>
+    /// <returns></returns>
+    public async Task DisACardFromHero(int cardId)
+    {
+        this.HeroHeadLogic.DisCard(cardId);
+        await this.PArea.HeroHeadVisual.DisCardFromHeroHead(cardId);
     }
 
     /// <summary>

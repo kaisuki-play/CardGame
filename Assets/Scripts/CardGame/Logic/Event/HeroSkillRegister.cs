@@ -244,6 +244,10 @@ public class HeroSkillRegister : MonoBehaviour
 
                     skillList.Add(new HeroSkillInfo(HeroSkillType.LiuFengSkill1, skill1PhaseList));
 
+                    List<HeroSkillActivePhase> skill2PhaseList = new List<HeroSkillActivePhase>();
+                    skill2PhaseList.Add(HeroSkillActivePhase.HookHightlight);
+                    skillList.Add(new HeroSkillInfo(HeroSkillType.LiuFengSkill2, skill2PhaseList));
+
                     HeroSkillRegister.SkillRegister[player.ID] = skillList;
 
                     HeroSkillEventManager.RegisterSkillEvent(player);

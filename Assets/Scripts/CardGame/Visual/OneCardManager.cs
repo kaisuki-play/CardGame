@@ -36,6 +36,7 @@ public enum DragOrClick
 public class OneCardManager : MonoBehaviour
 {
     public int UniqueCardID;
+    public int ShowCardID;
     public CardAsset CardAsset;
 
     //private CardAsset _cardAsset = null;

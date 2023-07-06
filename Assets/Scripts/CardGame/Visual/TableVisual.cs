@@ -105,7 +105,25 @@ public class TableVisual : MonoBehaviour
             {
                 GameObject relationCard = IDHolder.GetGameObjectWithID(relationCardId);
                 OneCardManager relationCardManager = relationCard.GetComponent<OneCardManager>();
-                await relationCardManager.Owner.DisACardFromHand(relationCardId);
+                Debug.Log("现在的位置~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + relationCardManager.CardLocation);
+                switch (relationCardManager.CardLocation)
+                {
+                    case CardLocation.Judgement:
+                        await relationCardManager.Owner.DisACardFromJudgement(relationCardId);
+                        break;
+                    case CardLocation.HeroA:
+                    case CardLocation.HeroB:
+                    case CardLocation.HeroO:
+                        await relationCardManager.Owner.DisACardFromHero(relationCardId);
+                        break;
+                    case CardLocation.Hand:
+                        await relationCardManager.Owner.DisACardFromHand(relationCardId);
+                        break;
+                    case CardLocation.Equipment:
+                        await relationCardManager.Owner.DisACardFromEquipment(relationCardId);
+                        break;
+                }
+                //await relationCardManager.Owner.DisACardFromHand(relationCardId);
             }
             CardsOnTable.Remove(card);
             Destroy(card);

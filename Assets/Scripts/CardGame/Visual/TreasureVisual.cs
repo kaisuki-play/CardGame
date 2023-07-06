@@ -228,7 +228,7 @@ public class TreasureVisual : MonoBehaviour
                 OneCardManager relationCardManager = relationCard.GetComponent<OneCardManager>();
                 await relationCardManager.Owner.DisACardFromTreasure(relationCardId);
             }
-            PlayCardManager.Instance.ActivateEffect(playedCard);
+            await PlayCardManager.Instance.ActivateEffect(playedCard);
             Destroy(CardVisual);
             return;
         }

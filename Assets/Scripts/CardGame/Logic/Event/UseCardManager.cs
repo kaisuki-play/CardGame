@@ -83,30 +83,38 @@ public class UseCardManager : MonoBehaviour
                 break;
         }
 
-        //使用的牌到pending状态了
-        switch (playedCard.CardLocation)
+        if (playedCard.IsDisguisedCard)
         {
-            case CardLocation.Hand:
-                {
-                    playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
+            await playedCard.Owner.PArea.UseASpellFromADisguisedCard(playedCard);
+        }
+        else
+        {
+            //使用的牌到pending状态了
+            switch (playedCard.CardLocation)
+            {
+                case CardLocation.Hand:
+                    {
 
-                    await playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
-                }
-                break;
-            case CardLocation.UnderCart:
-                {
-                    playedCard.Owner.TreasureLogic.DisCard(playedCard.UniqueCardID);
+                        playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
 
-                    await playedCard.Owner.PArea.TreasureVisual.UseASpellFromTreasure(playedCard.UniqueCardID);
-                }
-                break;
-            default:
-                {
-                    playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
+                        await playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
+                    }
+                    break;
+                case CardLocation.UnderCart:
+                    {
+                        playedCard.Owner.TreasureLogic.DisCard(playedCard.UniqueCardID);
 
-                    await playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
-                }
-                break;
+                        await playedCard.Owner.PArea.TreasureVisual.UseASpellFromTreasure(playedCard.UniqueCardID);
+                    }
+                    break;
+                default:
+                    {
+                        playedCard.Owner.Hand.DisCard(playedCard.UniqueCardID);
+
+                        await playedCard.Owner.PArea.HandVisual.UseASpellFromHand(playedCard.UniqueCardID);
+                    }
+                    break;
+            }
         }
 
         //走第二步,增减目标

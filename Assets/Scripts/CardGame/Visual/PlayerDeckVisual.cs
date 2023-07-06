@@ -231,11 +231,14 @@ public class PlayerDeckVisual : MonoBehaviour
     /// <returns></returns>
     public OneCardManager DisguisedCardAssetWithType(Player player, SubTypeOfCards subTypeOfCards, List<int> relationCardIds, bool needTarget)
     {
+        List<int> cardIds = new List<int>();
+        cardIds.AddRange(relationCardIds);
+
         foreach (CardAsset cardAsset in GlobalSettings.Instance.DeckSource.Cards)
         {
             if (cardAsset.SubTypeOfCard == subTypeOfCards)
             {
-                (CardSuits newCardSuits, CardRank newCardRank, CardColor newCardColor) = DisguisedCardSuit(relationCardIds);
+                (CardSuits newCardSuits, CardRank newCardRank, CardColor newCardColor) = DisguisedCardSuit(cardIds);
                 Debug.Log("~~~~~~~~~~" + newCardSuits + "~~~~~~~~~~" + newCardRank + "~~~~~~~~~~~~~~~~~~" + newCardColor);
 
                 CardAsset ca = ScriptableObject.CreateInstance<CardAsset>();
@@ -273,7 +276,7 @@ public class PlayerDeckVisual : MonoBehaviour
                 manager.Owner = player;
                 manager.UniqueCardID = id.UniqueID;
                 manager.IsDisguisedCard = true;
-                manager.RelationRealCardIds = relationCardIds;
+                manager.RelationRealCardIds = cardIds;
                 return manager;
             }
         }

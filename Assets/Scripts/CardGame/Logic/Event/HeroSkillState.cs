@@ -21,7 +21,7 @@ public class HeroSkillState : MonoBehaviour
     public static Dictionary<HeroSKillStateKey, OneCardManager> HeroSkillCardDic_Once = new Dictionary<HeroSKillStateKey, OneCardManager>();
 
     ///存储卡牌类型的技能,回合结束后清除
-    public static Dictionary<HeroSKillStateKey, TypesOfCards> HeroSkillCardTypeDic_Once = new Dictionary<HeroSKillStateKey, TypesOfCards>();
+    public static Dictionary<HeroSKillStateKey, List<TypesOfCards>> HeroSkillCardTypeDic_Once = new Dictionary<HeroSKillStateKey, List<TypesOfCards>>();
 
     //清除一次性的值
     public static void ClearOnceValue()

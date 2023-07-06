@@ -214,6 +214,9 @@ public class HeroSkillEventManager : MonoBehaviour
                         case HeroSkillType.LiuFengSkill1:
                             await HeroSkillManager.ActiveLiufengSkill1(player, playedCard, targetID, skillPhase);
                             break;
+                        case HeroSkillType.LiuFengSkill2:
+                            await HeroSkillManager.ActiveLiufengSkill2(player);
+                            break;
                     }
                 }
                 break;
