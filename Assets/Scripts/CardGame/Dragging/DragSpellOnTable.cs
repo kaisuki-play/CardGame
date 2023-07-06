@@ -198,11 +198,11 @@ public class DragSpellOnTable : DraggingActions
             await otherCard.Owner.DisACardFromHand(otherCard.UniqueCardID);
             if (otherCard.CardAsset.Suits == huogongCard.ShownCardSuit)
             {
-                SettleManager.Instance.StartSettle();
+                await SettleManager.Instance.StartSettle();
             }
             else
             {
-                UseCardManager.Instance.FinishSettle();
+                await UseCardManager.Instance.FinishSettle();
             }
         }
         else

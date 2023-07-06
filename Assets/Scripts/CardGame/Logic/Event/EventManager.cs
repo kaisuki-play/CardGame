@@ -56,11 +56,11 @@ public class EventManager : MonoBehaviour
 
         if (usedAJink)
         {
-            UseCardManager.Instance.FinishSettle();
+            await UseCardManager.Instance.FinishSettle();
         }
         else
         {
-            SettleManager.Instance.StartSettle();
+            await SettleManager.Instance.StartSettle();
         }
         await TaskManager.Instance.DontAwait();
     }
@@ -116,11 +116,11 @@ public class EventManager : MonoBehaviour
         Debug.Log("触发事件 玩家:" + player.PArea.Owner);
         if (usedAJink)
         {
-            UseCardManager.Instance.FinishSettle();
+            await UseCardManager.Instance.FinishSettle();
         }
         else
         {
-            SettleManager.Instance.StartSettle();
+            await SettleManager.Instance.StartSettle();
         }
         await TaskManager.Instance.DontAwait();
     }
@@ -133,7 +133,7 @@ public class EventManager : MonoBehaviour
         Debug.Log("触发事件 玩家:" + player.PArea.Owner);
         if (usedAJink)
         {
-            UseCardManager.Instance.FinishSettle();
+            await UseCardManager.Instance.FinishSettle();
         }
         else
         {
@@ -155,7 +155,7 @@ public class EventManager : MonoBehaviour
         }
         else
         {
-            SettleManager.Instance.StartSettle(null, SpellAttribute.None, player);
+            await SettleManager.Instance.StartSettle(null, SpellAttribute.None, player);
         }
         await TaskManager.Instance.DontAwait();
     }

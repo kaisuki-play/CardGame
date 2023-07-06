@@ -20,6 +20,7 @@ public class PlayerArea : MonoBehaviour
 
     public Transform PortraitPosition;
     public Transform InitialPortraitPosition;
+    public Transform PPosition;
 
     private void Awake()
     {

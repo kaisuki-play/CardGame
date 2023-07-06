@@ -54,7 +54,8 @@ public enum SubTypeOfCards
     SilverMoon,//银月枪
     Cart,//木流牛马,
     ThunderHarmer,//雷神之锤
-    VictorySword,//胜利之剑
+    VictorySword,//胜利之剑,
+    SkillDamage
 }
 
 public enum TypeOfEquipment
@@ -123,6 +124,8 @@ public class CardAsset : ScriptableObject
         this.Targets = cardAsset.Targets;
         this.SpellAttribute = cardAsset.SpellAttribute;
         this.SpecialSpellAmount = cardAsset.SpecialSpellAmount;
+        this.SubTypeOfTip = cardAsset.SubTypeOfTip;
+        this.SpellAttribute = cardAsset.SpellAttribute;
     }
 
 }

@@ -10,7 +10,9 @@ public enum HeroSKillStateKey
     EnteredDying,
     YangxiuSkill1State,
     YangxiuSkill2State,
-    YangxiuSkill3State
+    YangxiuSkill3State,
+    LiruSkill2State,
+    LiruSkill3State
 }
 public class HeroSkillState : MonoBehaviour
 {
@@ -22,6 +24,11 @@ public class HeroSkillState : MonoBehaviour
 
     ///存储卡牌类型的技能,回合结束后清除
     public static Dictionary<HeroSKillStateKey, List<TypesOfCards>> HeroSkillCardTypeDic_Once = new Dictionary<HeroSKillStateKey, List<TypesOfCards>>();
+
+    /// <summary>
+    /// 全局限一次的
+    /// </summary>
+    public static Dictionary<HeroSKillStateKey, bool> HeroSkillBooleanDic_AllTheGame = new Dictionary<HeroSKillStateKey, bool>();
 
     //清除一次性的值
     public static void ClearOnceValue()

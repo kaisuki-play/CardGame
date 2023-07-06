@@ -15,7 +15,7 @@ public class SettleManager : MonoBehaviour
     }
 
     //开始结算
-    public void StartSettle(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 0, bool isFromIronChain = false)
+    public async Task StartSettle(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 0, bool isFromIronChain = false)
     {
         if (cardManager == null)
         {
@@ -26,11 +26,11 @@ public class SettleManager : MonoBehaviour
         {
             Debug.Log("伤害属性" + cardManager.CardAsset.SpellAttribute);
         }
-        BeforeDamage(cardManager, spellAttribute, targetPlayer, originalDamage, isFromIronChain);
+        await BeforeDamage(cardManager, spellAttribute, targetPlayer, originalDamage, isFromIronChain);
     }
 
     //伤害前
-    public async void BeforeDamage(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 0, bool isFromIronChain = false)
+    public async Task BeforeDamage(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 0, bool isFromIronChain = false)
     {
         if (cardManager == null)
         {
@@ -52,7 +52,7 @@ public class SettleManager : MonoBehaviour
                 return;
             }
             Debug.Log("-----------------------------------------slash settle before calculate damage--------------------------");
-            CalculateDamage(cardManager, spellAttribute, targetPlayer, originalDamage, isFromIronChain);
+            await CalculateDamage(cardManager, spellAttribute, targetPlayer, originalDamage, isFromIronChain);
 
             //switch (cardManager.CardAsset.TypeOfCard)
             //{
@@ -119,7 +119,7 @@ public class SettleManager : MonoBehaviour
 
 
     //计算伤害
-    public async void CalculateDamage(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player curTargetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
+    public async Task CalculateDamage(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player curTargetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
     {
         if (cardManager == null)
         {
@@ -157,12 +157,12 @@ public class SettleManager : MonoBehaviour
 
             Debug.Log("没有濒死继续往下执行");
 
-            AfterDamage(cardManager, spellAttribute, curTargetPlayer, originalDamage, isFromIronChain);
+            await AfterDamage(cardManager, spellAttribute, curTargetPlayer, originalDamage, isFromIronChain);
         }
     }
 
     //伤害后
-    public async void AfterDamage(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
+    public async Task AfterDamage(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
     {
         //判断是否死亡，如果死亡则继续铁索
         if (!targetPlayer.IsDead)
@@ -172,11 +172,11 @@ public class SettleManager : MonoBehaviour
         }
 
         //TODO 无属性的话不需要响应铁索连环
-        HandleIronChain(cardManager, spellAttribute, targetPlayer, originalDamage, isFromIronChain);
+        await HandleIronChain(cardManager, spellAttribute, targetPlayer, originalDamage, isFromIronChain);
     }
 
     //铁索连环结算
-    public void HandleIronChain(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
+    public async Task HandleIronChain(OneCardManager cardManager = null, SpellAttribute spellAttribute = SpellAttribute.None, Player targetPlayer = null, int originalDamage = 1, bool isFromIronChain = false)
     {
         //TODO 铁索连环结算
         if (targetPlayer.IsInIronChain && spellAttribute != SpellAttribute.None)
@@ -184,7 +184,7 @@ public class SettleManager : MonoBehaviour
             targetPlayer.IsInIronChain = false;
             if (targetPlayer.IsThereAnyOneIsInIronChain())
             {
-                SettleManager.Instance.StartSettle(cardManager, spellAttribute, targetPlayer.OtherIronChainPlayer, originalDamage, true);
+                await SettleManager.Instance.StartSettle(cardManager, spellAttribute, targetPlayer.OtherIronChainPlayer, originalDamage, true);
                 return;
             }
         }
@@ -197,7 +197,11 @@ public class SettleManager : MonoBehaviour
         }
         else
         {
-            UseCardManager.Instance.FinishSettle();
+            if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.SkillDamage)
+            {
+                Destroy(cardManager.gameObject);
+            }
+            await UseCardManager.Instance.FinishSettle();
         }
     }
 

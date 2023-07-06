@@ -216,11 +216,11 @@ public class PlayerDeckVisual : MonoBehaviour
         //InsertNewCardAsset(DiluAsset, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.AddAHorse);
         //InsertNewCardAsset(SilverMoonAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Weapons, SilverMoonAsset.WeaponAttackDistance);
         //InsertNewCardAsset(BaguazhenAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
-        //InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
-        //InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
-        //InsertNewCardAsset(CartAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Treasure);
-        //InsertNewCardAsset(ThunderHarmer, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ThunderHarmer.WeaponAttackDistance);
-        //InsertNewCardAsset(VictorySword, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, VictorySword.WeaponAttackDistance);
+        InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
+        InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
+        InsertNewCardAsset(CartAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Treasure);
+        InsertNewCardAsset(ThunderHarmer, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ThunderHarmer.WeaponAttackDistance);
+        InsertNewCardAsset(VictorySword, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, VictorySword.WeaponAttackDistance);
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }
 
@@ -281,6 +281,28 @@ public class PlayerDeckVisual : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public OneCardManager SkillCardWithAsset(Player originPlayer, CardAsset cardAsset, SpellAttribute spellAttribute = SpellAttribute.None)
+    {
+        CardAsset ca = ScriptableObject.CreateInstance<CardAsset>();
+        ca.ReadFromAsset(cardAsset);
+        ca.Suits = CardSuits.None;
+        ca.CardRank = CardRank.Rank_0;
+        ca.CardColor = CardColor.None;
+        ca.SpellAttribute = spellAttribute;
+
+        GameObject card = GameObject.Instantiate(GlobalSettings.Instance.BaseCardPrefab, TurnManager.Instance.whoseTurn.PArea.HandVisual.OtherCardDrawSourceTransform.position, Quaternion.identity) as GameObject;
+
+        // apply the look from CardAsset
+        OneCardManager manager = card.GetComponent<OneCardManager>();
+        // apply the look from CardAsset
+        //OneCardManager manager = new OneCardManager();
+        manager.SetCardAssetA(ca);
+
+        manager.CardLocation = CardLocation.DrawDeck;
+        manager.Owner = originPlayer;
+        return manager;
     }
 
     public CardAsset CardAssetBWithType(SubTypeOfCards subTypeOfCards, CardAsset oldCardAsset)

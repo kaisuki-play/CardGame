@@ -46,19 +46,39 @@ public class UseCardManager : MonoBehaviour
                 break;
             case SubTypeOfCards.Nanmanruqin:
             case SubTypeOfCards.Wanjianqifa:
-                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
                 {
-                    if (player.ID != playedCard.Owner.ID)
+                    Player curPlayer = playedCard.Owner.OtherPlayer;
+                    while (curPlayer != playedCard.Owner)
                     {
-                        targets.Add(player.ID);
+                        targets.Add(curPlayer.ID);
+                        curPlayer = curPlayer.OtherPlayer;
                     }
                 }
+                //foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                //{
+                //    if (player.ID != playedCard.Owner.ID)
+                //    {
+                //        targets.Add(player.ID);
+                //    }
+                //}
                 break;
             case SubTypeOfCards.Wugufengdeng:
             case SubTypeOfCards.Taoyuanjieyi:
-                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                //foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                //{
+                //    targets.Add(player.ID);
+                //}
                 {
-                    targets.Add(player.ID);
+                    Player curPlayer = null;
+                    while (curPlayer != playedCard.Owner)
+                    {
+                        if (curPlayer == null)
+                        {
+                            curPlayer = playedCard.Owner;
+                        }
+                        targets.Add(curPlayer.ID);
+                        curPlayer = curPlayer.OtherPlayer;
+                    }
                 }
                 break;
         }
@@ -155,7 +175,7 @@ public class UseCardManager : MonoBehaviour
     {
         if (playedCard.TargetsPlayerIDs.Count > 1)
         {
-            TargetsManager.Instance.Order(playedCard);
+            //TargetsManager.Instance.Order(playedCard);
         }
         HandleFixedTargets(playedCard);
     }
@@ -256,7 +276,7 @@ public class UseCardManager : MonoBehaviour
                                 {
                                     targetPlayer.ChangePortraitColor(Color.red);
                                     HighlightManager.EnableCardsWithType(targetPlayer);
-                                    FinishSettle();
+                                    await FinishSettle();
                                 }
                             }
                             break;
@@ -275,7 +295,7 @@ public class UseCardManager : MonoBehaviour
     /// <summary>
     /// 完成结算
     /// </summary>
-    public async void FinishSettle()
+    public async Task FinishSettle()
     {
         //移除另外目标的玩家
         if (TargetsManager.Instance.SpecialTarget.Count > 0)
@@ -312,16 +332,16 @@ public class UseCardManager : MonoBehaviour
             }
             else
             {
-                ActiveLastOneCardOnTable();
+                await ActiveLastOneCardOnTable();
             }
         }
         else
         {
-            ActiveLastOneCardOnTable();
+            await ActiveLastOneCardOnTable();
         }
     }
 
-    public async void ActiveLastOneCardOnTable()
+    public async Task ActiveLastOneCardOnTable()
     {
         //await TipCardManager.Instance.JiedaoSharenNextTarget();
         if (GlobalSettings.Instance.Table.CardsOnTable.Count != 0)

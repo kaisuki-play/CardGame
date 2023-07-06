@@ -279,7 +279,7 @@ public class TreasureVisual : MonoBehaviour
         //改变位置为弃牌堆
         await cardManager.ChangeOwnerAndLocation(null, CardLocation.DisDeck);
         //卡牌生效
-        PlayCardManager.Instance.ActivateEffect(playedCard);
+        await PlayCardManager.Instance.ActivateEffect(playedCard);
     }
 
 

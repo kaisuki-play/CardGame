@@ -302,10 +302,10 @@ public class EquipmentManager : MonoBehaviour
         GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 2;
-        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
         {
             GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
-            SettleManager.Instance.StartSettle();
+            await SettleManager.Instance.StartSettle();
         };
 
         for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
@@ -713,11 +713,11 @@ public class EquipmentManager : MonoBehaviour
         GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
         GlobalSettings.Instance.CardSelectVisual.DisCardNumber = 2;
-        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
         {
             GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = null;
             TaskManager.Instance.ExceptionBlockTask(TaskType.FrostBladeTask, "寒冰剑生效");
-            UseCardManager.Instance.FinishSettle();
+            await UseCardManager.Instance.FinishSettle();
         };
 
         for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
@@ -947,7 +947,7 @@ public class EquipmentManager : MonoBehaviour
                         else
                         {
                             //TODO出闪的动画
-                            UseCardManager.Instance.FinishSettle();
+                            await UseCardManager.Instance.FinishSettle();
                             TaskManager.Instance.ExceptionBlockTask(TaskType.BaguazhenTask, "八卦阵帮着出了闪");
                         }
                     });
@@ -1014,7 +1014,7 @@ public class EquipmentManager : MonoBehaviour
                 //TaskManager.Instance.AddATask(TaskType.RenwangdunTask);
 
                 //直接进入结算
-                UseCardManager.Instance.FinishSettle();
+                await UseCardManager.Instance.FinishSettle();
 
                 //TaskManager.Instance.ExceptionBlockTask(TaskType.RenwangdunTask);
 
@@ -1049,7 +1049,7 @@ public class EquipmentManager : MonoBehaviour
             if (hasEquipment && equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Tengjia)
             {
                 //直接进入结算
-                UseCardManager.Instance.FinishSettle();
+                await UseCardManager.Instance.FinishSettle();
 
 
                 await TaskManager.Instance.ReturnException("直接跳到结算");
@@ -1085,7 +1085,7 @@ public class EquipmentManager : MonoBehaviour
             if (hasEquipment && equipmentCard.CardAsset.SubTypeOfCard == SubTypeOfCards.Tengjia)
             {
                 //直接进入结算
-                UseCardManager.Instance.FinishSettle();
+                await UseCardManager.Instance.FinishSettle();
 
                 Exception exception = new Exception("直接跳到结算");
                 await Task.FromException(exception);

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using DG.Tweening;
 
 public enum CardSelectPanelType
 {
@@ -11,6 +12,7 @@ public enum CardSelectPanelType
     Wugufengdeng,
     Shunshouqianyang,
     DisHandCard,
+    DisCard,
     UseSomeCardAsSlash,
     DisSomeCardForDestNumber,
     Judgement,
@@ -18,6 +20,7 @@ public enum CardSelectPanelType
     GiveCardToOther,
     ShowAllCardForSameColor,
     SelectSomeCardsToAsACard,
+    SelectATypeOfCardPutOnDeckTop,
 }
 
 public class CardSelectVisual : MonoBehaviour
@@ -124,7 +127,7 @@ public class CardSelectVisual : MonoBehaviour
                     {
                         await originCardManager.Owner.GiveCardToTarget(cardManager.Owner, originCardManager);
                         GlobalSettings.Instance.CardSelectVisual.Dismiss();
-                        UseCardManager.Instance.FinishSettle();
+                        await UseCardManager.Instance.FinishSettle();
                     }
                 }
                 break;
@@ -136,7 +139,7 @@ public class CardSelectVisual : MonoBehaviour
                     {
                         await originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
                         GlobalSettings.Instance.CardSelectVisual.Dismiss();
-                        UseCardManager.Instance.FinishSettle();
+                        await UseCardManager.Instance.FinishSettle();
                     }
                 }
                 break;
@@ -154,13 +157,13 @@ public class CardSelectVisual : MonoBehaviour
                         if (TargetsManager.Instance.TargetsDic[cardManager.UniqueCardID].Count == 1)
                         {
                             GlobalSettings.Instance.CardSelectVisual.Dismiss();
-                            UseCardManager.Instance.FinishSettle();
+                            await UseCardManager.Instance.FinishSettle();
                         }
                         else
                         {
                             Destroy(selectCard);
                             GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(false);
-                            UseCardManager.Instance.FinishSettle();
+                            await UseCardManager.Instance.FinishSettle();
                         }
                     }
                 }
@@ -169,6 +172,30 @@ public class CardSelectVisual : MonoBehaviour
             case CardSelectPanelType.DisHandCard:
                 {
                     await originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
+                    Destroy(selectCard);
+                    AlreadyDisCardNumber++;
+                    if (AlreadyDisCardNumber == DisCardNumber)
+                    {
+                        Debug.Log("弃完牌了");
+                        GlobalSettings.Instance.CardSelectVisual.Dismiss();
+                        this.AfterDisCardCompletion.Invoke();
+                    }
+                }
+                break;
+            case CardSelectPanelType.DisCard:
+                {
+                    switch (originCardManager.CardLocation)
+                    {
+                        case CardLocation.Hand:
+                            await originCardManager.Owner.PArea.HandVisual.DisCardFromHand(originCardManager.UniqueCardID);
+                            break;
+                        case CardLocation.Judgement:
+                            await originCardManager.Owner.PArea.JudgementVisual.DisCardFromJudgement(originCardManager.UniqueCardID);
+                            break;
+                        case CardLocation.Equipment:
+                            await originCardManager.Owner.PArea.EquipmentVisaul.DisCardFromEquipment(originCardManager.UniqueCardID);
+                            break;
+                    }
                     Destroy(selectCard);
                     AlreadyDisCardNumber++;
                     if (AlreadyDisCardNumber == DisCardNumber)
@@ -266,6 +293,36 @@ public class CardSelectVisual : MonoBehaviour
                 selectCard.GetComponent<OneCardManager>().CanBePlayedNow = !selectCard.GetComponent<OneCardManager>().CanBePlayedNow;
                 if (AlreadyDisCardNumber == DisCardNumber)
                 {
+                    this.AfterDisCardCompletion.Invoke();
+                }
+                break;
+            case CardSelectPanelType.SelectATypeOfCardPutOnDeckTop:
+                {
+                    Dismiss();
+
+                    var tcs = new TaskCompletionSource<bool>();
+
+                    originCardManager.Owner.Hand.DisCard(originCardManager.UniqueCardID);
+                    originCardManager.Owner.PArea.HandVisual.RemoveCard(originCard);
+
+                    originCard.transform.SetParent(null);
+
+                    Sequence s = DOTween.Sequence();
+                    s.Append(originCard.transform.DOMove(GlobalSettings.Instance.PDeck.ChildCanvas.transform.position, 1f));
+                    s.OnComplete(() =>
+                    {
+                        tcs.SetResult(true);
+                    });
+                    await tcs.Task;
+
+                    originCard.transform.SetParent(GlobalSettings.Instance.PDeck.ChildCanvas.transform);
+
+                    GlobalSettings.Instance.PDeck.DeckCards.Insert(0, originCard);
+
+                    originCardManager.CanBePlayedNow = false;
+
+                    await originCardManager.ChangeOwnerAndLocation(null, CardLocation.DrawDeck);
+
                     this.AfterDisCardCompletion.Invoke();
                 }
                 break;

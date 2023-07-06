@@ -1020,7 +1020,7 @@ public class HeroSkillManager : MonoBehaviour
                     player.ShowOp2Button = true;
                     player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
                     player.PArea.Portrait.ChangeOp2ButtonText("发动刘封技能");
-                    player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                    player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
                     {
                         HighlightManager.DisableAllOpButtons();
                         //已选玩家数量
@@ -1241,7 +1241,7 @@ public class HeroSkillManager : MonoBehaviour
 
         GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.ShowTargetACard;
         GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
-        GlobalSettings.Instance.CardSelectVisual.AfterSelectCardForJudgementCompletion = async (card) =>
+        GlobalSettings.Instance.CardSelectVisual.AfterSelectCardForJudgementCompletion = (card) =>
         {
             OneCardManager cardManager = card.GetComponent<OneCardManager>();
             GlobalSettings.Instance.CustomButtonsVisual.CustomButtonType = CustomButtonType.ColorAndType;
@@ -1373,12 +1373,12 @@ public class HeroSkillManager : MonoBehaviour
         player.ShowOp2Button = true;
         player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
         player.PArea.Portrait.ChangeOp2ButtonText("发动杨修技能3");
-        player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        player.PArea.Portrait.OpButton2.onClick.AddListener(() =>
         {
             HighlightManager.DisableAllOpButtons();
             GlobalSettings.Instance.CustomButtonsVisual.CustomButtonType = CustomButtonType.TypeOfCard;
             GlobalSettings.Instance.CustomButtonsVisual.Show();
-            GlobalSettings.Instance.CustomButtonsVisual.AfterClickButtonCompletion = async (buttonTxt) =>
+            GlobalSettings.Instance.CustomButtonsVisual.AfterClickButtonCompletion = (buttonTxt) =>
             {
                 Debug.Log(buttonTxt);
                 TypesOfCards selectType = buttonTxt == "基本牌" ? TypesOfCards.Base : (buttonTxt == "锦囊牌" ? TypesOfCards.Tips : TypesOfCards.Equipment);
@@ -1534,6 +1534,350 @@ public class HeroSkillManager : MonoBehaviour
             });
         }
 
+    }
+
+    public static async Task ActiveLiruSkill1(Player mainPlayer, OneCardManager playedCard, int targetID)
+    {
+        Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetID);
+        if (targetPlayer.Hand.CardsInHand.Count == 0)
+        {
+            Debug.Log("李儒技能1需要发动");
+            TaskManager.Instance.AddATask(TaskType.LiruSkill1);
+
+            Player player = mainPlayer;
+
+            HighlightManager.DisableAllCards();
+            HighlightManager.DisableAllOpButtons();
+            player.ShowOp2Button = true;
+            player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+            player.PArea.Portrait.ChangeOp2ButtonText("发动Liru技能1");
+            player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+            {
+                HighlightManager.DisableAllOpButtons();
+                await DisCardsForLiru(mainPlayer, targetPlayer);
+            });
+
+            player.ShowOp3Button = true;
+            player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+            player.PArea.Portrait.ChangeOp3Button2Text("不发动Liru技能1");
+            player.PArea.Portrait.OpButton3.onClick.AddListener(() =>
+            {
+                HighlightManager.DisableAllOpButtons();
+                TaskManager.Instance.UnBlockTask(TaskType.LiruSkill1);
+            });
+
+            await TaskManager.Instance.TaskBlockDic[TaskType.LiruSkill1][0].Task;
+        }
+        else
+        {
+            Debug.Log("李儒技能1不需要发动");
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    public static async Task DisCardsForLiru(Player mainPlayer, Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
+        {
+            OneCardManager cardManager = GlobalSettings.Instance.PDeck.SkillCardWithAsset(mainPlayer, GlobalSettings.Instance.SkillVRCardAsset);
+            await SettleManager.Instance.StartSettle(cardManager, SpellAttribute.None, targetPlayer, 1, false);
+            TaskManager.Instance.UnBlockTask(TaskType.LiruSkill1);
+            if (TaskManager.Instance.TaskBlockDic.Keys.Count == 0)
+            {
+                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            }
+        };
+
+        for (int i = mainPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        for (int i = mainPlayer.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.EquipmentLogic.CardsInEquipment[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+    }
+
+    public static async Task ActiveLiruSkill2(Player mainPlayer, OneCardManager playedCard, int targetID)
+    {
+        Debug.Log("李儒技能2");
+        if (TurnManager.Instance.TurnPhase != TurnPhase.PlayCard)
+        {
+            return;
+        }
+        if (mainPlayer.ID != TurnManager.Instance.whoseTurn.ID)
+        {
+            return;
+        }
+        if (HeroSkillState.HeroSkillBooleanDic_Once.ContainsKey(HeroSKillStateKey.LiruSkill2State) && HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.LiruSkill2State] == true)
+        {
+
+        }
+        else
+        {
+            if (HeroSkillState.HeroSkillBooleanDic_Once.ContainsKey(HeroSKillStateKey.LiruSkill3State) && HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.LiruSkill3State] == true)
+            {
+
+            }
+            else
+            {
+                Player player = mainPlayer;
+
+                Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetID);
+
+                player.ShowOp2Button = true;
+                player.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                player.PArea.Portrait.ChangeOp2ButtonText("发动liru技能2");
+                player.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                {
+                    HighlightManager.DisableAllOpButtons();
+                    HighlightManager.DisableAllCards();
+                    HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.LiruSkill2State] = true;
+                    await SelectACardPutOnDeckTop(mainPlayer, targetPlayer);
+                });
+            }
+
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+    public static async Task SelectACardPutOnDeckTop(Player mainPlayer, Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.SelectATypeOfCardPutOnDeckTop;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = () =>
+        {
+            foreach (Player targetPlayer in GlobalSettings.Instance.PlayerInstances)
+            {
+                if (targetPlayer.ID != mainPlayer.ID)
+                {
+                    targetPlayer.ShowOp1Button = true;
+                    targetPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
+                    targetPlayer.PArea.Portrait.ChangeOp1ButtonText("选择");
+                    targetPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+                    {
+                        HighlightManager.DisableAllOpButtons();
+                        targetPlayer.ShowOp2Button = true;
+                        targetPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                        targetPlayer.PArea.Portrait.ChangeOp2ButtonText("交出一张锦囊牌");
+                        targetPlayer.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+                        {
+                            HighlightManager.DisableAllOpButtons();
+                            await GetCardForTips(mainPlayer, targetPlayer);
+                        });
+
+                        targetPlayer.ShowOp3Button = true;
+                        targetPlayer.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+                        targetPlayer.PArea.Portrait.ChangeOp3Button2Text("依次弃置两张非锦囊牌");
+                        targetPlayer.PArea.Portrait.OpButton3.onClick.AddListener(async () =>
+                        {
+                            HighlightManager.DisableAllOpButtons();
+                            if (targetPlayer.Hand.CardsInHand.Count >= 2)
+                            {
+                                for (int i = 0; i < 2; i++)
+                                {
+                                    int cId = targetPlayer.Hand.CardsInHand[targetPlayer.Hand.CardsInHand.Count - 1];
+                                    GameObject card = IDHolder.GetGameObjectWithID(cId);
+                                    OneCardManager cardManager = card.GetComponent<OneCardManager>();
+                                    await targetPlayer.DisACardWithCardManager(cardManager);
+                                }
+                            }
+
+                            if (TaskManager.Instance.TaskBlockDic.Keys.Count == 0)
+                            {
+                                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+                            }
+                        });
+                    });
+                }
+            }
+        };
+
+        for (int i = mainPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips && cardManager.CardAsset.CardColor == CardColor.Black)
+            {
+                GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+            }
+        }
+
+        if (GlobalSettings.Instance.CardSelectVisual.CardsOnHand.Count == 0)
+        {
+            GlobalSettings.Instance.CardSelectVisual.Dismiss();
+            if (TaskManager.Instance.TaskBlockDic.Keys.Count == 0)
+            {
+                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            }
+        }
+    }
+
+    public static async Task GetCardForTips(Player mainPlayer, Player targetPlayer)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.ShowTargetACard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.AfterSelectCardForJudgementCompletion = async (card) =>
+        {
+            //存储牌
+            //await mainPlayer.GiveCardToTarget(targetPlayer, card.GetComponent<OneCardManager>());
+            await targetPlayer.GiveCardToTarget(mainPlayer, card.GetComponent<OneCardManager>());
+            if (TaskManager.Instance.TaskBlockDic.Keys.Count == 0)
+            {
+                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            }
+        };
+
+        for (int i = targetPlayer.JudgementLogic.CardsInJudgement.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.JudgementLogic.CardsInJudgement[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips)
+            {
+                GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+            }
+        }
+        for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips)
+            {
+                GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+            }
+        }
+    }
+
+    public static async Task ActiveLiruSkill3(Player mainPlayer, OneCardManager playedCard, int targetID)
+    {
+        Debug.Log("李儒技能3");
+        if (TurnManager.Instance.TurnPhase != TurnPhase.PlayCard)
+        {
+            return;
+        }
+        if (mainPlayer.ID != TurnManager.Instance.whoseTurn.ID)
+        {
+            return;
+        }
+        if (HeroSkillState.HeroSkillBooleanDic_AllTheGame.ContainsKey(HeroSKillStateKey.LiruSkill3State) && HeroSkillState.HeroSkillBooleanDic_AllTheGame[HeroSKillStateKey.LiruSkill3State] == true)
+        {
+
+        }
+        else
+        {
+            Player player = mainPlayer;
+
+            Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetID);
+
+            player.ShowOp3Button = true;
+            player.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+            player.PArea.Portrait.ChangeOp3Button2Text("发动liru技能3");
+            player.PArea.Portrait.OpButton3.onClick.AddListener(async () =>
+            {
+                //HighlightManager.DisableAllOpButtons();
+                //HighlightManager.DisableAllCards();
+                //HeroSkillState.HeroSkillBooleanDic_AllTheGame[HeroSKillStateKey.LiruSkill3State] = true;
+                //HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.LiruSkill3State] = true;
+                //Player curPlayer = TurnManager.Instance.whoseTurn.OtherPlayer;
+                //curPlayer = TurnManager.Instance.whoseTurn.OtherPlayer;
+                //await ProcessTasks(mainPlayer, curPlayer);
+                // 获取组件所属对象的 RectTransform 组件
+                GlobalSettings.Instance.PlayerInstances[4].PArea.transform.DOMove(GlobalSettings.Instance.PlayerInstances[5].PArea.transform.position, 1f);
+                GlobalSettings.Instance.PlayerInstances[5].PArea.transform.DOMove(GlobalSettings.Instance.PlayerInstances[4].PArea.transform.position, 1f);
+                GlobalSettings.Instance.PlayerInstances[5] = GlobalSettings.Instance.Players[AreaPosition.Opponent4];
+                GlobalSettings.Instance.PlayerInstances[4] = GlobalSettings.Instance.Players[AreaPosition.Opponent5];
+                GlobalSettings.Instance.PlayerInstances[4].PArea.Owner = AreaPosition.Opponent4;
+                GlobalSettings.Instance.PlayerInstances[5].PArea.Owner = AreaPosition.Opponent5;
+                GlobalSettings.Instance.PlayerInstances[4].PArea.HandVisual.Owner = AreaPosition.Opponent4;
+                GlobalSettings.Instance.PlayerInstances[5].PArea.HandVisual.Owner = AreaPosition.Opponent5;
+                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                {
+                    Debug.Log("@@###@@@@@@@@@@@ " + player.PArea.Owner);
+                }
+            });
+        }
+        await TaskManager.Instance.DontAwait();
+    }
+
+    public static async Task ProcessTasks(Player mainPlayer, Player curPlayer)
+    {
+        if (curPlayer == TurnManager.Instance.whoseTurn)
+        {
+            HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.LiruSkill3State] = false;
+            // 队列中的任务已经全部处理完毕
+            if (TaskManager.Instance.TaskBlockDic.Keys.Count == 0)
+            {
+                HighlightManager.EnableCardsWithType(TurnManager.Instance.whoseTurn);
+            }
+            return;
+        }
+
+        await HandleLiru2(mainPlayer, curPlayer);
+        Debug.Log("来到下一个玩家：" + curPlayer.PArea.Owner);
+
+        curPlayer = curPlayer.OtherPlayer;
+        await ProcessTasks(mainPlayer, curPlayer);
+    }
+
+    public static async Task HandleLiru2(Player mainPlayer, Player curPlayer)
+    {
+
+        TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+
+
+        HighlightManager.DisableAllCards();
+        HighlightManager.DisableAllOpButtons();
+        curPlayer.ShowOp2Button = true;
+        curPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+        curPlayer.PArea.Portrait.ChangeOp2ButtonText("弃牌");
+        curPlayer.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            await DisCardsForLiru3(mainPlayer, curPlayer, tcs);
+        });
+
+        curPlayer.ShowOp3Button = true;
+        curPlayer.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
+        curPlayer.PArea.Portrait.ChangeOp3Button2Text("不弃牌");
+        curPlayer.PArea.Portrait.OpButton3.onClick.AddListener(async () =>
+        {
+            HighlightManager.DisableAllOpButtons();
+            OneCardManager cardManager = GlobalSettings.Instance.PDeck.SkillCardWithAsset(mainPlayer, GlobalSettings.Instance.SkillVRCardAsset);
+            await SettleManager.Instance.StartSettle(cardManager, SpellAttribute.FireSlash, curPlayer, 1, false);
+            tcs.SetResult(true);
+        });
+
+
+        await tcs.Task;
+    }
+
+    public static async Task DisCardsForLiru3(Player mainPlayer, Player targetPlayer, TaskCompletionSource<bool> tcs)
+    {
+        GlobalSettings.Instance.CardSelectVisual.PanelType = CardSelectPanelType.DisHandCard;
+        GlobalSettings.Instance.CardSelectVisual.gameObject.SetActive(true);
+        GlobalSettings.Instance.CardSelectVisual.DisCardNumber = targetPlayer.EquipmentLogic.CardsInEquipment.Count == 0 ? 1 : targetPlayer.EquipmentLogic.CardsInEquipment.Count;
+        GlobalSettings.Instance.CardSelectVisual.AfterDisCardCompletion = async () =>
+        {
+            tcs.SetResult(true);
+        };
+
+        for (int i = targetPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.Hand.CardsInHand[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
+        for (int i = targetPlayer.EquipmentLogic.CardsInEquipment.Count - 1; i >= 0; i--)
+        {
+            GameObject card = IDHolder.GetGameObjectWithID(targetPlayer.EquipmentLogic.CardsInEquipment[i]);
+            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+            GlobalSettings.Instance.CardSelectVisual.AddHandCardsAtIndex(cardManager);
+        }
     }
 
 

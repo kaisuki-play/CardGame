@@ -198,6 +198,11 @@ public class SkillManager : MonoBehaviour
         {
             await HeroSkillRegister.HandleCardABForSkill(cardManager, newOwner, HeroSkillActivePhase.HookChangedOwner);
         }
+        if (oldOwner != null && oldLocation == CardLocation.Hand)
+        {
+            await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook6, cardManager, oldOwner.ID);
+        }
+
         if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Equipment)
         {
             await SkillManager.HandleEquipmentMove(cardManager, newOwner, oldOwner, newLocation, oldLocation);
@@ -225,7 +230,7 @@ public class SkillManager : MonoBehaviour
                     await EquipmentManager.Instance.QinglongyanyueHook(playedCard, targetPlayer);
                     break;
                 default:
-                    UseCardManager.Instance.FinishSettle();
+                    await UseCardManager.Instance.FinishSettle();
                     await TaskManager.Instance.DontAwait();
                     break;
             }

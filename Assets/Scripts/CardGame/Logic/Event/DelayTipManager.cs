@@ -105,7 +105,7 @@ public class DelayTipManager : MonoBehaviour
                 {
                     TaskManager.Instance.DelayTipTask = new TaskCompletionSource<bool>();
                     await targetPlayer.DisACardFromJudgement(judgementCardManager.UniqueCardID);
-                    SettleManager.Instance.StartSettle(judgementCardManager, SpellAttribute.ThunderSlash, TurnManager.Instance.whoseTurn, 3);
+                    await SettleManager.Instance.StartSettle(judgementCardManager, SpellAttribute.ThunderSlash, TurnManager.Instance.whoseTurn, 3);
                     await TaskManager.Instance.DelayTipTask.Task;
                 }
                 else

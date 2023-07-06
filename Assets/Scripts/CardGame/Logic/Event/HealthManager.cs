@@ -47,7 +47,7 @@ public class HealthManager : MonoBehaviour
     /// <summary>
     /// 治疗后的结算
     /// </summary>
-    public void SettleAfterHealing()
+    public async void SettleAfterHealing()
     {
         if (DyingManager.Instance.IsInDyingInquiry)
         {
@@ -58,7 +58,7 @@ public class HealthManager : MonoBehaviour
         }
         else
         {
-            UseCardManager.Instance.FinishSettle();
+            await UseCardManager.Instance.FinishSettle();
         }
     }
 }

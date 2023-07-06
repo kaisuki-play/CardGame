@@ -135,7 +135,7 @@ public class TipCardManager : MonoBehaviour
                         {
                             HealthManager.Instance.HealingEffect(1, curTargetPlayer);
                         }
-                        UseCardManager.Instance.FinishSettle();
+                        await UseCardManager.Instance.FinishSettle();
                     }
                     break;
                 //火攻
@@ -146,10 +146,10 @@ public class TipCardManager : MonoBehaviour
                             HighlightManager.DisACards(cardManager.Owner);
                             cardManager.Owner.ShowOp1Button = true;
                             cardManager.Owner.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-                            cardManager.Owner.PArea.Portrait.OpButton1.onClick.AddListener(() =>
+                            cardManager.Owner.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
                             {
                                 cardManager.Owner.ShowOp1Button = false;
-                                UseCardManager.Instance.FinishSettle();
+                                await UseCardManager.Instance.FinishSettle();
                             });
                         }
                         else
@@ -166,7 +166,7 @@ public class TipCardManager : MonoBehaviour
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
                         //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
                         curTargetPlayer.IsInIronChain = !curTargetPlayer.IsInIronChain;
-                        UseCardManager.Instance.FinishSettle();
+                        await UseCardManager.Instance.FinishSettle();
                     }
                     break;
                 case SubTypeOfCards.Wuzhongshengyou:
@@ -174,7 +174,7 @@ public class TipCardManager : MonoBehaviour
                         int cardIndex = GlobalSettings.Instance.Table.CardIndexOnTable(cardManager.UniqueCardID);
                         //Player curTargetPlayer = GlobalSettings.Instance.FindPlayerByID(TargetsManager.Instance.Targets[cardIndex][0]);
                         await curTargetPlayer.DrawSomeCards(2);
-                        UseCardManager.Instance.FinishSettle();
+                        await UseCardManager.Instance.FinishSettle();
                     }
                     break;
                 default:

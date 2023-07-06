@@ -268,6 +268,45 @@ public class HeroSkillEventManager : MonoBehaviour
                     }
                 }
                 break;
+            case PlayerWarrior.Liru:
+                {
+                    HeroSkillInfo skillInfo = new HeroSkillInfo();
+                    OneCardManager playedCard = e.PlayedCard;
+                    int targetID = e.TargetID;
+                    foreach (HeroSkillInfo skill in skillList)
+                    {
+                        if (skill.PhaseList.Contains(skillPhase))
+                        {
+                            skillInfo = skill;
+                            break;
+                        }
+                    }
+                    //switch (skillInfo.SkillType)
+                    //{
+                    //    case HeroSkillType.LiruSkill1:
+                    //        await HeroSkillManager.ActiveLiruSkill1(player, playedCard, targetID);
+                    //        break;
+                    //    case HeroSkillType.LiruSkill2:
+                    //        await HeroSkillManager.ActiveLiruSkill2(player, playedCard, targetID);
+                    //        break;
+                    //    case HeroSkillType.LiruSkill3:
+                    //        await HeroSkillManager.ActiveLiruSkill3(player, playedCard, targetID);
+                    //        break;
+                    //}
+                    if (skillList[0].PhaseList.Contains(skillPhase))
+                    {
+                        await HeroSkillManager.ActiveLiruSkill1(player, playedCard, targetID);
+                    }
+                    if (skillList[1].PhaseList.Contains(skillPhase))
+                    {
+                        await HeroSkillManager.ActiveLiruSkill2(player, playedCard, targetID);
+                    }
+                    if (skillList[2].PhaseList.Contains(skillPhase))
+                    {
+                        await HeroSkillManager.ActiveLiruSkill3(player, playedCard, targetID);
+                    }
+                }
+                break;
         }
         await TaskManager.Instance.DontAwait();
     }

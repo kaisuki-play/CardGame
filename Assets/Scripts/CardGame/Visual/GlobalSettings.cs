@@ -50,6 +50,7 @@ public class GlobalSettings : MonoBehaviour
     public GameObject SkillShowCardPrefab;
     public GameObject HealthPrefab;
     public GameObject CardToSelectPrefab;
+    public CardAsset SkillVRCardAsset;
     [Header("Other")]
     public Button CenterButton;
     public GameObject GameOverPanel;

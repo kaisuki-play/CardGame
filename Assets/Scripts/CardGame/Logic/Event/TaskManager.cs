@@ -42,7 +42,9 @@ public enum TaskType
     LiufengSkill1,
     YangxiuSkill2,
     YangxiuSkill3,
-    FreyjSkill2
+    FreyjSkill2,
+    LiruSkill1,
+    LiruSkill3
 }
 public class TaskManager : MonoBehaviour
 {

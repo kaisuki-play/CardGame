@@ -68,7 +68,7 @@ public class CustomButtons : MonoBehaviour
 
             button.GetComponent<Button>().GetComponentInChildren<Text>().text = str;
             button.GetComponent<Button>().onClick.RemoveAllListeners();
-            button.GetComponent<Button>().onClick.AddListener(async () =>
+            button.GetComponent<Button>().onClick.AddListener(() =>
             {
                 Dismiss();
                 string buttonTxt = button.GetComponent<Button>().GetComponentInChildren<Text>().text;

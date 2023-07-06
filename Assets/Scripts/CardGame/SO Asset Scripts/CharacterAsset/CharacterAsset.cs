@@ -31,7 +31,8 @@ public enum PlayerWarrior
     Prometheus,
     Liufeng,
     Yangxiu,
-    Freyj
+    Freyj,
+    Liru
 }
 
 public enum Nation
