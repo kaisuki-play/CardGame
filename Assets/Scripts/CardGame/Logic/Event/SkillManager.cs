@@ -198,6 +198,10 @@ public class SkillManager : MonoBehaviour
         {
             await HeroSkillRegister.HandleCardABForSkill(cardManager, newOwner, HeroSkillActivePhase.HookChangedOwner);
         }
+        if (cardManager.CardAsset.SubTypeOfCard == SubTypeOfCards.Analeptic)
+        {
+            Debug.Log("位置变换~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + oldLocation);
+        }
         if (oldOwner != null && oldLocation == CardLocation.Hand)
         {
             await HeroSkillRegister.PriorityHeroSkill(HeroSkillActivePhase.Hook6, cardManager, oldOwner.ID);

@@ -219,8 +219,8 @@ public class PlayerDeckVisual : MonoBehaviour
         InsertNewCardAsset(RenwangdunAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
         InsertNewCardAsset(TengjiaAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Armor);
         InsertNewCardAsset(CartAsset, CardSuits.Diamonds, CardRank.Rank_Q, CardColor.Red, TypeOfEquipment.Treasure);
-        InsertNewCardAsset(ThunderHarmer, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ThunderHarmer.WeaponAttackDistance);
-        InsertNewCardAsset(VictorySword, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, VictorySword.WeaponAttackDistance);
+        //InsertNewCardAsset(ThunderHarmer, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, ThunderHarmer.WeaponAttackDistance);
+        //InsertNewCardAsset(VictorySword, CardSuits.Spades, CardRank.Rank_A, CardColor.Black, TypeOfEquipment.Weapons, VictorySword.WeaponAttackDistance);
         Debug.Log("卡牌总数: " + GlobalSettings.Instance.DeckSource.Cards.Count);
     }
 

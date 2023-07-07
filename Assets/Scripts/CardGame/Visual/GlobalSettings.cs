@@ -7,6 +7,7 @@ using System.Linq;
 public class GlobalSettings : MonoBehaviour
 {
     [Header("Golden Finger")]
+    public bool TestSwitchPlayerLocation;
     public bool TestJiedaoShaRenMultiplayers;
     public bool OneKeyImpeccable;
     public bool UseGoldenFinger;

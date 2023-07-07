@@ -1048,9 +1048,9 @@ public class HeroSkillManager : MonoBehaviour
                         }
 
                         mainPlayer.ShowOp2Button = false;
-                        mainPlayer.PArea.Portrait.OpButton1.onClick.RemoveAllListeners();
-                        mainPlayer.PArea.Portrait.ChangeOp1ButtonText("完成");
-                        mainPlayer.PArea.Portrait.OpButton1.onClick.AddListener(async () =>
+                        mainPlayer.PArea.Portrait.OpButton2.onClick.RemoveAllListeners();
+                        mainPlayer.PArea.Portrait.ChangeOp2ButtonText("完成");
+                        mainPlayer.PArea.Portrait.OpButton2.onClick.AddListener(async () =>
                         {
                             HighlightManager.DisableAllOpButtons();
                             await DrawCardsForSelectPlayersLiufengSkill1(mainPlayer, selectPlayerList);
@@ -1139,6 +1139,10 @@ public class HeroSkillManager : MonoBehaviour
             return;
         }
         if (mainPlayer.HeroHeadLogic.CardsOnHero.Count < 2)
+        {
+            return;
+        }
+        if (!TurnManager.Instance.whoseTurn.CanAttack(mainPlayer.ID))
         {
             return;
         }
@@ -1538,8 +1542,16 @@ public class HeroSkillManager : MonoBehaviour
 
     public static async Task ActiveLiruSkill1(Player mainPlayer, OneCardManager playedCard, int targetID)
     {
+        if (mainPlayer.ID == targetID)
+        {
+            return;
+        }
+        if (playedCard.Owner.ID == mainPlayer.ID)
+        {
+            return;
+        }
         Player targetPlayer = GlobalSettings.Instance.FindPlayerByID(targetID);
-        if (targetPlayer.Hand.CardsInHand.Count == 0)
+        if (targetPlayer.Hand.CardsInHand.Count == 4)
         {
             Debug.Log("李儒技能1需要发动");
             TaskManager.Instance.AddATask(TaskType.LiruSkill1);
@@ -1671,6 +1683,18 @@ public class HeroSkillManager : MonoBehaviour
                             await GetCardForTips(mainPlayer, targetPlayer);
                         });
 
+                        bool hasTip = false;
+                        for (int i = mainPlayer.Hand.CardsInHand.Count - 1; i >= 0; i--)
+                        {
+                            GameObject card = IDHolder.GetGameObjectWithID(mainPlayer.Hand.CardsInHand[i]);
+                            OneCardManager cardManager = card.GetComponent<OneCardManager>();
+                            if (cardManager.CardAsset.TypeOfCard == TypesOfCards.Tips && cardManager.CardAsset.CardColor == CardColor.Black)
+                            {
+                                hasTip = true;
+                            }
+                        }
+                        targetPlayer.ShowOp2Button = hasTip;
+
                         targetPlayer.ShowOp3Button = true;
                         targetPlayer.PArea.Portrait.OpButton3.onClick.RemoveAllListeners();
                         targetPlayer.PArea.Portrait.ChangeOp3Button2Text("依次弃置两张非锦囊牌");
@@ -1779,26 +1803,32 @@ public class HeroSkillManager : MonoBehaviour
             player.PArea.Portrait.ChangeOp3Button2Text("发动liru技能3");
             player.PArea.Portrait.OpButton3.onClick.AddListener(async () =>
             {
-                //HighlightManager.DisableAllOpButtons();
-                //HighlightManager.DisableAllCards();
-                //HeroSkillState.HeroSkillBooleanDic_AllTheGame[HeroSKillStateKey.LiruSkill3State] = true;
-                //HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.LiruSkill3State] = true;
-                //Player curPlayer = TurnManager.Instance.whoseTurn.OtherPlayer;
-                //curPlayer = TurnManager.Instance.whoseTurn.OtherPlayer;
-                //await ProcessTasks(mainPlayer, curPlayer);
-                // 获取组件所属对象的 RectTransform 组件
-                GlobalSettings.Instance.PlayerInstances[4].PArea.transform.DOMove(GlobalSettings.Instance.PlayerInstances[5].PArea.transform.position, 1f);
-                GlobalSettings.Instance.PlayerInstances[5].PArea.transform.DOMove(GlobalSettings.Instance.PlayerInstances[4].PArea.transform.position, 1f);
-                GlobalSettings.Instance.PlayerInstances[5] = GlobalSettings.Instance.Players[AreaPosition.Opponent4];
-                GlobalSettings.Instance.PlayerInstances[4] = GlobalSettings.Instance.Players[AreaPosition.Opponent5];
-                GlobalSettings.Instance.PlayerInstances[4].PArea.Owner = AreaPosition.Opponent4;
-                GlobalSettings.Instance.PlayerInstances[5].PArea.Owner = AreaPosition.Opponent5;
-                GlobalSettings.Instance.PlayerInstances[4].PArea.HandVisual.Owner = AreaPosition.Opponent4;
-                GlobalSettings.Instance.PlayerInstances[5].PArea.HandVisual.Owner = AreaPosition.Opponent5;
-                foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                if (!GlobalSettings.Instance.TestSwitchPlayerLocation)
                 {
-                    Debug.Log("@@###@@@@@@@@@@@ " + player.PArea.Owner);
+                    HighlightManager.DisableAllOpButtons();
+                    HighlightManager.DisableAllCards();
+                    HeroSkillState.HeroSkillBooleanDic_AllTheGame[HeroSKillStateKey.LiruSkill3State] = true;
+                    HeroSkillState.HeroSkillBooleanDic_Once[HeroSKillStateKey.LiruSkill3State] = true;
+                    Player curPlayer = TurnManager.Instance.whoseTurn.OtherPlayer;
+                    curPlayer = TurnManager.Instance.whoseTurn.OtherPlayer;
+                    await ProcessTasks(mainPlayer, curPlayer);
                 }
+                else
+                {
+                    GlobalSettings.Instance.PlayerInstances[4].PArea.transform.DOMove(GlobalSettings.Instance.PlayerInstances[5].PArea.transform.position, 1f);
+                    GlobalSettings.Instance.PlayerInstances[5].PArea.transform.DOMove(GlobalSettings.Instance.PlayerInstances[4].PArea.transform.position, 1f);
+                    GlobalSettings.Instance.PlayerInstances[5] = GlobalSettings.Instance.Players[AreaPosition.Opponent4];
+                    GlobalSettings.Instance.PlayerInstances[4] = GlobalSettings.Instance.Players[AreaPosition.Opponent5];
+                    GlobalSettings.Instance.PlayerInstances[4].PArea.Owner = AreaPosition.Opponent4;
+                    GlobalSettings.Instance.PlayerInstances[5].PArea.Owner = AreaPosition.Opponent5;
+                    GlobalSettings.Instance.PlayerInstances[4].PArea.HandVisual.Owner = AreaPosition.Opponent4;
+                    GlobalSettings.Instance.PlayerInstances[5].PArea.HandVisual.Owner = AreaPosition.Opponent5;
+                    foreach (Player player in GlobalSettings.Instance.PlayerInstances)
+                    {
+                        Debug.Log("@@###@@@@@@@@@@@ " + player.PArea.Owner);
+                    }
+                }
+
             });
         }
         await TaskManager.Instance.DontAwait();
@@ -1847,7 +1877,7 @@ public class HeroSkillManager : MonoBehaviour
         curPlayer.PArea.Portrait.OpButton3.onClick.AddListener(async () =>
         {
             HighlightManager.DisableAllOpButtons();
-            OneCardManager cardManager = GlobalSettings.Instance.PDeck.SkillCardWithAsset(mainPlayer, GlobalSettings.Instance.SkillVRCardAsset);
+            OneCardManager cardManager = GlobalSettings.Instance.PDeck.SkillCardWithAsset(mainPlayer, GlobalSettings.Instance.SkillVRCardAsset, SpellAttribute.FireSlash);
             await SettleManager.Instance.StartSettle(cardManager, SpellAttribute.FireSlash, curPlayer, 1, false);
             tcs.SetResult(true);
         });

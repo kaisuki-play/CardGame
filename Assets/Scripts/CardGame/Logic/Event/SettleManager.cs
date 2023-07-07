@@ -201,7 +201,10 @@ public class SettleManager : MonoBehaviour
             {
                 Destroy(cardManager.gameObject);
             }
-            await UseCardManager.Instance.FinishSettle();
+            else
+            {
+                await UseCardManager.Instance.FinishSettle();
+            }
         }
     }
 
